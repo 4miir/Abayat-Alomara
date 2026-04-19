@@ -305,7 +305,6 @@ function r_table(){
   document.getElementById('t').innerHTML=h;
 }
 
-// وظيفة إنشاء التقرير التفصيلي مع خيار تحميل Word
 function generateDetailedReport(type) {
     let now = new Date();
     let cM = now.getMonth() + 1;
@@ -365,7 +364,6 @@ function generateDetailedReport(type) {
     window.scrollTo(0, document.getElementById('reportBox').offsetTop);
 }
 
-// وظيفة تصدير الملف
 function exportReportToWord(filename) {
     let content = document.getElementById('wordExportContent').innerHTML;
     let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
@@ -384,41 +382,30 @@ function exportReportToWord(filename) {
     document.body.removeChild(fileDownload);
 }
 
+// تعديل دالة عرض التفاصيل لترتيب المقاسات
 function showDet(i){
   let u=window.d[i];
-  document.getElementById('detInfo').innerHTML=`<h4>${u.n}</h4><p>رقم الفاتورة: ${u.inv||'--'}</p><p>القياسات: ${u.f1} - ${u.f2} - ${u.f3} - ${u.f}</p><p>${u.note||''}</p>`;
+  let t = T[currentLang];
+  
+  // تنسيق عرض المقاسات بوضوح
+  let sizesHtml = `
+    <div style="background:#fdf6f2; padding:10px; border-radius:10px; margin:10px 0; border:1px solid #eee;">
+      <b>القياسات:</b><br>
+      📏 ${t.f1}: ${u.f1 || '--'} | 
+      📏 ${t.f2}: ${u.f2 || '--'} | 
+      📏 ${t.f3}: ${u.f3 || '--'} | 
+      📏 ${t.f}: ${u.f || '--'}
+    </div>
+  `;
+
+  document.getElementById('detInfo').innerHTML=`
+    <h4 style="margin-bottom:5px; color:#6b4f44;">👤 ${u.n}</h4>
+    <p style="margin:2px 0;">🧾 ${t.invNum}: ${u.inv||'--'}</p>
+    ${sizesHtml}
+    <p style="background:#fffbe6; padding:5px; border-radius:5px;">📝 ${t.k}: ${u.note||'--'}</p>
+  `;
+  
   let e=`<input id="newName" value="${u.n}"><input id="newRem" type="number" value="${u.v2}"><button onclick="saveEdit(${i})" style="background:#2a9d8f">حفظ التغييرات</button>`;
   if(window.role==='owner'||window.role==='editor') e+=`<button onclick="q(${i})" style="background:red;margin-top:5px">حذف الطلب</button>`;
   document.getElementById('editArea').innerHTML=e;
-  document.getElementById('detailsBox').style.display='block';
-}
-
-function saveEdit(i){
-  window.d[i].n=document.getElementById('newName').value;
-  window.d[i].v2=document.getElementById('newRem').value;
-  window.syncToCloud(); r_table(); updateCounter();
-  document.getElementById('detailsBox').style.display='none';
-}
-
-function q(i){if(confirm("حذف؟")){window.d.splice(i,1);window.syncToCloud();r_table();updateCounter();document.getElementById('detailsBox').style.display='none';}}
-
-function updateCounter(){
-  let tr=0,tp=0;
-  window.d.forEach(u=>{tr+=parseFloat(u.v2)||0;tp+=parseFloat(u.v1)||0;});
-  let t = T[currentLang];
-  document.getElementById('counter').innerHTML=`
-    #${window.d.length+1} | زبائننا: ${window.d.length}
-    <div class="line-separator"></div>
-    <span class="paid-highlight">${t.paid}: ${tp.toFixed(2)} KD</span>
-    <span class="rem-highlight">${t.rem}: ${tr.toFixed(2)} KD</span>
-  `;
-}
-
-function report(type){
-  if(type==='remaining'){
-    onlyDebt=!onlyDebt; r_table();
-  }
-}
-</script>
-</body>
-</html>
+  document.getElementById('detailsBox
