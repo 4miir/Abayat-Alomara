@@ -78,7 +78,10 @@ input:checked+.slider:before{transform:translateX(18px)}
     <input id="f2" placeholder="الكم" style="flex:1;min-width:70px">
     <input id="f3" placeholder="الصدر" style="flex:1;min-width:70px">
     <input id="f" placeholder="الطول" style="flex:1;min-width:70px">
-    <input id="f_hole" placeholder="الحفرة" style="flex:1;min-width:70px;border:1px solid #6b4f44">
+    <input id="f_hole" placeholder="الحفرة" style="flex:1;min-width:70px">
+    <input id="f_shirt" placeholder="طول القميص" style="flex:1;min-width:90px;border:1px solid #6b4f44">
+    <input id="f_skirt" placeholder="طول التنورة" style="flex:1;min-width:90px;border:1px solid #6b4f44">
+    <input id="f_waist" placeholder="الخصر" style="flex:1;min-width:70px;border:1px solid #6b4f44">
   </div>
 
   <div style="display:flex;gap:10px">
@@ -182,7 +185,8 @@ const T = {
   ar: {
     mainTitle: "عبايات الأمراء - الزبائن", logout: "خروج", dateLabel: "تاريخ الفاتورة", invNum: "رقم الفاتورة",
     a: "اسم الزبونة", b: "رقم التلفون", qty: "عدد العبايات", j: "رقم كود العباية", f1: "الكتف", f2: "الكم",
-    f3: "الصدر", f: "الطول", f_hole: "الحفرة", g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات",
+    f3: "الصدر", f: "الطول", f_hole: "الحفرة", f_shirt: "طول القميص", f_skirt: "طول التنورة", f_waist: "الخصر",
+    g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات",
     btnSave: "حفظ الطلب ✅", btnDebt: "💰 كشف المتبقي (المديونيات)", btnAll: "👥 عرض جميع الزبائن", btnMonthly: "📊 ريبورت شهري",
     btnYearly: "📅 ريبورت سنوي", search: "🔍 ابحث هنا عن اسم أو رقم...", filterInfo: "⚠️ عرض المديونيات فقط",
     thName: "الاسم", thRem: "المتبقي", thView: "عرض", thInv: "الفاتورة", thLoc: "المكان والحالة", thBy: "بواسطة",
@@ -192,7 +196,8 @@ const T = {
   en: {
     mainTitle: "Abayat Al Omara - Customers", logout: "Logout", dateLabel: "Invoice Date", invNum: "Inv #",
     a: "Customer Name", b: "Phone Number", qty: "Qty", j: "Abaya Code", f1: "Shoulder", f2: "Sleeve",
-    f3: "Chest", f: "Height", f_hole: "Hole", g1: "Deposit", g2: "Remaining", g3: "Total Price", k: "Notes",
+    f3: "Chest", f: "Height", f_hole: "Hole", f_shirt: "Shirt L", f_skirt: "Skirt L", f_waist: "Waist",
+    g1: "Deposit", g2: "Remaining", g3: "Total Price", k: "Notes",
     btnSave: "Save Order ✅", btnDebt: "💰 Debt Report", btnAll: "👥 Show All Customers", btnMonthly: "📊 Monthly Report",
     btnYearly: "📅 Yearly Report", search: "🔍 Search...", filterInfo: "⚠️ Showing debts only",
     thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #", thLoc: "Loc & Status", thBy: "By",
@@ -233,6 +238,9 @@ function applyLang(){
     document.getElementById('f3').placeholder=t.f3;
     document.getElementById('f').placeholder=t.f;
     document.getElementById('f_hole').placeholder=t.f_hole;
+    document.getElementById('f_shirt').placeholder=t.f_shirt;
+    document.getElementById('f_skirt').placeholder=t.f_skirt;
+    document.getElementById('f_waist').placeholder=t.f_waist;
     document.getElementById('g1').placeholder=t.g1;
     document.getElementById('g2').placeholder=t.g2;
     document.getElementById('g3').placeholder=t.g3;
@@ -292,8 +300,9 @@ window.showDet=(i)=>{
 
     document.getElementById('detInfo').innerHTML=`
         <h4>👤 ${u.n}</h4><p>🧾 ${t.invNum}: ${u.inv||'--'}</p>
-        <div style="background:#fdf6f2;padding:8px;border-radius:10px;">
-        📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f} | ${t.f_hole}: ${u.f_hole||'--'}</div>
+        <div style="background:#fdf6f2;padding:8px;border-radius:10px;line-height:1.6">
+        📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f} <br>
+        📏 ${t.f_hole}: ${u.f_hole||'--'} | ${t.f_shirt}: ${u.f_shirt||'--'} | ${t.f_skirt}: ${u.f_skirt||'--'} | ${t.f_waist}: ${u.f_waist||'--'}</div>
         <p>📍 ${t.thLoc}: ${displayLoc} | 👤 ${t.thBy}: ${u.by || '--'}</p>
         <p>📝 ${t.k}: ${u.note||'--'}</p>`;
     let e=`<input id="newName" value="${u.n}"><input id="newRem" type="number" value="${u.v2}"><button onclick="saveEdit(${i})" style="background:#2a9d8f">حفظ التغييرات</button>`;
@@ -366,6 +375,9 @@ document.getElementById('btnSave').onclick=()=>{
         f3:document.getElementById('f3').value, 
         f:document.getElementById('f').value, 
         f_hole:document.getElementById('f_hole').value,
+        f_shirt:document.getElementById('f_shirt').value,
+        f_skirt:document.getElementById('f_skirt').value,
+        f_waist:document.getElementById('f_waist').value,
         v1:document.getElementById('g1').value, 
         v2:document.getElementById('g2').value, 
         v3:document.getElementById('g3').value, 
@@ -379,7 +391,8 @@ document.getElementById('btnSave').onclick=()=>{
         year:new Date().getFullYear()
     };
     window.d.push(o); set(ref(db,'abonat'), window.d);
-    ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
+    // مسح الحقول بعد الحفظ
+    ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
     document.getElementById('checkOrder').checked = false;
     document.getElementById('checkReady').checked = false;
 };
