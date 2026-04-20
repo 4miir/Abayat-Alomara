@@ -18,7 +18,7 @@ button{background:#6b4f44;color:white;border:none;font-weight:bold;cursor:pointe
 .line-separator{border-top:1px solid #ddd;margin:8px 0}
 .paid-highlight{color:#000;font-size:15px;display:block}
 .rem-highlight{color:#d62828;font-size:15px;display:block}
-table{width:100%;margin-top:20px;border-collapse:collapse;font-size:11px}
+table{width:100%;margin-top:20px;border-collapse:collapse;font-size:10px}
 th{background:#fdf6f2;color:#6b4f44;padding:8px}
 td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
 .report-area{margin-top:20px;padding:10px;background:#fff;border:2px solid #3a5a40;border-radius:15px;display:none}
@@ -29,6 +29,9 @@ td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
 .slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%}
 input:checked+.slider{background-color:#6b4f44}
 input:checked+.slider:before{transform:translateX(18px)}
+.radio-group{display:flex;gap:20px;justify-content:center;margin:10px 0;background:#f9f9f9;padding:10px;border-radius:12px}
+.radio-group label{font-size:14px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.radio-group input{width:auto;margin:0}
 </style>
 </head>
 <body>
@@ -67,15 +70,23 @@ input:checked+.slider:before{transform:translateX(18px)}
   <input id="b" placeholder="رقم التلفون">
   <input id="qty" placeholder="عدد العبايات">
   <input id="j" placeholder="رقم كود العباية">
-  <input id="f1" placeholder="الكتف">
-  <input id="f2" placeholder="الكم">
-  <input id="f3" placeholder="الصدر">
-  <input id="f" placeholder="الطول">
+  <div style="display:flex;gap:5px">
+    <input id="f1" placeholder="الكتف">
+    <input id="f2" placeholder="الكم">
+    <input id="f3" placeholder="الصدر">
+    <input id="f" placeholder="الطول">
+  </div>
   <div style="display:flex;gap:10px">
     <input id="g1" placeholder="العربون" type="number">
     <input id="g2" placeholder="المتبقي" type="number">
   </div>
   <input id="g3" placeholder="السعر الكامل" readonly style="background:#f9f9f9">
+  
+  <div class="radio-group">
+    <label><input type="radio" name="loc" value="محل" checked> <span id="txtShop">محل</span></label>
+    <label><input type="radio" name="loc" value="معرض"> <span id="txtExh">معرض</span></label>
+  </div>
+
   <textarea id="k" placeholder="ملاحظات" rows="2"></textarea>
   <button id="btnSave">حفظ الطلب ✅</button>
 
@@ -99,15 +110,24 @@ input:checked+.slider:before{transform:translateX(18px)}
   <input id="z" placeholder="🔍 ابحث هنا عن اسم أو رقم..." style="margin-top:20px">
   <div id="filterInfo" style="display:none;text-align:center;font-size:12px;padding:5px;color:red;font-weight:bold;">⚠️ عرض المديونيات فقط</div>
   
-  <table>
-    <thead><tr><th id="thInv">الفاتورة</th><th id="thName">الاسم</th><th id="thRem">المتبقي</th><th id="thView">عرض</th></tr></thead>
+  <table id="mainTable">
+    <thead>
+        <tr>
+            <th id="thInv">الفاتورة</th>
+            <th id="thName">الاسم</th>
+            <th id="thLoc">المكان</th>
+            <th id="thBy">بواسطة</th>
+            <th id="thRem">المتبقي</th>
+            <th id="thView">عرض</th>
+        </tr>
+    </thead>
     <tbody id="t"></tbody>
   </table>
 
   <div id="detailsBox" style="display:none;border:2px solid #6b4f44;padding:15px;border-radius:15px;margin-top:15px;background:#fff">
     <div id="detInfo"></div>
     <div id="editArea" style="background:#f9f9f9;padding:10px;border-radius:12px;margin-top:10px;border:1px dashed #6b4f44"></div>
-    <button onclick="document.getElementById('detailsBox').style.display='none'" style="background:gray;margin-top:10px">إغلاق</button>
+    <button id="btnCloseDetails" onclick="document.getElementById('detailsBox').style.display='none'" style="background:gray;margin-top:10px">إغلاق</button>
   </div>
 </div>
 
@@ -152,15 +172,19 @@ const T = {
     f3: "الصدر", f: "الطول", g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات",
     btnSave: "حفظ الطلب ✅", btnDebt: "💰 كشف المتبقي (المديونيات)", btnMonthly: "📊 ريبورت شهري",
     btnYearly: "📅 ريبورت سنوي", search: "🔍 ابحث هنا عن اسم أو رقم...", filterInfo: "⚠️ عرض المديونيات فقط",
-    thName: "الاسم", thRem: "المتبقي", thView: "عرض", thInv: "الفاتورة", hello: "مرحباً: ", btnWord: "📄 تحميل ملف Word"
+    thName: "الاسم", thRem: "المتبقي", thView: "عرض", thInv: "الفاتورة", thLoc: "المكان", thBy: "بواسطة",
+    hello: "مرحباً: ", btnWord: "📄 تحميل ملف Word", shop: "محل", exh: "معرض",
+    totalPaid: "إجمالي المدفوع", totalRem: "إجمالي المتبقي", close: "إغلاق"
   },
   en: {
-    mainTitle: "Abayat Al Omara - Customers", logout: "Logout", dateLabel: "Invoice Date", invNum: "Invoice Number",
+    mainTitle: "Abayat Al Omara - Customers", logout: "Logout", dateLabel: "Invoice Date", invNum: "Inv #",
     a: "Customer Name", b: "Phone Number", qty: "Qty", j: "Abaya Code", f1: "Shoulder", f2: "Sleeve",
     f3: "Chest", f: "Height", g1: "Deposit", g2: "Remaining", g3: "Total Price", k: "Notes",
     btnSave: "Save Order ✅", btnDebt: "💰 Debt Report", btnMonthly: "📊 Monthly Report",
-    btnYearly: "📅 Yearly Report", search: "🔍 Search name or number...", filterInfo: "⚠️ Showing debts only",
-    thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #", hello: "Welcome: ", btnWord: "📄 Download Word"
+    btnYearly: "📅 Yearly Report", search: "🔍 Search...", filterInfo: "⚠️ Showing debts only",
+    thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #", thLoc: "Location", thBy: "By",
+    hello: "Welcome: ", btnWord: "📄 Download Word", shop: "Shop", exh: "Exhib.",
+    totalPaid: "Total Paid", totalRem: "Total Remaining", close: "Close"
   }
 };
 
@@ -205,6 +229,15 @@ function applyLang(){
     document.getElementById('btnYearly').textContent=t.btnYearly;
     document.getElementById('z').placeholder=t.search;
     document.getElementById('userNameDisplay').textContent=t.hello + window.currentUser;
+    document.getElementById('txtShop').textContent=t.shop;
+    document.getElementById('txtExh').textContent=t.exh;
+    document.getElementById('thName').textContent=t.thName;
+    document.getElementById('thRem').textContent=t.thRem;
+    document.getElementById('thView').textContent=t.thView;
+    document.getElementById('thInv').textContent=t.thInv;
+    document.getElementById('thLoc').textContent=t.thLoc;
+    document.getElementById('thBy').textContent=t.thBy;
+    document.getElementById('btnCloseDetails').textContent=t.close;
     r_table(); updateCounter();
 }
 
@@ -215,7 +248,16 @@ function r_table(){
     let h='';
     fd.forEach(u=>{
         let i=window.d.indexOf(u);
-        h+=`<tr><td>${u.inv||'--'}</td><td>${u.n}</td><td style="color:red;font-weight:bold">${u.v2}</td><td><button onclick="showDet(${i})">عرض</button></td></tr>`;
+        let locText = (currentLang === 'ar') ? u.loc : (u.loc === 'محل' ? T.en.shop : T.en.exh);
+        let byText = u.by || '--';
+        h+=`<tr>
+            <td>${u.inv||'--'}</td>
+            <td>${u.n}</td>
+            <td>${locText}</td>
+            <td>${byText}</td>
+            <td style="color:red;font-weight:bold">${u.v2}</td>
+            <td><button onclick="showDet(${i})" style="padding:2px 8px;">${T[currentLang].thView}</button></td>
+        </tr>`;
     });
     document.getElementById('t').innerHTML=h;
 }
@@ -223,10 +265,11 @@ function r_table(){
 window.showDet=(i)=>{
     let u=window.d[i], t=T[currentLang];
     document.getElementById('detInfo').innerHTML=`
-        <h4>👤 ${u.n}</h4><p>🧾 فاتورة: ${u.inv||'--'}</p>
+        <h4>👤 ${u.n}</h4><p>🧾 ${t.invNum}: ${u.inv||'--'}</p>
         <div style="background:#fdf6f2;padding:8px;border-radius:10px;">
         📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f}</div>
-        <p>📝 ملاحظة: ${u.note||'--'}</p>`;
+        <p>📍 ${t.thLoc}: ${u.loc || '--'} | 👤 ${t.thBy}: ${u.by || '--'}</p>
+        <p>📝 ${t.k}: ${u.note||'--'}</p>`;
     let e=`<input id="newName" value="${u.n}"><input id="newRem" type="number" value="${u.v2}"><button onclick="saveEdit(${i})" style="background:#2a9d8f">حفظ التغييرات</button>`;
     if(window.role==='owner'||window.role==='editor') e+=`<button onclick="q(${i})" style="background:red;margin-top:5px">حذف</button>`;
     document.getElementById('editArea').innerHTML=e;
@@ -247,13 +290,13 @@ window.generateDetailedReport=(type)=>{
     let filtered=window.d.filter(u=>type==='monthly'?(u.month===cM&&u.year===cY):u.year===cY);
     if(filtered.length===0) return alert("لا توجد بيانات");
     let ts=0, tp=0, tr=0, reportTitle=(type==='monthly'?"تقرير شهر "+cM:"تقرير سنة "+cY);
-    let h=`<div id="wordContent" dir="rtl" style="font-family:Arial;padding:20px;"><h2 style="text-align:center;">${reportTitle}</h2><table border="1" style="width:100%;border-collapse:collapse;text-align:center;"><thead><tr style="background:#eee;"><th>الفاتورة</th><th>الاسم</th><th>العربون</th><th>المتبقي</th><th>الإجمالي</th></tr></thead><tbody>`;
+    let h=`<div id="wordContent" dir="rtl" style="font-family:Arial;padding:20px;"><h2 style="text-align:center;">${reportTitle}</h2><table border="1" style="width:100%;border-collapse:collapse;text-align:center;"><thead><tr style="background:#eee;"><th>الفاتورة</th><th>الاسم</th><th>المكان</th><th>بواسطة</th><th>العربون</th><th>المتبقي</th><th>الإجمالي</th></tr></thead><tbody>`;
     filtered.forEach(u=>{
         let v1=parseFloat(u.v1)||0, v2=parseFloat(u.v2)||0, v3=parseFloat(u.v3)||0;
         ts+=v3; tp+=v1; tr+=v2;
-        h+=`<tr><td>${u.inv||'-'}</td><td>${u.n}</td><td>${v1}</td><td style="color:red">${v2}</td><td>${v3}</td></tr>`;
+        h+=`<tr><td>${u.inv||'-'}</td><td>${u.n}</td><td>${u.loc||'-'}</td><td>${u.by||'-'}</td><td>${v1}</td><td style="color:red">${v2}</td><td>${v3}</td></tr>`;
     });
-    h+=`</tbody></table><div style="margin-top:20px;"><b>إجمالي المبيعات: ${ts.toFixed(2)} | المحصل: ${tp.toFixed(2)} | المتبقي: ${tr.toFixed(2)}</b></div></div>`;
+    h+=`</tbody></table><div style="margin-top:20px;"><b>إجمالي المبيعات: ${ts.toFixed(2)} | إجمالي المدفوع: ${tp.toFixed(2)} | إجمالي المتبقي: ${tr.toFixed(2)}</b></div></div>`;
     document.getElementById('reportTitle').innerText=reportTitle;
     document.getElementById('reportContent').innerHTML=`<button onclick="exportWord('${reportTitle}')" style="background:#2b2d42;margin-bottom:10px;">${T[currentLang].btnWord}</button>`+h;
     document.getElementById('reportBox').style.display='block';
@@ -267,7 +310,8 @@ window.exportWord=(n)=>{
 
 function updateCounter(){
     let tr=0, tp=0; window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
-    document.getElementById('counter').innerHTML=`#${window.d.length} زبائن | <span class="paid-highlight">المحصل: ${tp.toFixed(2)}</span> | <span class="rem-highlight">المتبقي: ${tr.toFixed(2)}</span>`;
+    let t = T[currentLang];
+    document.getElementById('counter').innerHTML=`#${window.d.length} زبائن | <span class="paid-highlight">${t.totalPaid}: ${tp.toFixed(2)}</span> | <span class="rem-highlight">${t.totalRem}: ${tr.toFixed(2)}</span>`;
 }
 
 // أزرار الأحداث
@@ -279,7 +323,8 @@ document.getElementById('g1').oninput=document.getElementById('g2').oninput=()=>
 };
 document.getElementById('btnSave').onclick=()=>{
     let n=document.getElementById('a').value; if(!n) return alert("الاسم مطلوب");
-    let o={sn:window.d.length+1, inv:document.getElementById('invNum').value, n:n, p:document.getElementById('b').value, qty:document.getElementById('qty').value, j:document.getElementById('j').value, f1:document.getElementById('f1').value, f2:document.getElementById('f2').value, f3:document.getElementById('f3').value, f:document.getElementById('f').value, v1:document.getElementById('g1').value, v2:document.getElementById('g2').value, v3:document.getElementById('g3').value, note:document.getElementById('k').value, id:document.getElementById('id').value, by:window.currentUser, month:new Date().getMonth()+1, year:new Date().getFullYear()};
+    let loc = document.querySelector('input[name="loc"]:checked').value;
+    let o={sn:window.d.length+1, inv:document.getElementById('invNum').value, n:n, p:document.getElementById('b').value, qty:document.getElementById('qty').value, j:document.getElementById('j').value, f1:document.getElementById('f1').value, f2:document.getElementById('f2').value, f3:document.getElementById('f3').value, f:document.getElementById('f').value, v1:document.getElementById('g1').value, v2:document.getElementById('g2').value, v3:document.getElementById('g3').value, loc:loc, note:document.getElementById('k').value, id:document.getElementById('id').value, by:window.currentUser, month:new Date().getMonth()+1, year:new Date().getFullYear()};
     window.d.push(o); set(ref(db,'abonat'), window.d);
     ['invNum','a','b','qty','j','f1','f2','f3','f','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
 };
