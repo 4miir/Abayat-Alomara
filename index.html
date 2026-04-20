@@ -5,48 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Abayat Al Omara</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.js"></script>
-<script type="module">
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import {getDatabase,ref,set,onValue} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDCSx-_o07zM_pqCeIFCdon25k7jQzZMJo",
-  authDomain: "alomara-b5b95.firebaseapp.com",
-  databaseURL: "https://alomara-b5b95-default-rtdb.firebaseio.com",
-  projectId: "alomara-b5b95",
-  storageBucket: "alomara-b5b95.firebasestorage.app",
-  messagingSenderId: "208627786275",
-  appId: "1:208627786275:web:3bd56f7eb2e964773b8796",
-  measurementId: "G-2FTVWW4D5B"
-};
-
-let db;
-window.ownerPass = "4400";
-window.nainaPass = "1234";
-window.otherPass = "1357";
-window.editorPass = "98988";
-window.isDataLoaded = false;
-
-try{
-    const app = initializeApp(firebaseConfig);
-    db = getDatabase(app);
-    onValue(ref(db,'abonat'),(s)=>{
-        window.d = s.exists() ? s.val() : [];
-        window.isDataLoaded = true;
-        document.getElementById('statusLine').innerHTML = "✅ متصل - الحفظ تلقائي ☁️";
-        r_table();
-        updateCounter();
-    }, (error) => {
-        document.getElementById('statusLine').innerHTML = "❌ خطأ في الاتصال!";
-    });
-}catch(e){ console.error("Firebase Error", e); }
-
-window.syncToCloud=()=>{
-    if(db && window.isDataLoaded){
-        set(ref(db,'abonat'), window.d);
-    }
-};
-</script>
 <style>
 body{font-family:tahoma;padding:15px;background:#fcfaf8;margin:0}
 .box{max-width:550px;margin:auto;background:white;padding:20px;border-radius:20px;box-shadow:0 5px 15px rgba(0,0,0,0.05)}
@@ -84,20 +42,20 @@ input:checked+.slider:before{transform:translateX(18px)}
     <option value="editor">Editor</option>
   </select>
   <input id="passInput" type="password" placeholder="الرقم السري">
-  <button onclick="login()">دخول</button>
+  <button id="loginBtn">دخول</button>
 </div>
 
 <div id="mainApp" class="box">
   <div class="lang-container">
     <span>عربي</span>
-    <label class="switch"><input type="checkbox" id="langToggle" onchange="toggleLang()"><span class="slider"></span></label>
+    <label class="switch"><input type="checkbox" id="langToggle"><span class="slider"></span></label>
     <span>English</span>
   </div>
   <h2 id="mainTitle">عبايات الأمراء - الزبائن</h2>
   <div class="status-text" id="statusLine">⏳ جاري التحميل...</div>
   <div style="display:flex;justify-content:space-between;align-items:center">
     <span id="userNameDisplay" style="font-weight:bold;color:#6b4f44"></span>
-    <button id="btnLogout" onclick="location.reload()" style="width:auto;padding:5px 15px;background:#f0f0f0;color:#333;font-size:11px">خروج</button>
+    <button onclick="location.reload()" style="width:auto;padding:5px 15px;background:#f0f0f0;color:#333;font-size:11px">خروج</button>
   </div>
   <hr>
   <div class="counter-box" id="counter"></div>
@@ -114,21 +72,21 @@ input:checked+.slider:before{transform:translateX(18px)}
   <input id="f3" placeholder="الصدر">
   <input id="f" placeholder="الطول">
   <div style="display:flex;gap:10px">
-    <input id="g1" placeholder="العربون" type="number" oninput="calc()">
-    <input id="g2" placeholder="المتبقي" type="number" oninput="calc()">
+    <input id="g1" placeholder="العربون" type="number">
+    <input id="g2" placeholder="المتبقي" type="number">
   </div>
   <input id="g3" placeholder="السعر الكامل" readonly style="background:#f9f9f9">
   <textarea id="k" placeholder="ملاحظات" rows="2"></textarea>
-  <button id="btnSave" onclick="s()" style="background:#8b6d5c">حفظ الطلب ✅</button>
+  <button id="btnSave">حفظ الطلب ✅</button>
 
   <div style="margin-top:10px">
-    <button id="btnDebt" style="background:#d62828;" onclick="report('remaining')">💰 كشف المتبقي (المديونيات)</button>
+    <button id="btnDebt" style="background:#d62828;">💰 كشف المتبقي (المديونيات)</button>
   </div>
 
   <div id="adminPanel" style="display:none;margin-top:5px">
     <div style="display:flex;gap:5px;flex-wrap:wrap">
-      <button id="btnMonthly" style="background:#3a5a40;flex:1;min-width:140px;" onclick="generateDetailedReport('monthly')">📊 ريبورت شهري</button>
-      <button id="btnYearly" style="background:#3a5a40;flex:1;min-width:140px;" onclick="generateDetailedReport('yearly')">📅 ريبورت سنوي</button>
+      <button id="btnMonthly" style="background:#3a5a40;flex:1;min-width:140px;">📊 ريبورت شهري</button>
+      <button id="btnYearly" style="background:#3a5a40;flex:1;min-width:140px;">📅 ريبورت سنوي</button>
     </div>
   </div>
 
@@ -138,7 +96,7 @@ input:checked+.slider:before{transform:translateX(18px)}
     <button onclick="document.getElementById('reportBox').style.display='none'" style="background:#444;margin-top:10px">إغلاق التقرير</button>
   </div>
 
-  <input id="z" placeholder="🔍 ابحث هنا عن اسم أو رقم..." oninput="r_table()" style="margin-top:20px">
+  <input id="z" placeholder="🔍 ابحث هنا عن اسم أو رقم..." style="margin-top:20px">
   <div id="filterInfo" style="display:none;text-align:center;font-size:12px;padding:5px;color:red;font-weight:bold;">⚠️ عرض المديونيات فقط</div>
   
   <table>
@@ -149,263 +107,186 @@ input:checked+.slider:before{transform:translateX(18px)}
   <div id="detailsBox" style="display:none;border:2px solid #6b4f44;padding:15px;border-radius:15px;margin-top:15px;background:#fff">
     <div id="detInfo"></div>
     <div id="editArea" style="background:#f9f9f9;padding:10px;border-radius:12px;margin-top:10px;border:1px dashed #6b4f44"></div>
-    <button id="btnClose" onclick="document.getElementById('detailsBox').style.display='none'" style="background:gray;margin-top:10px">إغلاق</button>
+    <button onclick="document.getElementById('detailsBox').style.display='none'" style="background:gray;margin-top:10px">إغلاق</button>
   </div>
 </div>
 
-<script>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import {getDatabase,ref,set,onValue} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDCSx-_o07zM_pqCeIFCdon25k7jQzZMJo",
+  authDomain: "alomara-b5b95.firebaseapp.com",
+  databaseURL: "https://alomara-b5b95-default-rtdb.firebaseio.com",
+  projectId: "alomara-b5b95",
+  storageBucket: "alomara-b5b95.firebasestorage.app",
+  messagingSenderId: "208627786275",
+  appId: "1:208627786275:web:3bd56f7eb2e964773b8796",
+  measurementId: "G-2FTVWW4D5B"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 window.d = [];
-let onlyDebt = false;
+window.isDataLoaded = false;
+window.ownerPass = "4400";
+window.nainaPass = "1234";
+window.otherPass = "1357";
+window.editorPass = "98988";
 let currentLang = 'ar';
+let onlyDebt = false;
+
+onValue(ref(db,'abonat'),(s)=>{
+    window.d = s.exists() ? s.val() : [];
+    window.isDataLoaded = true;
+    document.getElementById('statusLine').innerHTML = "✅ متصل - الحفظ تلقائي ☁️";
+    r_table(); updateCounter();
+});
 
 const T = {
   ar: {
-    mainTitle: "عبايات الأمراء - الزبائن",
-    logout: "خروج",
-    dateLabel: "تاريخ الفاتورة",
-    invNum: "رقم الفاتورة",
-    a: "اسم الزبونة", b: "رقم التلفون", qty: "عدد العبايات",
-    j: "رقم كود العباية", f1: "الكتف", f2: "الكم",
-    f3: "الصدر", f: "الطول", g1: "العربون", g2: "المتبقي",
-    g3: "السعر الكامل", k: "ملاحظات",
-    btnSave: "حفظ الطلب ✅",
-    btnDebt: "💰 كشف المتبقي (المديونيات)",
-    btnMonthly: "📊 ريبورت شهري",
-    btnYearly: "📅 ريبورت سنوي",
-    search: "🔍 ابحث هنا عن اسم أو رقم...",
-    filterInfo: "⚠️ عرض المديونيات فقط",
-    thName: "الاسم", thRem: "المتبقي", thView: "عرض", thInv: "الفاتورة",
-    hello: "مرحباً: ", close: "إغلاق", dir: "rtl",
-    paid: "إجمالي المدفوع", rem: "إجمالي المتبقي",
-    btnWord: "📄 تحميل ملف Word"
+    mainTitle: "عبايات الأمراء - الزبائن", logout: "خروج", dateLabel: "تاريخ الفاتورة", invNum: "رقم الفاتورة",
+    a: "اسم الزبونة", b: "رقم التلفون", qty: "عدد العبايات", j: "رقم كود العباية", f1: "الكتف", f2: "الكم",
+    f3: "الصدر", f: "الطول", g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات",
+    btnSave: "حفظ الطلب ✅", btnDebt: "💰 كشف المتبقي (المديونيات)", btnMonthly: "📊 ريبورت شهري",
+    btnYearly: "📅 ريبورت سنوي", search: "🔍 ابحث هنا عن اسم أو رقم...", filterInfo: "⚠️ عرض المديونيات فقط",
+    thName: "الاسم", thRem: "المتبقي", thView: "عرض", thInv: "الفاتورة", hello: "مرحباً: ", btnWord: "📄 تحميل ملف Word"
   },
   en: {
-    mainTitle: "Abayat Al Omara - Customers",
-    logout: "Logout",
-    dateLabel: "Invoice Date",
-    invNum: "Invoice Number",
-    a: "Customer Name", b: "Phone Number", qty: "Qty",
-    j: "Abaya Code", f1: "Shoulder", f2: "Sleeve",
-    f3: "Chest", f: "Height", g1: "Deposit", g2: "Remaining",
-    g3: "Total Price", k: "Notes",
-    btnSave: "Save Order ✅",
-    btnDebt: "💰 Debt Report",
-    btnMonthly: "📊 Monthly Report",
-    btnYearly: "📅 Yearly Report",
-    search: "🔍 Search name or number...",
-    filterInfo: "⚠️ Showing debts only",
-    thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #",
-    hello: "Welcome: ", close: "Close", dir: "ltr",
-    paid: "Total Paid", rem: "Total Remaining",
-    btnWord: "📄 Download Word"
+    mainTitle: "Abayat Al Omara - Customers", logout: "Logout", dateLabel: "Invoice Date", invNum: "Invoice Number",
+    a: "Customer Name", b: "Phone Number", qty: "Qty", j: "Abaya Code", f1: "Shoulder", f2: "Sleeve",
+    f3: "Chest", f: "Height", g1: "Deposit", g2: "Remaining", g3: "Total Price", k: "Notes",
+    btnSave: "Save Order ✅", btnDebt: "💰 Debt Report", btnMonthly: "📊 Monthly Report",
+    btnYearly: "📅 Yearly Report", search: "🔍 Search name or number...", filterInfo: "⚠️ Showing debts only",
+    thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #", hello: "Welcome: ", btnWord: "📄 Download Word"
   }
 };
 
-function toggleLang() {
-  currentLang = document.getElementById('langToggle').checked ? 'en' : 'ar';
-  applyLang();
-}
+window.login=()=>{
+    let u=document.getElementById('userSelect').value;
+    let p=document.getElementById('passInput').value;
+    let ok=false, name="";
+    if(u==='owner' && p==window.ownerPass){ok=true;name="صاحبة الحلال";}
+    else if(u==='naina' && p==window.nainaPass){ok=true;name="ناينا";}
+    else if(u==='other' && p==window.otherPass){ok=true;name="موظف آخر";}
+    else if(u==='editor' && p==window.editorPass){ok=true;name="Editor";}
+    
+    if(ok){
+        window.role=u; window.currentUser=name;
+        document.getElementById('loginPage').style.display='none';
+        document.getElementById('mainApp').style.display='block';
+        if(u==='owner'||u==='editor') document.getElementById('adminPanel').style.display='block';
+        applyLang();
+    } else alert('الرمز خطأ!');
+};
 
-function applyLang() {
-  let t = T[currentLang];
-  document.getElementById('mainApp').setAttribute('dir', t.dir);
-  document.getElementById('mainTitle').textContent = t.mainTitle;
-  document.getElementById('btnLogout').textContent = t.logout;
-  document.getElementById('labelDate').textContent = t.dateLabel;
-  document.getElementById('invNum').placeholder = t.invNum;
-  document.getElementById('a').placeholder = t.a;
-  document.getElementById('b').placeholder = t.b;
-  document.getElementById('qty').placeholder = t.qty;
-  document.getElementById('j').placeholder = t.j;
-  document.getElementById('f1').placeholder = t.f1;
-  document.getElementById('f2').placeholder = t.f2;
-  document.getElementById('f3').placeholder = t.f3;
-  document.getElementById('f').placeholder = t.f;
-  document.getElementById('g1').placeholder = t.g1;
-  document.getElementById('g2').placeholder = t.g2;
-  document.getElementById('g3').placeholder = t.g3;
-  document.getElementById('k').placeholder = t.k;
-  document.getElementById('btnSave').textContent = t.btnSave;
-  document.getElementById('btnDebt').textContent = t.btnDebt;
-  document.getElementById('btnMonthly').textContent = t.btnMonthly;
-  document.getElementById('btnYearly').textContent = t.btnYearly;
-  document.getElementById('z').placeholder = t.search;
-  document.getElementById('filterInfo').textContent = t.filterInfo;
-  document.getElementById('thName').textContent = t.thName;
-  document.getElementById('thRem').textContent = t.thRem;
-  document.getElementById('thView').textContent = t.thView;
-  document.getElementById('thInv').textContent = t.thInv;
-  document.getElementById('btnClose').textContent = t.close;
-  if(window.currentUser) document.getElementById('userNameDisplay').textContent = t.hello + window.currentUser;
-  updateCounter(); r_table();
-}
-
-function login() {
-  let u = document.getElementById('userSelect').value;
-  let p = document.getElementById('passInput').value;
-  let ok = false; let name = "";
-  if(u==='owner' && p==window.ownerPass){ok=true;name="صاحبة الحلال";}
-  else if(u==='naina' && p==window.nainaPass){ok=true;name="ناينا";}
-  else if(u==='other' && p==window.otherPass){ok=true;name="موظف آخر";}
-  else if(u==='editor' && p==window.editorPass){ok=true;name="Editor";}
-  if(ok){
-    window.role=u; window.currentUser=name;
-    document.getElementById('loginPage').style.display='none';
-    document.getElementById('mainApp').style.display='block'; applyLang();
-    if(u==='owner'||u==='editor') document.getElementById('adminPanel').style.display='block';
-    updateCounter(); r_table();
-  } else alert(currentLang==='ar'?'خطأ بالرمز!':'Wrong Password!');
-}
-
-function calc(){
-  let v1=parseFloat(document.getElementById('g1').value)||0;
-  let v2=parseFloat(document.getElementById('g2').value)||0;
-  document.getElementById('g3').value=(v1+v2).toFixed(2);
-}
-
-function s(){
-  if(!window.isDataLoaded) return alert("انتظر تحميل البيانات...");
-  let name=document.getElementById('a').value; if(!name) return alert("الاسم مطلوب");
-  let today = new Date();
-  let o={
-    sn:window.d.length+1,
-    inv:document.getElementById('invNum').value,
-    n:name,
-    p:document.getElementById('b').value,
-    qty:document.getElementById('qty').value,
-    j:document.getElementById('j').value,
-    f1:document.getElementById('f1').value,
-    f2:document.getElementById('f2').value,
-    f3:document.getElementById('f3').value,
-    f:document.getElementById('f').value,
-    v1:document.getElementById('g1').value,
-    v2:document.getElementById('g2').value,
-    v3:document.getElementById('g3').value,
-    note:document.getElementById('k').value,
-    id:document.getElementById('id').value,
-    by:window.currentUser,
-    month:today.getMonth()+1,
-    year:today.getFullYear()
-  };
-  window.d.push(o);
-  window.syncToCloud();
-  ['invNum','a','b','qty','j','f1','f2','f3','f','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
-  updateCounter(); r_table();
+function applyLang(){
+    let t=T[currentLang];
+    document.getElementById('mainTitle').textContent=t.mainTitle;
+    document.getElementById('labelDate').textContent=t.dateLabel;
+    document.getElementById('invNum').placeholder=t.invNum;
+    document.getElementById('a').placeholder=t.a;
+    document.getElementById('b').placeholder=t.b;
+    document.getElementById('qty').placeholder=t.qty;
+    document.getElementById('j').placeholder=t.j;
+    document.getElementById('f1').placeholder=t.f1;
+    document.getElementById('f2').placeholder=t.f2;
+    document.getElementById('f3').placeholder=t.f3;
+    document.getElementById('f').placeholder=t.f;
+    document.getElementById('g1').placeholder=t.g1;
+    document.getElementById('g2').placeholder=t.g2;
+    document.getElementById('g3').placeholder=t.g3;
+    document.getElementById('k').placeholder=t.k;
+    document.getElementById('btnSave').textContent=t.btnSave;
+    document.getElementById('btnDebt').textContent=t.btnDebt;
+    document.getElementById('btnMonthly').textContent=t.btnMonthly;
+    document.getElementById('btnYearly').textContent=t.btnYearly;
+    document.getElementById('z').placeholder=t.search;
+    document.getElementById('userNameDisplay').textContent=t.hello + window.currentUser;
+    r_table(); updateCounter();
 }
 
 function r_table(){
-  let h=''; let term=document.getElementById('z').value;
-  let fd=window.d.filter(u=>(u.n&&u.n.includes(term))||(u.p&&u.p.includes(term))||(u.inv&&u.inv.includes(term)));
-  if(onlyDebt){fd=fd.filter(u=>(parseFloat(u.v2)||0)>0);document.getElementById('filterInfo').style.display='block';}
-  else{document.getElementById('filterInfo').style.display='none';}
-  fd.forEach(u=>{
-    let idx=window.d.indexOf(u);
-    h+=`<tr><td>${u.inv||'--'}</td><td>${u.n}</td><td style="color:red;font-weight:bold">${u.v2}</td><td><button style="padding:4px; border-radius:8px;" onclick="showDet(${idx})">${T[currentLang].thView}</button></td></tr>`;
-  });
-  document.getElementById('t').innerHTML=h;
-}
-
-function generateDetailedReport(type) {
-    let now = new Date();
-    let cM = now.getMonth() + 1;
-    let cY = now.getFullYear();
-    let filtered = window.d.filter(u => type === 'monthly' ? (u.month === cM && u.year === cY) : u.year === cY);
-    
-    if(filtered.length === 0) {
-        alert(currentLang === 'ar' ? "لا توجد بيانات لهذه الفترة" : "No data for this period");
-        return;
-    }
-
-    let totalSales = 0, totalPaid = 0, totalRem = 0;
-    let reportTitle = (type === 'monthly' ? "تقرير شهر " + cM : "تقرير سنة " + cY);
-    
-    let tableHtml = `
-        <div id="wordExportContent" dir="rtl" style="font-family: Arial, sans-serif; padding: 10px;">
-            <h2 style="text-align:center; color:#3a5a40;">${reportTitle}</h2>
-            <table border="1" style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
-                <thead>
-                    <tr style="background:#fdf6f2;">
-                        <th style="padding:5px;">الفاتورة</th>
-                        <th style="padding:5px;">الاسم</th>
-                        <th style="padding:5px;">العربون</th>
-                        <th style="padding:5px;">المتبقي</th>
-                        <th style="padding:5px;">الإجمالي</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-    
-    filtered.forEach(u => {
-        let v1 = parseFloat(u.v1) || 0;
-        let v2 = parseFloat(u.v2) || 0;
-        let v3 = parseFloat(u.v3) || 0;
-        totalSales += v3; totalPaid += v1; totalRem += v2;
-        tableHtml += `<tr>
-            <td style="padding:5px;">${u.inv || '-'}</td>
-            <td style="padding:5px;">${u.n}</td>
-            <td style="padding:5px;">${v1}</td>
-            <td style="padding:5px; color:red;">${v2}</td>
-            <td style="padding:5px;">${v3}</td>
-        </tr>`;
+    let term=document.getElementById('z').value;
+    let fd=window.d.filter(u=>(u.n&&u.n.includes(term))||(u.p&&u.p.includes(term))||(u.inv&&u.inv.includes(term)));
+    if(onlyDebt) fd=fd.filter(u=>(parseFloat(u.v2)||0)>0);
+    let h='';
+    fd.forEach(u=>{
+        let i=window.d.indexOf(u);
+        h+=`<tr><td>${u.inv||'--'}</td><td>${u.n}</td><td style="color:red;font-weight:bold">${u.v2}</td><td><button onclick="showDet(${i})">عرض</button></td></tr>`;
     });
-
-    tableHtml += `</tbody></table>
-        <div style="margin-top:15px; font-weight:bold; font-size:14px; text-align:right; border-top:2px solid #3a5a40; padding-top:10px;">
-            <p>إجمالي المبيعات: ${totalSales.toFixed(2)} د.ك</p>
-            <p>إجمالي المحصل: ${totalPaid.toFixed(2)} د.ك</p>
-            <p style="color:red">إجمالي المديونيات: ${totalRem.toFixed(2)} د.ك</p>
-        </div>
-    </div>`;
-
-    let wordBtn = `<button onclick="exportReportToWord('${reportTitle}')" style="background:#2b2d42; margin-bottom:10px;">${T[currentLang].btnWord}</button>`;
-
-    document.getElementById('reportTitle').innerText = reportTitle;
-    document.getElementById('reportContent').innerHTML = wordBtn + tableHtml;
-    document.getElementById('reportBox').style.display = 'block';
-    window.scrollTo(0, document.getElementById('reportBox').offsetTop);
+    document.getElementById('t').innerHTML=h;
 }
 
-function exportReportToWord(filename) {
-    let content = document.getElementById('wordExportContent').innerHTML;
-    let header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
-            "xmlns:w='urn:schemas-microsoft-com:office:word' "+
-            "xmlns='http://www.w3.org/TR/REC-html40'>"+
-            "<head><meta charset='utf-8'><title>Report</title></head><body>";
-    let footer = "</body></html>";
-    let sourceHTML = header + content + footer;
-    
-    let source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-    let fileDownload = document.createElement("a");
-    document.body.appendChild(fileDownload);
-    fileDownload.href = source;
-    fileDownload.download = filename + '.doc';
-    fileDownload.click();
-    document.body.removeChild(fileDownload);
+window.showDet=(i)=>{
+    let u=window.d[i], t=T[currentLang];
+    document.getElementById('detInfo').innerHTML=`
+        <h4>👤 ${u.n}</h4><p>🧾 فاتورة: ${u.inv||'--'}</p>
+        <div style="background:#fdf6f2;padding:8px;border-radius:10px;">
+        📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f}</div>
+        <p>📝 ملاحظة: ${u.note||'--'}</p>`;
+    let e=`<input id="newName" value="${u.n}"><input id="newRem" type="number" value="${u.v2}"><button onclick="saveEdit(${i})" style="background:#2a9d8f">حفظ التغييرات</button>`;
+    if(window.role==='owner'||window.role==='editor') e+=`<button onclick="q(${i})" style="background:red;margin-top:5px">حذف</button>`;
+    document.getElementById('editArea').innerHTML=e;
+    document.getElementById('detailsBox').style.display='block';
+};
+
+window.saveEdit=(i)=>{
+    window.d[i].n=document.getElementById('newName').value;
+    window.d[i].v2=document.getElementById('newRem').value;
+    set(ref(db,'abonat'), window.d);
+    document.getElementById('detailsBox').style.display='none';
+};
+
+window.q=(i)=>{ if(confirm("حذف؟")){window.d.splice(i,1);set(ref(db,'abonat'), window.d);document.getElementById('detailsBox').style.display='none';}};
+
+window.generateDetailedReport=(type)=>{
+    let now=new Date(), cM=now.getMonth()+1, cY=now.getFullYear();
+    let filtered=window.d.filter(u=>type==='monthly'?(u.month===cM&&u.year===cY):u.year===cY);
+    if(filtered.length===0) return alert("لا توجد بيانات");
+    let ts=0, tp=0, tr=0, reportTitle=(type==='monthly'?"تقرير شهر "+cM:"تقرير سنة "+cY);
+    let h=`<div id="wordContent" dir="rtl" style="font-family:Arial;padding:20px;"><h2 style="text-align:center;">${reportTitle}</h2><table border="1" style="width:100%;border-collapse:collapse;text-align:center;"><thead><tr style="background:#eee;"><th>الفاتورة</th><th>الاسم</th><th>العربون</th><th>المتبقي</th><th>الإجمالي</th></tr></thead><tbody>`;
+    filtered.forEach(u=>{
+        let v1=parseFloat(u.v1)||0, v2=parseFloat(u.v2)||0, v3=parseFloat(u.v3)||0;
+        ts+=v3; tp+=v1; tr+=v2;
+        h+=`<tr><td>${u.inv||'-'}</td><td>${u.n}</td><td>${v1}</td><td style="color:red">${v2}</td><td>${v3}</td></tr>`;
+    });
+    h+=`</tbody></table><div style="margin-top:20px;"><b>إجمالي المبيعات: ${ts.toFixed(2)} | المحصل: ${tp.toFixed(2)} | المتبقي: ${tr.toFixed(2)}</b></div></div>`;
+    document.getElementById('reportTitle').innerText=reportTitle;
+    document.getElementById('reportContent').innerHTML=`<button onclick="exportWord('${reportTitle}')" style="background:#2b2d42;margin-bottom:10px;">${T[currentLang].btnWord}</button>`+h;
+    document.getElementById('reportBox').style.display='block';
+};
+
+window.exportWord=(n)=>{
+    let content=document.getElementById('wordContent').innerHTML;
+    let s='data:application/vnd.ms-word;charset=utf-8,'+encodeURIComponent("<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>"+content+"</body></html>");
+    let a=document.createElement("a"); a.href=s; a.download=n+".doc"; a.click();
+};
+
+function updateCounter(){
+    let tr=0, tp=0; window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
+    document.getElementById('counter').innerHTML=`#${window.d.length} زبائن | <span class="paid-highlight">المحصل: ${tp.toFixed(2)}</span> | <span class="rem-highlight">المتبقي: ${tr.toFixed(2)}</span>`;
 }
 
-// تعديل دالة عرض التفاصيل لترتيب المقاسات
-function showDet(i){
-  let u=window.d[i];
-  let t = T[currentLang];
-  
-  // تنسيق عرض المقاسات بوضوح
-  let sizesHtml = `
-    <div style="background:#fdf6f2; padding:10px; border-radius:10px; margin:10px 0; border:1px solid #eee;">
-      <b>القياسات:</b><br>
-      📏 ${t.f1}: ${u.f1 || '--'} | 
-      📏 ${t.f2}: ${u.f2 || '--'} | 
-      📏 ${t.f3}: ${u.f3 || '--'} | 
-      📏 ${t.f}: ${u.f || '--'}
-    </div>
-  `;
-
-  document.getElementById('detInfo').innerHTML=`
-    <h4 style="margin-bottom:5px; color:#6b4f44;">👤 ${u.n}</h4>
-    <p style="margin:2px 0;">🧾 ${t.invNum}: ${u.inv||'--'}</p>
-    ${sizesHtml}
-    <p style="background:#fffbe6; padding:5px; border-radius:5px;">📝 ${t.k}: ${u.note||'--'}</p>
-  `;
-  
-  let e=`<input id="newName" value="${u.n}"><input id="newRem" type="number" value="${u.v2}"><button onclick="saveEdit(${i})" style="background:#2a9d8f">حفظ التغييرات</button>`;
-  if(window.role==='owner'||window.role==='editor') e+=`<button onclick="q(${i})" style="background:red;margin-top:5px">حذف الطلب</button>`;
-  document.getElementById('editArea').innerHTML=e;
-  document.getElementById('detailsBox
+// أزرار الأحداث
+document.getElementById('loginBtn').onclick=window.login;
+document.getElementById('langToggle').onchange=()=>{currentLang=document.getElementById('langToggle').checked?'en':'ar'; applyLang();};
+document.getElementById('g1').oninput=document.getElementById('g2').oninput=()=>{
+    let v1=parseFloat(document.getElementById('g1').value)||0, v2=parseFloat(document.getElementById('g2').value)||0;
+    document.getElementById('g3').value=(v1+v2).toFixed(2);
+};
+document.getElementById('btnSave').onclick=()=>{
+    let n=document.getElementById('a').value; if(!n) return alert("الاسم مطلوب");
+    let o={sn:window.d.length+1, inv:document.getElementById('invNum').value, n:n, p:document.getElementById('b').value, qty:document.getElementById('qty').value, j:document.getElementById('j').value, f1:document.getElementById('f1').value, f2:document.getElementById('f2').value, f3:document.getElementById('f3').value, f:document.getElementById('f').value, v1:document.getElementById('g1').value, v2:document.getElementById('g2').value, v3:document.getElementById('g3').value, note:document.getElementById('k').value, id:document.getElementById('id').value, by:window.currentUser, month:new Date().getMonth()+1, year:new Date().getFullYear()};
+    window.d.push(o); set(ref(db,'abonat'), window.d);
+    ['invNum','a','b','qty','j','f1','f2','f3','f','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
+};
+document.getElementById('btnDebt').onclick=()=>{onlyDebt=!onlyDebt; r_table();};
+document.getElementById('btnMonthly').onclick=()=>window.generateDetailedReport('monthly');
+document.getElementById('btnYearly').onclick=()=>window.generateDetailedReport('yearly');
+document.getElementById('z').oninput=r_table;
+</script>
+</body>
+</html>
