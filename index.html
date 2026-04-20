@@ -170,7 +170,7 @@ const T = {
     mainTitle: "عبايات الأمراء - الزبائن", logout: "خروج", dateLabel: "تاريخ الفاتورة", invNum: "رقم الفاتورة",
     a: "اسم الزبونة", b: "رقم التلفون", qty: "عدد العبايات", j: "رقم كود العباية", f1: "الكتف", f2: "الكم",
     f3: "الصدر", f: "الطول", g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات",
-    btnSave: "حفظ الطلب ✅", btnDebt: "💰 كشف المتبقي (المديونيات)", btnMonthly: "📊 ريبورت شهري",
+    btnSave: "حفظ الطلب ✅", btnDebt: "💰 كشف المتبقي (المديونيات)", btnAll: "👥 عرض جميع الزبائن", btnMonthly: "📊 ريبورت شهري",
     btnYearly: "📅 ريبورت سنوي", search: "🔍 ابحث هنا عن اسم أو رقم...", filterInfo: "⚠️ عرض المديونيات فقط",
     thName: "الاسم", thRem: "المتبقي", thView: "عرض", thInv: "الفاتورة", thLoc: "المكان", thBy: "بواسطة",
     hello: "مرحباً: ", btnWord: "📄 تحميل ملف Word", shop: "محل", exh: "معرض",
@@ -180,7 +180,7 @@ const T = {
     mainTitle: "Abayat Al Omara - Customers", logout: "Logout", dateLabel: "Invoice Date", invNum: "Inv #",
     a: "Customer Name", b: "Phone Number", qty: "Qty", j: "Abaya Code", f1: "Shoulder", f2: "Sleeve",
     f3: "Chest", f: "Height", g1: "Deposit", g2: "Remaining", g3: "Total Price", k: "Notes",
-    btnSave: "Save Order ✅", btnDebt: "💰 Debt Report", btnMonthly: "📊 Monthly Report",
+    btnSave: "Save Order ✅", btnDebt: "💰 Debt Report", btnAll: "👥 Show All Customers", btnMonthly: "📊 Monthly Report",
     btnYearly: "📅 Yearly Report", search: "🔍 Search...", filterInfo: "⚠️ Showing debts only",
     thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #", thLoc: "Location", thBy: "By",
     hello: "Welcome: ", btnWord: "📄 Download Word", shop: "Shop", exh: "Exhib.",
@@ -224,7 +224,7 @@ function applyLang(){
     document.getElementById('g3').placeholder=t.g3;
     document.getElementById('k').placeholder=t.k;
     document.getElementById('btnSave').textContent=t.btnSave;
-    document.getElementById('btnDebt').textContent=t.btnDebt;
+    document.getElementById('btnDebt').textContent = onlyDebt ? t.btnAll : t.btnDebt;
     document.getElementById('btnMonthly').textContent=t.btnMonthly;
     document.getElementById('btnYearly').textContent=t.btnYearly;
     document.getElementById('z').placeholder=t.search;
@@ -328,7 +328,23 @@ document.getElementById('btnSave').onclick=()=>{
     window.d.push(o); set(ref(db,'abonat'), window.d);
     ['invNum','a','b','qty','j','f1','f2','f3','f','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
 };
-document.getElementById('btnDebt').onclick=()=>{onlyDebt=!onlyDebt; r_table();};
+
+document.getElementById('btnDebt').onclick=()=>{
+    onlyDebt = !onlyDebt; 
+    let t = T[currentLang];
+    // تغيير شكل الزر واسمه حسب الحالة
+    if(onlyDebt){
+        document.getElementById('btnDebt').textContent = t.btnAll;
+        document.getElementById('btnDebt').style.background = "#555"; // لون رمادي للتمييز
+        document.getElementById('filterInfo').style.display = 'block';
+    } else {
+        document.getElementById('btnDebt').textContent = t.btnDebt;
+        document.getElementById('btnDebt').style.background = "#d62828"; // اللون الأحمر الأصلي
+        document.getElementById('filterInfo').style.display = 'none';
+    }
+    r_table();
+};
+
 document.getElementById('btnMonthly').onclick=()=>window.generateDetailedReport('monthly');
 document.getElementById('btnYearly').onclick=()=>window.generateDetailedReport('yearly');
 document.getElementById('z').oninput=r_table;
