@@ -34,6 +34,7 @@ input:checked+.slider:before{transform:translateX(18px)}
 .selection-row label{font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:bold;color:#6b4f44}
 .selection-row input{width:auto;margin:0}
 .divider{border-top:1px dashed #ddd;margin:2px 0}
+.size-group{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}
 </style>
 </head>
 <body>
@@ -73,15 +74,18 @@ input:checked+.slider:before{transform:translateX(18px)}
   <input id="qty" placeholder="عدد العبايات">
   <input id="j" placeholder="رقم كود العباية">
   
-  <div style="display:flex;gap:5px;flex-wrap:wrap">
-    <input id="f1" placeholder="الكتف" style="flex:1;min-width:70px">
-    <input id="f2" placeholder="الكم" style="flex:1;min-width:70px">
-    <input id="f3" placeholder="الصدر" style="flex:1;min-width:70px">
-    <input id="f" placeholder="الطول" style="flex:1;min-width:70px">
-    <input id="f_hole" placeholder="الحفرة" style="flex:1;min-width:70px">
-    <input id="f_shirt" placeholder="طول القميص" style="flex:1;min-width:90px;border:1px solid #6b4f44">
-    <input id="f_skirt" placeholder="طول التنورة" style="flex:1;min-width:90px;border:1px solid #6b4f44">
-    <input id="f_waist" placeholder="الخصر" style="flex:1;min-width:70px;border:1px solid #6b4f44">
+  <div class="size-group">
+    <input id="f1" placeholder="الكتف" style="flex:1;min-width:65px">
+    <input id="f2" placeholder="الكم" style="flex:1;min-width:65px">
+    <input id="f3" placeholder="الصدر" style="flex:1;min-width:65px">
+    <input id="f" placeholder="الطول" style="flex:1;min-width:65px">
+    <input id="f_hole" placeholder="الحفرة" style="flex:1;min-width:65px">
+  </div>
+  
+  <div class="size-group">
+    <input id="f_shirt" placeholder="طول القميص" style="flex:1;min-width:100px;border:1px solid #6b4f44">
+    <input id="f_skirt" placeholder="طول التنورة" style="flex:1;min-width:100px;border:1px solid #6b4f44">
+    <input id="f_waist" placeholder="الخصر" style="flex:1;min-width:100px;border:1px solid #6b4f44">
   </div>
 
   <div style="display:flex;gap:10px">
@@ -301,8 +305,8 @@ window.showDet=(i)=>{
     document.getElementById('detInfo').innerHTML=`
         <h4>👤 ${u.n}</h4><p>🧾 ${t.invNum}: ${u.inv||'--'}</p>
         <div style="background:#fdf6f2;padding:8px;border-radius:10px;line-height:1.6">
-        📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f} <br>
-        📏 ${t.f_hole}: ${u.f_hole||'--'} | ${t.f_shirt}: ${u.f_shirt||'--'} | ${t.f_skirt}: ${u.f_skirt||'--'} | ${t.f_waist}: ${u.f_waist||'--'}</div>
+        📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f} | ${t.f_hole}: ${u.f_hole||'--'}<br>
+        📏 ${t.f_shirt}: ${u.f_shirt||'--'} | ${t.f_skirt}: ${u.f_skirt||'--'} | ${t.f_waist}: ${u.f_waist||'--'}</div>
         <p>📍 ${t.thLoc}: ${displayLoc} | 👤 ${t.thBy}: ${u.by || '--'}</p>
         <p>📝 ${t.k}: ${u.note||'--'}</p>`;
     let e=`<input id="newName" value="${u.n}"><input id="newRem" type="number" value="${u.v2}"><button onclick="saveEdit(${i})" style="background:#2a9d8f">حفظ التغييرات</button>`;
@@ -391,7 +395,6 @@ document.getElementById('btnSave').onclick=()=>{
         year:new Date().getFullYear()
     };
     window.d.push(o); set(ref(db,'abonat'), window.d);
-    // مسح الحقول بعد الحفظ
     ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
     document.getElementById('checkOrder').checked = false;
     document.getElementById('checkReady').checked = false;
