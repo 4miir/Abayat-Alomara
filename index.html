@@ -183,7 +183,7 @@ const T = {
     btnSave: "Save Order ✅", btnDebt: "💰 Debt Report", btnAll: "👥 Show All Customers", btnMonthly: "📊 Monthly Report",
     btnYearly: "📅 Yearly Report", search: "🔍 Search...", filterInfo: "⚠️ Showing debts only",
     thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #", thLoc: "Location", thBy: "By",
-    hello: "Welcome: ", btnWord: "📄 Download Word", shop: "Shop", exh: "Exhib.",
+    hello: "Welcome: ", btnWord: "📄 Download Word", shop: "Mahal", exh: "Maarad",
     totalPaid: "Total Paid", totalRem: "Total Remaining", close: "Close"
   }
 };
@@ -264,11 +264,12 @@ function r_table(){
 
 window.showDet=(i)=>{
     let u=window.d[i], t=T[currentLang];
+    let locText = (currentLang === 'ar') ? u.loc : (u.loc === 'محل' ? T.en.shop : T.en.exh);
     document.getElementById('detInfo').innerHTML=`
         <h4>👤 ${u.n}</h4><p>🧾 ${t.invNum}: ${u.inv||'--'}</p>
         <div style="background:#fdf6f2;padding:8px;border-radius:10px;">
         📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f}</div>
-        <p>📍 ${t.thLoc}: ${u.loc || '--'} | 👤 ${t.thBy}: ${u.by || '--'}</p>
+        <p>📍 ${t.thLoc}: ${locText} | 👤 ${t.thBy}: ${u.by || '--'}</p>
         <p>📝 ${t.k}: ${u.note||'--'}</p>`;
     let e=`<input id="newName" value="${u.n}"><input id="newRem" type="number" value="${u.v2}"><button onclick="saveEdit(${i})" style="background:#2a9d8f">حفظ التغييرات</button>`;
     if(window.role==='owner'||window.role==='editor') e+=`<button onclick="q(${i})" style="background:red;margin-top:5px">حذف</button>`;
@@ -332,14 +333,13 @@ document.getElementById('btnSave').onclick=()=>{
 document.getElementById('btnDebt').onclick=()=>{
     onlyDebt = !onlyDebt; 
     let t = T[currentLang];
-    // تغيير شكل الزر واسمه حسب الحالة
     if(onlyDebt){
         document.getElementById('btnDebt').textContent = t.btnAll;
-        document.getElementById('btnDebt').style.background = "#555"; // لون رمادي للتمييز
+        document.getElementById('btnDebt').style.background = "#555";
         document.getElementById('filterInfo').style.display = 'block';
     } else {
         document.getElementById('btnDebt').textContent = t.btnDebt;
-        document.getElementById('btnDebt').style.background = "#d62828"; // اللون الأحمر الأصلي
+        document.getElementById('btnDebt').style.background = "#d62828";
         document.getElementById('filterInfo').style.display = 'none';
     }
     r_table();
