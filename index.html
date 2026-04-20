@@ -29,8 +29,9 @@ td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
 .slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background-color:white;transition:.4s;border-radius:50%}
 input:checked+.slider{background-color:#6b4f44}
 input:checked+.slider:before{transform:translateX(18px)}
-.radio-group{display:flex;gap:10px;justify-content:center;margin:10px 0;background:#f9f9f9;padding:10px;border-radius:12px;flex-wrap:wrap}
-.radio-group label{font-size:13px;cursor:pointer;display:flex;align-items:center;gap:3px}
+.radio-group{display:flex;flex-direction:column;gap:10px;margin:10px 0;background:#f9f9f9;padding:12px;border-radius:12px}
+.radio-row{display:flex;justify-content:center;gap:30px}
+.radio-group label{font-size:14px;cursor:pointer;display:flex;align-items:center;gap:5px}
 .radio-group input{width:auto;margin:0}
 </style>
 </head>
@@ -83,10 +84,15 @@ input:checked+.slider:before{transform:translateX(18px)}
   <input id="g3" placeholder="السعر الكامل" readonly style="background:#f9f9f9">
   
   <div class="radio-group">
-    <label><input type="radio" name="loc" value="محل" checked> <span id="txtShop">محل</span></label>
-    <label><input type="radio" name="loc" value="معرض"> <span id="txtExh">معرض</span></label>
-    <label><input type="radio" name="loc" value="أوردر"> <span id="txtOrder">أوردر</span></label>
-    <label><input type="radio" name="loc" value="جاهز"> <span id="txtReady">جاهز</span></label>
+    <div class="radio-row">
+      <label><input type="radio" name="loc" value="محل" checked> <span id="txtShop">محل</span></label>
+      <label><input type="radio" name="loc" value="معرض"> <span id="txtExh">معرض</span></label>
+    </div>
+    <div style="border-top:1px dashed #ddd; margin:2px 0"></div>
+    <div class="radio-row">
+      <label><input type="radio" name="loc" value="أوردر"> <span id="txtOrder">أوردر</span></label>
+      <label><input type="radio" name="loc" value="جاهز"> <span id="txtReady">جاهز</span></label>
+    </div>
   </div>
 
   <textarea id="k" placeholder="ملاحظات" rows="2"></textarea>
