@@ -30,8 +30,8 @@ td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
 input:checked+.slider{background-color:#6b4f44}
 input:checked+.slider:before{transform:translateX(18px)}
 .selection-container{background:#f9f9f9;padding:12px;border-radius:12px;margin:10px 0;display:flex;flex-direction:column;gap:10px}
-.selection-row{display:flex;justify-content:space-around;align-items:center}
-.selection-row label{font-size:14px;cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:bold;color:#6b4f44}
+.selection-row{display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:10px}
+.selection-row label{font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:bold;color:#6b4f44}
 .selection-row input{width:auto;margin:0}
 .divider{border-top:1px dashed #ddd;margin:2px 0}
 </style>
@@ -72,12 +72,15 @@ input:checked+.slider:before{transform:translateX(18px)}
   <input id="b" placeholder="رقم التلفون">
   <input id="qty" placeholder="عدد العبايات">
   <input id="j" placeholder="رقم كود العباية">
-  <div style="display:flex;gap:5px">
-    <input id="f1" placeholder="الكتف">
-    <input id="f2" placeholder="الكم">
-    <input id="f3" placeholder="الصدر">
-    <input id="f" placeholder="الطول">
+  
+  <div style="display:flex;gap:5px;flex-wrap:wrap">
+    <input id="f1" placeholder="الكتف" style="flex:1;min-width:70px">
+    <input id="f2" placeholder="الكم" style="flex:1;min-width:70px">
+    <input id="f3" placeholder="الصدر" style="flex:1;min-width:70px">
+    <input id="f" placeholder="الطول" style="flex:1;min-width:70px">
+    <input id="f_hole" placeholder="الحفرة" style="flex:1;min-width:70px;border:1px solid #6b4f44">
   </div>
+
   <div style="display:flex;gap:10px">
     <input id="g1" placeholder="العربون" type="number">
     <input id="g2" placeholder="المتبقي" type="number">
@@ -88,6 +91,7 @@ input:checked+.slider:before{transform:translateX(18px)}
     <div class="selection-row">
       <label><input type="radio" name="loc" value="محل" checked> <span id="txtShop">محل</span></label>
       <label><input type="radio" name="loc" value="معرض"> <span id="txtExh">معرض</span></label>
+      <label><input type="radio" name="loc" value="أونلاين"> <span id="txtOnline">أونلاين</span></label>
     </div>
     <div class="divider"></div>
     <div class="selection-row">
@@ -178,21 +182,21 @@ const T = {
   ar: {
     mainTitle: "عبايات الأمراء - الزبائن", logout: "خروج", dateLabel: "تاريخ الفاتورة", invNum: "رقم الفاتورة",
     a: "اسم الزبونة", b: "رقم التلفون", qty: "عدد العبايات", j: "رقم كود العباية", f1: "الكتف", f2: "الكم",
-    f3: "الصدر", f: "الطول", g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات",
+    f3: "الصدر", f: "الطول", f_hole: "الحفرة", g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات",
     btnSave: "حفظ الطلب ✅", btnDebt: "💰 كشف المتبقي (المديونيات)", btnAll: "👥 عرض جميع الزبائن", btnMonthly: "📊 ريبورت شهري",
     btnYearly: "📅 ريبورت سنوي", search: "🔍 ابحث هنا عن اسم أو رقم...", filterInfo: "⚠️ عرض المديونيات فقط",
     thName: "الاسم", thRem: "المتبقي", thView: "عرض", thInv: "الفاتورة", thLoc: "المكان والحالة", thBy: "بواسطة",
-    hello: "مرحباً: ", btnWord: "📄 تحميل ملف Word", shop: "محل", exh: "معرض", order: "أوردر", ready: "جاهز",
+    hello: "مرحباً: ", btnWord: "📄 تحميل ملف Word", shop: "محل", exh: "معرض", online: "أونلاين", order: "أوردر", ready: "جاهز",
     totalPaid: "إجمالي المدفوع", totalRem: "إجمالي المتبقي", close: "إغلاق"
   },
   en: {
     mainTitle: "Abayat Al Omara - Customers", logout: "Logout", dateLabel: "Invoice Date", invNum: "Inv #",
     a: "Customer Name", b: "Phone Number", qty: "Qty", j: "Abaya Code", f1: "Shoulder", f2: "Sleeve",
-    f3: "Chest", f: "Height", g1: "Deposit", g2: "Remaining", g3: "Total Price", k: "Notes",
+    f3: "Chest", f: "Height", f_hole: "Hole", g1: "Deposit", g2: "Remaining", g3: "Total Price", k: "Notes",
     btnSave: "Save Order ✅", btnDebt: "💰 Debt Report", btnAll: "👥 Show All Customers", btnMonthly: "📊 Monthly Report",
     btnYearly: "📅 Yearly Report", search: "🔍 Search...", filterInfo: "⚠️ Showing debts only",
     thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #", thLoc: "Loc & Status", thBy: "By",
-    hello: "Welcome: ", btnWord: "📄 Download Word", shop: "Shop", exh: "Exhibition", order: "Order", ready: "Ready",
+    hello: "Welcome: ", btnWord: "📄 Download Word", shop: "Shop", exh: "Exhibition", online: "Online", order: "Order", ready: "Ready",
     totalPaid: "Total Paid", totalRem: "Total Remaining", close: "Close"
   }
 };
@@ -228,6 +232,7 @@ function applyLang(){
     document.getElementById('f2').placeholder=t.f2;
     document.getElementById('f3').placeholder=t.f3;
     document.getElementById('f').placeholder=t.f;
+    document.getElementById('f_hole').placeholder=t.f_hole;
     document.getElementById('g1').placeholder=t.g1;
     document.getElementById('g2').placeholder=t.g2;
     document.getElementById('g3').placeholder=t.g3;
@@ -240,6 +245,7 @@ function applyLang(){
     document.getElementById('userNameDisplay').textContent=t.hello + window.currentUser;
     document.getElementById('txtShop').textContent=t.shop;
     document.getElementById('txtExh').textContent=t.exh;
+    document.getElementById('txtOnline').textContent=t.online;
     document.getElementById('txtOrder').textContent=t.order;
     document.getElementById('txtReady').textContent=t.ready;
     document.getElementById('thName').textContent=t.thName;
@@ -260,13 +266,10 @@ function r_table(){
     let h='';
     fd.forEach(u=>{
         let i=window.d.indexOf(u);
-        let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أوردر': t.order, 'جاهز': t.ready };
-        
-        // تجميع النصوص المختارة للعرض في الجدول
+        let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أونلاين': t.online };
         let displayLoc = locMap[u.loc] || u.loc;
         if(u.isOrder) displayLoc += " + " + t.order;
         if(u.isReady) displayLoc += " + " + t.ready;
-
         let byText = u.by || '--';
         h+=`<tr>
             <td>${u.inv||'--'}</td>
@@ -282,7 +285,7 @@ function r_table(){
 
 window.showDet=(i)=>{
     let u=window.d[i], t=T[currentLang];
-    let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أوردر': t.order, 'جاهز': t.ready };
+    let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أونلاين': t.online };
     let displayLoc = locMap[u.loc] || u.loc;
     if(u.isOrder) displayLoc += " + " + t.order;
     if(u.isReady) displayLoc += " + " + t.ready;
@@ -290,7 +293,7 @@ window.showDet=(i)=>{
     document.getElementById('detInfo').innerHTML=`
         <h4>👤 ${u.n}</h4><p>🧾 ${t.invNum}: ${u.inv||'--'}</p>
         <div style="background:#fdf6f2;padding:8px;border-radius:10px;">
-        📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f}</div>
+        📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f} | ${t.f_hole}: ${u.f_hole||'--'}</div>
         <p>📍 ${t.thLoc}: ${displayLoc} | 👤 ${t.thBy}: ${u.by || '--'}</p>
         <p>📝 ${t.k}: ${u.note||'--'}</p>`;
     let e=`<input id="newName" value="${u.n}"><input id="newRem" type="number" value="${u.v2}"><button onclick="saveEdit(${i})" style="background:#2a9d8f">حفظ التغييرات</button>`;
@@ -362,6 +365,7 @@ document.getElementById('btnSave').onclick=()=>{
         f2:document.getElementById('f2').value, 
         f3:document.getElementById('f3').value, 
         f:document.getElementById('f').value, 
+        f_hole:document.getElementById('f_hole').value,
         v1:document.getElementById('g1').value, 
         v2:document.getElementById('g2').value, 
         v3:document.getElementById('g3').value, 
@@ -375,8 +379,7 @@ document.getElementById('btnSave').onclick=()=>{
         year:new Date().getFullYear()
     };
     window.d.push(o); set(ref(db,'abonat'), window.d);
-    // مسح الحقول بعد الحفظ
-    ['invNum','a','b','qty','j','f1','f2','f3','f','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
+    ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
     document.getElementById('checkOrder').checked = false;
     document.getElementById('checkReady').checked = false;
 };
