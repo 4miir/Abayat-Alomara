@@ -14,7 +14,7 @@ h2{text-align:center;color:#6b4f44;margin:5px 0}
 .status-text{text-align:center;font-size:11px;color:#2a9d8f;margin-bottom:15px;font-weight:bold}
 input,button,textarea,select{width:100%;padding:14px;margin:8px 0;border:1px solid #eee;border-radius:12px;box-sizing:border-box;font-size:14px}
 button{background:#6b4f44;color:white;border:none;font-weight:bold;cursor:pointer}
-.counter-box{text-align:center;background:#fdf6f2;padding:12px;border-radius:12px;margin-bottom:15px;font-size:13px;color:#6b4f44;font-weight:bold;line-height:2}
+.counter-box{text-align:center;background:#fdf6f2;padding:12px;border-radius:12px;margin-bottom:15px;font-size:13px;color:#6b4f44;font-weight:bold;line-height:2;display:none}
 .line-separator{border-top:1px solid #ddd;margin:8px 0}
 .paid-highlight{color:#000;font-size:15px;display:block}
 .rem-highlight{color:#d62828;font-size:15px;display:block}
@@ -64,6 +64,7 @@ input:checked+.slider:before{transform:translateX(18px)}
     <button onclick="location.reload()" style="width:auto;padding:5px 15px;background:#f0f0f0;color:#333;font-size:11px">خروج</button>
   </div>
   <hr>
+  
   <div class="counter-box" id="counter"></div>
 
   <input id="invNum" placeholder="رقم الفاتورة">
@@ -223,7 +224,16 @@ window.login=()=>{
         window.role=u; window.currentUser=name;
         document.getElementById('loginPage').style.display='none';
         document.getElementById('mainApp').style.display='block';
-        if(u==='owner'||u==='editor') document.getElementById('adminPanel').style.display='block';
+        
+        // إظهار لوحة التحكم والعداد فقط للأدوار المحددة
+        if(u==='owner'||u==='editor') {
+            document.getElementById('adminPanel').style.display='block';
+            document.getElementById('counter').style.display='block';
+        } else {
+            document.getElementById('adminPanel').style.display='none';
+            document.getElementById('counter').style.display='none';
+        }
+        
         applyLang();
     } else alert('الرمز خطأ!');
 };
@@ -309,6 +319,7 @@ window.showDet=(i)=>{
         📏 ${t.f_shirt}: ${u.f_shirt||'--'} | ${t.f_skirt}: ${u.f_skirt||'--'} | ${t.f_waist}: ${u.f_waist||'--'}</div>
         <p>📍 ${t.thLoc}: ${displayLoc} | 👤 ${t.thBy}: ${u.by || '--'}</p>
         <p>📝 ${t.k}: ${u.note||'--'}</p>`;
+    
     let e=`<input id="newName" value="${u.n}"><input id="newRem" type="number" value="${u.v2}"><button onclick="saveEdit(${i})" style="background:#2a9d8f">حفظ التغييرات</button>`;
     if(window.role==='owner'||window.role==='editor') e+=`<button onclick="q(${i})" style="background:red;margin-top:5px">حذف</button>`;
     document.getElementById('editArea').innerHTML=e;
@@ -349,6 +360,7 @@ window.exportWord=(n)=>{
 };
 
 function updateCounter(){
+    if(window.role !== 'owner' && window.role !== 'editor') return;
     let tr=0, tp=0; window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
     let t = T[currentLang];
     document.getElementById('counter').innerHTML=`#${window.d.length} زبائن | <span class="paid-highlight">${t.totalPaid}: ${tp.toFixed(2)}</span> | <span class="rem-highlight">${t.totalRem}: ${tr.toFixed(2)}</span>`;
