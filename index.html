@@ -35,6 +35,12 @@ input:checked+.slider:before{transform:translateX(16px)}
 .selection-container{background:#f9f9f9;padding:8px;border-radius:10px;margin:5px 0;font-size:12px}
 .selection-row{display:flex;justify-content:space-around;align-items:center;}
 hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
+
+/* Modal Style */
+#viewModal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;}
+.modal-content {background:white; max-width:400px; margin:50px auto; padding:20px; border-radius:15px; position:relative; font-size: 13px;}
+.modal-detail {margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; display: flex; justify-content: space-between;}
+.modal-detail b {color: #6b4f44;}
 </style>
 </head>
 <body>
@@ -49,6 +55,18 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
   </select>
   <input id="passInput" type="password" placeholder="الرقم السري">
   <button id="loginBtn" onclick="window.login()">دخول</button>
+</div>
+
+<div id="viewModal">
+    <div class="modal-content">
+        <h3 style="text-align:center; color:#6b4f44">تفاصيل الفاتورة</h3>
+        <div id="modalBody"></div>
+        <div class="row-grid" style="margin-top:15px">
+            <button id="btnEditInv" style="background:#2a9d8f">تعديل 📝</button>
+            <button id="btnDelInv" style="background:#d62828; display:none;">حذف 🗑️</button>
+        </div>
+        <button onclick="document.getElementById('viewModal').style.display='none'" style="background:#555; margin-top:5px">إغلاق</button>
+    </div>
 </div>
 
 <div id="mainApp" class="box">
@@ -181,48 +199,18 @@ window.currentUser = "";
 let currentLang = 'ar';
 let onlyDebt = false;
 
-// نصوص الترجمة
 const T = {
   ar: {
-    title: "عبايات الأمراء",
-    login: "🔐 دخول النظام",
-    inv: "رقم الفاتورة *",
-    name: "اسم الزبونة",
-    phone: "رقم التلفون *",
-    qty: "عدد العبايات",
-    code: "رقم كود العباية",
-    btnSizes: "📐 عرض / إخفاء المقاسات",
-    shoulder: "الكتف", sleeve: "الكم", chest: "الصدير", height: "الطول", hole: "الحفرة", shirt: "قميص", skirt: "تنورة", waist: "خصر",
-    paid: "العربون *", rem: "المتبقي *", full: "السعر الكامل",
-    shop: "محل", exh: "معرض", online: "أونلاين", order: "أوردر", ready: "جاهز",
-    save: "حفظ الطلب ✅", clear: "🧹 تفريغ",
-    debt: "💰 كشف المديونيات", all: "👥 عرض الجميع",
-    thInv: "فاتورة", thName: "الاسم", thLoc: "المكان", thBy: "بواسطة", thRem: "المتبقي", thView: "عرض",
-    status: "✅ متصل - الحفظ تلقائي ☁️", hello: "مرحباً: "
+    title: "عبايات الأمراء", login: "🔐 دخول النظام", inv: "رقم الفاتورة *", name: "اسم الزبونة", phone: "رقم التلفون *", qty: "عدد العبايات", code: "رقم كود العباية", btnSizes: "📐 عرض / إخفاء المقاسات", shoulder: "الكتف", sleeve: "الكم", chest: "الصدر", height: "الطول", hole: "الحفرة", shirt: "قميص", skirt: "تنورة", waist: "خصر", paid: "العربون *", rem: "المتبقي *", full: "السعر الكامل", shop: "محل", exh: "معرض", online: "أونلاين", order: "أوردر", ready: "جاهز", save: "حفظ الطلب ✅", clear: "🧹 تفريغ", debt: "💰 كشف المديونيات", all: "👥 عرض الجميع", thInv: "فاتورة", thName: "الاسم", thLoc: "المكان", thBy: "بواسطة", thRem: "المتبقي", thView: "عرض", status: "✅ متصل - الحفظ تلقائي ☁️", hello: "مرحباً: "
   },
   en: {
-    title: "Al Omara Abayat",
-    login: "🔐 System Login",
-    inv: "Invoice No *",
-    name: "Customer Name",
-    phone: "Phone Number *",
-    qty: "Qty",
-    code: "Item Code",
-    btnSizes: "📐 Show / Hide Sizes",
-    shoulder: "Shoulder", sleeve: "Sleeve", chest: "Chest", height: "Length", hole: "Hole", shirt: "Shirt", skirt: "Skirt", waist: "Waist",
-    paid: "Paid *", rem: "Remaining *", full: "Full Price",
-    shop: "Shop", exh: "Maarad", online: "Online", order: "Order", ready: "Ready",
-    save: "Save Order ✅", clear: "🧹 Clear",
-    debt: "💰 Debt Only", all: "👥 Show All",
-    thInv: "Inv", thName: "Name", thLoc: "Loc", thBy: "By", thRem: "Rem", thView: "View",
-    status: "✅ Connected - Auto Sync ☁️", hello: "Hi: "
+    title: "Al Omara Abayat", login: "🔐 System Login", inv: "Invoice No *", name: "Customer Name", phone: "Phone Number *", qty: "Qty", code: "Item Code", btnSizes: "📐 Show / Hide Sizes", shoulder: "Shoulder", sleeve: "Sleeve", chest: "Chest", height: "Length", hole: "Hole", shirt: "Shirt", skirt: "Skirt", waist: "Waist", paid: "Paid *", rem: "Remaining *", full: "Full Price", shop: "Shop", exh: "Maarad", online: "Online", order: "Order", ready: "Ready", save: "Save Order ✅", clear: "🧹 Clear", debt: "💰 Debt Only", all: "👥 Show All", thInv: "Inv", thName: "Name", thLoc: "Loc", thBy: "By", thRem: "Rem", thView: "View", status: "✅ Connected - Auto Sync ☁️", hello: "Hi: "
   }
 };
 
 window.toggleLang = () => {
     currentLang = document.getElementById('langToggle').checked ? 'en' : 'ar';
     let t = T[currentLang];
-    
     document.getElementById('mainTitle').innerText = t.title;
     document.getElementById('invNum').placeholder = t.inv;
     document.getElementById('a').placeholder = t.name;
@@ -230,8 +218,6 @@ window.toggleLang = () => {
     document.getElementById('qty').placeholder = t.qty;
     document.getElementById('j').placeholder = t.code;
     document.getElementById('btnShowSizes').innerText = t.btnSizes;
-    
-    // مقاسات
     document.getElementById('f1').placeholder = t.shoulder;
     document.getElementById('f2').placeholder = t.sleeve;
     document.getElementById('f3').placeholder = t.chest;
@@ -240,28 +226,23 @@ window.toggleLang = () => {
     document.getElementById('f_shirt').placeholder = t.shirt;
     document.getElementById('f_skirt').placeholder = t.skirt;
     document.getElementById('f_waist').placeholder = t.waist;
-    
     document.getElementById('g1').placeholder = t.paid;
     document.getElementById('g2').placeholder = t.rem;
     document.getElementById('g3').placeholder = t.full;
-    
     document.getElementById('txtShop').innerText = t.shop;
     document.getElementById('txtExh').innerText = t.exh;
     document.getElementById('txtOnline').innerText = t.online;
     document.getElementById('txtOrder').innerText = t.order;
     document.getElementById('txtReady').innerText = t.ready;
-    
     document.getElementById('btnSave').innerText = t.save;
     document.getElementById('btnClear').innerText = t.clear;
     document.getElementById('btnDebt').innerText = onlyDebt ? t.all : t.debt;
-    
     document.getElementById('thInv').innerText = t.thInv;
     document.getElementById('thName').innerText = t.thName;
     document.getElementById('thLoc').innerText = t.thLoc;
     document.getElementById('thBy').innerText = t.thBy;
     document.getElementById('thRem').innerText = t.thRem;
     document.getElementById('thView').innerText = t.thView;
-    
     document.getElementById('userNameDisplay').textContent = t.hello + window.currentUser;
     r_table();
 };
@@ -295,9 +276,65 @@ window.login=()=>{
         window.role=u; window.currentUser=name;
         document.getElementById('loginPage').style.display='none';
         document.getElementById('mainApp').style.display='block';
-        if(u==='owner'||u==='editor') document.getElementById('adminPanel').style.display='block';
+        if(u==='owner'||u==='editor') {
+            document.getElementById('adminPanel').style.display='block';
+            document.getElementById('btnDelInv').style.display='block';
+        }
         document.getElementById('userNameDisplay').textContent=T[currentLang].hello + name;
     } else alert('Error Password!');
+};
+
+// دالة عرض تفاصيل الفاتورة
+window.viewInv = (index) => {
+    let u = window.d[index];
+    let body = `
+        <div class="modal-detail"><b>الفاتورة:</b> <span>${u.inv}</span></div>
+        <div class="modal-detail"><b>الاسم:</b> <span>${u.n || '--'}</span></div>
+        <div class="modal-detail"><b>الهاتف:</b> <span>${u.p}</span></div>
+        <div class="modal-detail"><b>الكتف/الكم/الصدر:</b> <span>${u.f1}/${u.f2}/${u.f3}</span></div>
+        <div class="modal-detail"><b>الطول:</b> <span>${u.f}</span></div>
+        <div class="modal-detail"><b>الحفرة/الخصر:</b> <span>${u.f_hole}/${u.f_waist}</span></div>
+        <div class="modal-detail"><b>المدفوع:</b> <span>${u.v1}</span></div>
+        <div class="modal-detail"><b>المتبقي:</b> <span style="color:red">${u.v2}</span></div>
+        <div class="modal-detail"><b>التاريخ:</b> <span>${u.id}</span></div>
+        <div class="modal-detail"><b>الموظف:</b> <span>${u.by}</span></div>
+    `;
+    document.getElementById('modalBody').innerHTML = body;
+    document.getElementById('viewModal').style.display = 'block';
+    
+    // ربط زر التعديل
+    document.getElementById('btnEditInv').onclick = () => {
+        if(confirm("هل تريد سحب البيانات للتعديل؟")) {
+            document.getElementById('invNum').value = u.inv;
+            document.getElementById('a').value = u.n;
+            document.getElementById('b').value = u.p;
+            document.getElementById('qty').value = u.qty;
+            document.getElementById('j').value = u.j;
+            document.getElementById('f1').value = u.f1;
+            document.getElementById('f2').value = u.f2;
+            document.getElementById('f3').value = u.f3;
+            document.getElementById('f').value = u.f;
+            document.getElementById('f_hole').value = u.f_hole;
+            document.getElementById('f_shirt').value = u.f_shirt;
+            document.getElementById('f_skirt').value = u.f_skirt;
+            document.getElementById('f_waist').value = u.f_waist;
+            document.getElementById('g1').value = u.v1;
+            document.getElementById('g2').value = u.v2;
+            document.getElementById('g3').value = u.v3;
+            document.getElementById('id').value = u.id;
+            document.getElementById('viewModal').style.display = 'none';
+            window.scrollTo(0,0);
+        }
+    };
+
+    // ربط زر الحذف
+    document.getElementById('btnDelInv').onclick = () => {
+        if(confirm("سيتم حذف الفاتورة نهائياً، هل أنت متأكد؟")) {
+            window.d.splice(index, 1);
+            set(ref(db, 'abonat'), window.d);
+            document.getElementById('viewModal').style.display = 'none';
+        }
+    };
 };
 
 function r_table(){
@@ -311,17 +348,16 @@ function r_table(){
         let i=window.d.indexOf(u);
         let isBlocked = window.blacklist.includes(u.p);
         let rowClass = isBlocked ? 'blocked-row' : '';
-        
         let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أونلاين': t.online };
         let displayLoc = (locMap[u.loc] || u.loc) + (u.isOrder?"+أ":"") + (u.isReady?"+ج":"");
         
         h+=`<tr class="${rowClass}">
                 <td>${u.inv||'--'}</td>
-                <td>${u.n}</td>
+                <td>${u.n || 'بدون اسم'}</td>
                 <td>${displayLoc}</td>
                 <td>${u.by || '--'}</td>
                 <td style="color:red;font-weight:bold">${u.v2}</td>
-                <td><button onclick="alert('👤 ${u.n}\\n📐 ${u.f1}-${u.f2}-${u.f3}-${u.f}')" style="padding:2px 5px; font-size:9px;">👁️</button></td>
+                <td><button onclick="viewInv(${i})" style="padding:2px 5px; font-size:9px;">👁️</button></td>
             </tr>`;
     });
     document.getElementById('t').innerHTML=h;
@@ -349,13 +385,27 @@ document.getElementById('btnSave').onclick=()=>{
         isOrder: document.getElementById('checkOrder').checked, isReady: document.getElementById('checkReady').checked,
         by:window.currentUser, id:date, month:new Date().getMonth()+1, year:new Date().getFullYear()
     };
-    window.d.push(o); set(ref(db,'abonat'), window.d);
-    alert("✅ Saved");
+
+    // التحقق إذا كان تعديل (نفس رقم الفاتورة) أو إضافة جديدة
+    let existingIndex = window.d.findIndex(item => item.inv === inv);
+    if(existingIndex !== -1) {
+        if(confirm("رقم الفاتورة موجود بالفعل، هل تريد تحديث البيانات؟")) {
+            window.d[existingIndex] = o;
+        } else return;
+    } else {
+        window.d.push(o);
+    }
+
+    set(ref(db,'abonat'), window.d);
+    alert("✅ تم الحفظ بنجاح");
     document.getElementById('btnClear').click();
 };
 
 document.getElementById('btnClear').onclick=()=>{
-    ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','id'].forEach(i=>document.getElementById(i).value='');
+    ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','id','k'].forEach(i=>{
+        let el = document.getElementById(i);
+        if(el) el.value='';
+    });
 };
 
 document.getElementById('btnDebt').onclick = () => { 
