@@ -2,19 +2,19 @@
 <html dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Abayat Al Omara</title>
 <script src="https://cdn.jsdelivr.net/gh/evidenceprime/html-docx-js@master/dist/html-docx.js"></script>
 <style>
-body{font-family:tahoma;padding:10px;background:#fcfaf8;margin:0}
+body{font-family:tahoma;padding:10px;background:#fcfaf8;margin:0; -webkit-tap-highlight-color: transparent;}
 .box{max-width:550px;margin:auto;background:white;padding:15px;border-radius:20px;box-shadow:0 5px 15px rgba(0,0,0,0.05)}
 #loginPage,#mainApp{display:none}
 #loginPage{display:block;text-align:center;padding:40px 20px}
 h2{text-align:center;color:#6b4f44;margin:5px 0; font-size: 18px;}
 .status-text{text-align:center;font-size:10px;color:#2a9d8f;margin-bottom:10px;font-weight:bold}
-input,button,textarea,select{width:100%;padding:10px;margin:5px 0;border:1px solid #eee;border-radius:10px;box-sizing:border-box;font-size:13px}
+input,button,textarea,select{width:100%;padding:10px;margin:5px 0;border:1px solid #eee;border-radius:10px;box-sizing:border-box;font-size:13px; -webkit-appearance: none;}
 .req{border: 1px solid #ff000045 !important; background: #fff5f5;}
-button{background:#6b4f44;color:white;border:none;font-weight:bold;cursor:pointer}
+button{background:#6b4f44;color:white;border:none;font-weight:bold;cursor:pointer; touch-action: manipulation;}
 .row-grid {display: flex; gap: 5px; align-items: center;}
 .row-grid > * {flex: 1;}
 .size-section {background: #fdf6f2; padding: 10px; border-radius: 12px; margin: 10px 0; display: none; border: 1px solid #e9dcd3;}
@@ -36,9 +36,9 @@ input:checked+.slider:before{transform:translateX(16px)}
 .selection-row{display:flex;justify-content:space-around;align-items:center;}
 hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 
-/* Modal Style */
-#viewModal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;}
-.modal-content {background:white; max-width:400px; margin:50px auto; padding:20px; border-radius:15px; position:relative; font-size: 13px;}
+/* Modal Style - محسن للايفون */
+#viewModal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; overflow-y: auto;}
+.modal-content {background:white; max-width:90%; width:380px; margin:40px auto; padding:20px; border-radius:15px; position:relative; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
 .modal-detail {margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; display: flex; justify-content: space-between;}
 .modal-detail b {color: #6b4f44;}
 </style>
@@ -200,69 +200,9 @@ let currentLang = 'ar';
 let onlyDebt = false;
 
 const T = {
-  ar: {
-    title: "عبايات الأمراء", login: "🔐 دخول النظام", inv: "رقم الفاتورة *", name: "اسم الزبونة", phone: "رقم التلفون *", qty: "عدد العبايات", code: "رقم كود العباية", btnSizes: "📐 عرض / إخفاء المقاسات", shoulder: "الكتف", sleeve: "الكم", chest: "الصدر", height: "الطول", hole: "الحفرة", shirt: "قميص", skirt: "تنورة", waist: "خصر", paid: "العربون *", rem: "المتبقي *", full: "السعر الكامل", shop: "محل", exh: "معرض", online: "أونلاين", order: "أوردر", ready: "جاهز", save: "حفظ الطلب ✅", clear: "🧹 تفريغ", debt: "💰 كشف المديونيات", all: "👥 عرض الجميع", thInv: "فاتورة", thName: "الاسم", thLoc: "المكان", thBy: "بواسطة", thRem: "المتبقي", thView: "عرض", status: "✅ متصل - الحفظ تلقائي ☁️", hello: "مرحباً: "
-  },
-  en: {
-    title: "Al Omara Abayat", login: "🔐 System Login", inv: "Invoice No *", name: "Customer Name", phone: "Phone Number *", qty: "Qty", code: "Item Code", btnSizes: "📐 Show / Hide Sizes", shoulder: "Shoulder", sleeve: "Sleeve", chest: "Chest", height: "Length", hole: "Hole", shirt: "Shirt", skirt: "Skirt", waist: "Waist", paid: "Paid *", rem: "Remaining *", full: "Full Price", shop: "Shop", exh: "Maarad", online: "Online", order: "Order", ready: "Ready", save: "Save Order ✅", clear: "🧹 Clear", debt: "💰 Debt Only", all: "👥 Show All", thInv: "Inv", thName: "Name", thLoc: "Loc", thBy: "By", thRem: "Rem", thView: "View", status: "✅ Connected - Auto Sync ☁️", hello: "Hi: "
-  }
+  ar: { title: "عبايات الأمراء", login: "🔐 دخول النظام", status: "✅ متصل - الحفظ تلقائي ☁️", hello: "مرحباً: " },
+  en: { title: "Al Omara Abayat", login: "🔐 System Login", status: "✅ Connected - Auto Sync ☁️", hello: "Hi: " }
 };
-
-window.toggleLang = () => {
-    currentLang = document.getElementById('langToggle').checked ? 'en' : 'ar';
-    let t = T[currentLang];
-    document.getElementById('mainTitle').innerText = t.title;
-    document.getElementById('invNum').placeholder = t.inv;
-    document.getElementById('a').placeholder = t.name;
-    document.getElementById('b').placeholder = t.phone;
-    document.getElementById('qty').placeholder = t.qty;
-    document.getElementById('j').placeholder = t.code;
-    document.getElementById('btnShowSizes').innerText = t.btnSizes;
-    document.getElementById('f1').placeholder = t.shoulder;
-    document.getElementById('f2').placeholder = t.sleeve;
-    document.getElementById('f3').placeholder = t.chest;
-    document.getElementById('f').placeholder = t.height;
-    document.getElementById('f_hole').placeholder = t.hole;
-    document.getElementById('f_shirt').placeholder = t.shirt;
-    document.getElementById('f_skirt').placeholder = t.skirt;
-    document.getElementById('f_waist').placeholder = t.waist;
-    document.getElementById('g1').placeholder = t.paid;
-    document.getElementById('g2').placeholder = t.rem;
-    document.getElementById('g3').placeholder = t.full;
-    document.getElementById('txtShop').innerText = t.shop;
-    document.getElementById('txtExh').innerText = t.exh;
-    document.getElementById('txtOnline').innerText = t.online;
-    document.getElementById('txtOrder').innerText = t.order;
-    document.getElementById('txtReady').innerText = t.ready;
-    document.getElementById('btnSave').innerText = t.save;
-    document.getElementById('btnClear').innerText = t.clear;
-    document.getElementById('btnDebt').innerText = onlyDebt ? t.all : t.debt;
-    document.getElementById('thInv').innerText = t.thInv;
-    document.getElementById('thName').innerText = t.thName;
-    document.getElementById('thLoc').innerText = t.thLoc;
-    document.getElementById('thBy').innerText = t.thBy;
-    document.getElementById('thRem').innerText = t.thRem;
-    document.getElementById('thView').innerText = t.thView;
-    document.getElementById('userNameDisplay').textContent = t.hello + window.currentUser;
-    r_table();
-};
-
-window.toggleSizes = () => {
-    let s = document.getElementById('sizeSection');
-    s.style.display = (s.style.display === 'block') ? 'none' : 'block';
-};
-
-onValue(ref(db,'abonat'),(s)=>{
-    window.d = s.exists() ? s.val() : [];
-    document.getElementById('statusLine').innerHTML = T[currentLang].status;
-    r_table();
-    updateCounter();
-});
-
-onValue(ref(db,'blacklist'),(s)=>{
-    window.blacklist = s.exists() ? s.val() : [];
-    r_table();
-});
 
 window.login=()=>{
     let u=document.getElementById('userSelect').value, p=document.getElementById('passInput').value;
@@ -280,56 +220,74 @@ window.login=()=>{
             document.getElementById('adminPanel').style.display='block';
             document.getElementById('btnDelInv').style.display='block';
         }
-        document.getElementById('userNameDisplay').textContent=T[currentLang].hello + name;
+        document.getElementById('userNameDisplay').textContent= (T[currentLang].hello || "Hi: ") + name;
+        updateCounter(); // تحديث العداد فور تسجيل الدخول بناء على الصلاحية
     } else alert('Error Password!');
 };
 
-// دالة عرض تفاصيل الفاتورة
+onValue(ref(db,'abonat'),(s)=>{
+    window.d = s.exists() ? s.val() : [];
+    document.getElementById('statusLine').innerHTML = T[currentLang].status;
+    r_table();
+    updateCounter();
+});
+
+// دالة العداد مع نظام حماية الخصوصية (Private for Owner)
+function updateCounter(){
+    if(!window.currentUser) return;
+    let tr=0, tp=0; 
+    window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
+    
+    // إذا كانت صاحبة الحلال أو المحرر، أظهر المبالغ، وإلا أظهر العدد فقط
+    if(window.role === 'owner' || window.role === 'editor') {
+        document.getElementById('counter').innerHTML = `#${window.d.length} | Paid: ${tp.toFixed(2)} | Rem: ${tr.toFixed(2)}`;
+    } else {
+        document.getElementById('counter').innerHTML = `# Total Orders: ${window.d.length}`;
+    }
+}
+
+// دالة العرض والتعديل (محسنة للايفون)
 window.viewInv = (index) => {
     let u = window.d[index];
     let body = `
         <div class="modal-detail"><b>الفاتورة:</b> <span>${u.inv}</span></div>
         <div class="modal-detail"><b>الاسم:</b> <span>${u.n || '--'}</span></div>
         <div class="modal-detail"><b>الهاتف:</b> <span>${u.p}</span></div>
-        <div class="modal-detail"><b>الكتف/الكم/الصدر:</b> <span>${u.f1}/${u.f2}/${u.f3}</span></div>
-        <div class="modal-detail"><b>الطول:</b> <span>${u.f}</span></div>
-        <div class="modal-detail"><b>الحفرة/الخصر:</b> <span>${u.f_hole}/${u.f_waist}</span></div>
+        <div class="modal-detail"><b>المقاسات:</b> <span>${u.f1}/${u.f2}/${u.f3}/${u.f}</span></div>
         <div class="modal-detail"><b>المدفوع:</b> <span>${u.v1}</span></div>
         <div class="modal-detail"><b>المتبقي:</b> <span style="color:red">${u.v2}</span></div>
         <div class="modal-detail"><b>التاريخ:</b> <span>${u.id}</span></div>
-        <div class="modal-detail"><b>الموظف:</b> <span>${u.by}</span></div>
     `;
     document.getElementById('modalBody').innerHTML = body;
     document.getElementById('viewModal').style.display = 'block';
     
-    // ربط زر التعديل
+    // التعديل (يعمل في الايفون)
     document.getElementById('btnEditInv').onclick = () => {
         if(confirm("هل تريد سحب البيانات للتعديل؟")) {
             document.getElementById('invNum').value = u.inv;
-            document.getElementById('a').value = u.n;
+            document.getElementById('a').value = u.n || '';
             document.getElementById('b').value = u.p;
-            document.getElementById('qty').value = u.qty;
-            document.getElementById('j').value = u.j;
-            document.getElementById('f1').value = u.f1;
-            document.getElementById('f2').value = u.f2;
-            document.getElementById('f3').value = u.f3;
-            document.getElementById('f').value = u.f;
-            document.getElementById('f_hole').value = u.f_hole;
-            document.getElementById('f_shirt').value = u.f_shirt;
-            document.getElementById('f_skirt').value = u.f_skirt;
-            document.getElementById('f_waist').value = u.f_waist;
-            document.getElementById('g1').value = u.v1;
-            document.getElementById('g2').value = u.v2;
-            document.getElementById('g3').value = u.v3;
-            document.getElementById('id').value = u.id;
+            document.getElementById('qty').value = u.qty || '';
+            document.getElementById('j').value = u.j || '';
+            document.getElementById('f1').value = u.f1 || '';
+            document.getElementById('f2').value = u.f2 || '';
+            document.getElementById('f3').value = u.f3 || '';
+            document.getElementById('f').value = u.f || '';
+            document.getElementById('f_hole').value = u.f_hole || '';
+            document.getElementById('f_shirt').value = u.f_shirt || '';
+            document.getElementById('f_skirt').value = u.f_skirt || '';
+            document.getElementById('f_waist').value = u.f_waist || '';
+            document.getElementById('g1').value = u.v1 || '';
+            document.getElementById('g2').value = u.v2 || '';
+            document.getElementById('g3').value = u.v3 || '';
+            document.getElementById('id').value = u.id || '';
             document.getElementById('viewModal').style.display = 'none';
-            window.scrollTo(0,0);
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
     };
 
-    // ربط زر الحذف
     document.getElementById('btnDelInv').onclick = () => {
-        if(confirm("سيتم حذف الفاتورة نهائياً، هل أنت متأكد؟")) {
+        if(confirm("سيتم حذف الفاتورة نهائياً؟")) {
             window.d.splice(index, 1);
             set(ref(db, 'abonat'), window.d);
             document.getElementById('viewModal').style.display = 'none';
@@ -343,29 +301,21 @@ function r_table(){
     if(onlyDebt) fd=fd.filter(u=>(parseFloat(u.v2)||0)>0);
     
     let h='';
-    let t = T[currentLang];
     fd.forEach(u=>{
         let i=window.d.indexOf(u);
-        let isBlocked = window.blacklist.includes(u.p);
-        let rowClass = isBlocked ? 'blocked-row' : '';
-        let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أونلاين': t.online };
+        let locMap = { 'محل': 'محل', 'معرض': 'معرض', 'أونلاين': 'أونلاين' };
         let displayLoc = (locMap[u.loc] || u.loc) + (u.isOrder?"+أ":"") + (u.isReady?"+ج":"");
         
-        h+=`<tr class="${rowClass}">
+        h+=`<tr>
                 <td>${u.inv||'--'}</td>
                 <td>${u.n || 'بدون اسم'}</td>
                 <td>${displayLoc}</td>
                 <td>${u.by || '--'}</td>
                 <td style="color:red;font-weight:bold">${u.v2}</td>
-                <td><button onclick="viewInv(${i})" style="padding:2px 5px; font-size:9px;">👁️</button></td>
+                <td><button onclick="viewInv(${i})" style="padding:4px 8px; font-size:10px; border-radius:5px;">👁️</button></td>
             </tr>`;
     });
     document.getElementById('t').innerHTML=h;
-}
-
-function updateCounter(){
-    let tr=0, tp=0; window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
-    document.getElementById('counter').innerHTML = `#${window.d.length} | Paid: ${tp.toFixed(2)} | Rem: ${tr.toFixed(2)}`;
 }
 
 document.getElementById('g1').oninput = document.getElementById('g2').oninput = () => {
@@ -386,34 +336,36 @@ document.getElementById('btnSave').onclick=()=>{
         by:window.currentUser, id:date, month:new Date().getMonth()+1, year:new Date().getFullYear()
     };
 
-    // التحقق إذا كان تعديل (نفس رقم الفاتورة) أو إضافة جديدة
     let existingIndex = window.d.findIndex(item => item.inv === inv);
     if(existingIndex !== -1) {
-        if(confirm("رقم الفاتورة موجود بالفعل، هل تريد تحديث البيانات؟")) {
-            window.d[existingIndex] = o;
-        } else return;
+        if(confirm("تحديث البيانات الحالية؟")) window.d[existingIndex] = o; else return;
     } else {
         window.d.push(o);
     }
-
     set(ref(db,'abonat'), window.d);
-    alert("✅ تم الحفظ بنجاح");
+    alert("✅ تم الحفظ");
     document.getElementById('btnClear').click();
 };
 
 document.getElementById('btnClear').onclick=()=>{
     ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','id','k'].forEach(i=>{
-        let el = document.getElementById(i);
-        if(el) el.value='';
+        if(document.getElementById(i)) document.getElementById(i).value='';
     });
 };
 
 document.getElementById('btnDebt').onclick = () => { 
     onlyDebt = !onlyDebt; 
-    document.getElementById('btnDebt').innerText = onlyDebt ? T[currentLang].all : T[currentLang].debt; 
+    document.getElementById('btnDebt').innerText = onlyDebt ? "👥 عرض الجميع" : "💰 كشف المديونيات"; 
     r_table(); 
 };
+
+window.toggleSizes = () => {
+    let s = document.getElementById('sizeSection');
+    s.style.display = (s.style.display === 'block') ? 'none' : 'block';
+};
+
 document.getElementById('z').oninput = r_table;
+onValue(ref(db,'blacklist'),(s)=>{ window.blacklist = s.exists() ? s.val() : []; r_table(); });
 </script>
 </body>
 </html>
