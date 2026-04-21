@@ -25,7 +25,6 @@ table{width:100%;margin-top:15px;border-collapse:collapse;font-size:10px}
 th{background:#fdf6f2;color:#6b4f44;padding:8px}
 td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
 .blocked-row {background-color: #ff000021 !important; color: #d62828; font-weight: bold;}
-/* تم إضافة لون التمييز للمديونية */
 .debt-row {background-color: #fff3e0 !important;} 
 .report-area{margin-top:20px;padding:10px;background:#fff;border:2px solid #3a5a40;border-radius:15px;display:none}
 .switch{position:relative;display:inline-block;width:34px;height:18px}
@@ -393,6 +392,7 @@ window.viewInv = (index) => {
         <div class="modal-detail"><b>المقاسات:</b> <span>${u.f1}/${u.f2}/${u.f3}/${u.f}</span></div>
         <div class="modal-detail"><b>${l.paid}:</b> <span>${u.v1}</span></div>
         <div class="modal-detail"><b>${l.rem}:</b> <span style="color:red; font-weight:bold;">${u.v2}</span></div>
+        <div class="modal-detail"><b>${l.notes}:</b> <span>${u.k || '--'}</span></div>
         <div class="modal-detail"><b>${l.date}:</b> <span>${u.id}</span></div>
     `;
     document.getElementById('modalBody').innerHTML = body;
@@ -417,6 +417,7 @@ window.viewInv = (index) => {
             document.getElementById('g2').value = u.v2 || '';
             document.getElementById('g3').value = u.v3 || '';
             document.getElementById('id').value = u.id || '';
+            document.getElementById('k').value = u.k || '';
             if(u.loc) {
                let rads = document.getElementsByName('loc');
                for(let r of rads) if(r.value === u.loc) r.checked = true;
@@ -449,7 +450,6 @@ function r_table(){
         let isBlocked = window.blacklist.includes(u.p);
         let remAmount = parseFloat(u.v2) || 0;
         
-        // منطق التلوين: المحظور (أحمر شفاف) ثم المديونية (برتقالي فاتح)
         let rowClass = '';
         if (isBlocked) { rowClass = 'blocked-row'; }
         else if (remAmount > 0) { rowClass = 'debt-row'; }
@@ -484,6 +484,7 @@ document.getElementById('btnSave').onclick=()=>{
         f_hole:document.getElementById('f_hole').value, f_shirt:document.getElementById('f_shirt').value, f_skirt:document.getElementById('f_skirt').value, f_waist:document.getElementById('f_waist').value,
         v1:v1, v2:v2, v3:document.getElementById('g3').value, loc:document.querySelector('input[name="loc"]:checked').value,
         isOrder: document.getElementById('checkOrder').checked, isReady: document.getElementById('checkReady').checked,
+        k:document.getElementById('k').value,
         by:window.currentUser, id:date, month:new Date(date).getMonth()+1, year:new Date(date).getFullYear()
     };
 
