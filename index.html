@@ -21,9 +21,8 @@ button{background:#6b4f44;color:white;border:none;font-weight:bold;cursor:pointe
 table{width:100%;margin-top:20px;border-collapse:collapse;font-size:10px}
 th{background:#fdf6f2;color:#6b4f44;padding:8px}
 td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
-/* ستايل الصف المحظور في الجدول */
 .blocked-row {background-color: #ffe5e5 !important; border-right: 5px solid red;}
-.report-area{margin-top:20px;padding:10px;background:#fff;border:2px solid #3a5a40;border-radius:15px;display:none}
+.report-area{margin-top:20px;padding:15px;background:#fff;border:2px solid #3a5a40;border-radius:15px;display:none}
 .lang-container{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:15px}
 .switch{position:relative;display:inline-block;width:40px;height:22px}
 .switch input{opacity:0;width:0;height:0}
@@ -128,6 +127,15 @@ input:checked+.slider:before{transform:translateX(18px)}
     </div>
   </div>
 
+  <div id="reportBox" class="report-area">
+    <h3 id="reportTitle" style="text-align:center;color:#3a5a40;margin-top:0"></h3>
+    <div id="reportContent"></div>
+    <div style="display:flex; gap:10px; margin-top:15px;">
+        <button id="btnExportWord" style="background:#2b5797; flex:1;">📄 تحويل إلى Word</button>
+        <button onclick="document.getElementById('reportBox').style.display='none'" style="background:#444; flex:1;">إغلاق</button>
+    </div>
+  </div>
+
   <div id="blacklistModal" class="report-area" style="border-color: #000;">
     <h3 style="text-align:center;">🚫 قائمة الأرقام المحظورة</h3>
     <div style="display:flex; gap:5px;">
@@ -136,12 +144,6 @@ input:checked+.slider:before{transform:translateX(18px)}
     </div>
     <div id="blacklistItems" style="margin-top:10px; max-height: 200px; overflow-y: auto;"></div>
     <button onclick="document.getElementById('blacklistModal').style.display='none'" style="background:#444;margin-top:10px">إغلاق</button>
-  </div>
-
-  <div id="reportBox" class="report-area">
-    <h3 id="reportTitle" style="text-align:center;color:#3a5a40;margin-top:0"></h3>
-    <div id="reportContent"></div>
-    <button onclick="document.getElementById('reportBox').style.display='none'" style="background:#444;margin-top:10px">إغلاق التقرير</button>
   </div>
 
   <input id="z" placeholder="🔍 ابحث هنا عن اسم، رقم فاتورة، أو تليفون..." style="margin-top:20px">
@@ -235,14 +237,6 @@ const T = {
   }
 };
 
-document.getElementById('b').oninput = function() {
-    if(window.blacklist && window.blacklist.includes(this.value)) {
-        this.classList.add('blocked');
-    } else {
-        this.classList.remove('blocked');
-    }
-};
-
 window.login=()=>{
     let u=document.getElementById('userSelect').value, p=document.getElementById('passInput').value;
     let ok=false, name="";
@@ -314,20 +308,11 @@ function r_table(){
         let isBlocked = window.blacklist && window.blacklist.includes(u.p);
         let rowClass = isBlocked ? 'blocked-row' : '';
         let nameDisplay = isBlocked ? `${u.n} <span style="color:red; font-size:9px;">${t.blockedMsg}</span>` : u.n;
-
         let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أونلاين': t.online };
         let displayLoc = locMap[u.loc] || u.loc;
         if(u.isOrder) displayLoc += " + " + t.order;
         if(u.isReady) displayLoc += " + " + t.ready;
-        
-        h+=`<tr class="${rowClass}">
-                <td>${u.inv||'--'}</td>
-                <td>${nameDisplay}</td>
-                <td>${displayLoc}</td>
-                <td>${u.by || '--'}</td>
-                <td style="color:red;font-weight:bold">${u.v2}</td>
-                <td><button onclick="showDet(${i})" style="padding:2px 8px;">${t.thView}</button></td>
-            </tr>`;
+        h+=`<tr class="${rowClass}"><td>${u.inv||'--'}</td><td>${nameDisplay}</td><td>${displayLoc}</td><td>${u.by || '--'}</td><td style="color:red;font-weight:bold">${u.v2}</td><td><button onclick="showDet(${i})" style="padding:2px 8px;">${t.thView}</button></td></tr>`;
     });
     document.getElementById('t').innerHTML=h;
 }
@@ -336,13 +321,11 @@ window.showDet=(i)=>{
     let u=window.d[i], t=T[currentLang];
     let isBlocked = window.blacklist && window.blacklist.includes(u.p);
     let blockWarning = isBlocked ? `<div style="color:white; background:red; padding:5px; text-align:center; border-radius:10px; margin-bottom:10px; font-weight:bold;">⚠️ هذا العميل محظور (Blocked)</div>` : '';
-
     document.getElementById('detInfo').innerHTML=`
         ${blockWarning}
         <h4>👤 ${u.n}</h4><p>🧾 ${t.invNum}: ${u.inv||'--'} | 📅 ${u.id || '--'} | 📱 ${u.p || '--'}</p>
         <div style="background:#fdf6f2;padding:8px;border-radius:10px;line-height:1.6">
         📏 المقاسات: كتف ${u.f1} | كم ${u.f2} | صدر ${u.f3} | طول ${u.f} | حفرة ${u.f_hole||'--'}</div>`;
-    
     let e = ``;
     if(window.role==='owner' || window.role==='editor') {
         e += `<div style="border-top:1px solid #ddd; padding-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:5px;">
@@ -351,12 +334,9 @@ window.showDet=(i)=>{
                 <input id="eqty" value="${u.qty||''}" placeholder="الكمية"> <input id="ej" value="${u.j||''}" placeholder="الكود">
                 <input id="ef1" value="${u.f1||''}" placeholder="كتف"> <input id="ef2" value="${u.f2||''}" placeholder="كم">
                 <input id="ef3" value="${u.f3||''}" placeholder="صدر"> <input id="ef" value="${u.f||''}" placeholder="طول">
-                <input id="ef_h" value="${u.f_hole||''}" placeholder="حفرة"> <input id="efs" value="${u.f_shirt||''}" placeholder="قميص">
-                <input id="efsk" value="${u.f_skirt||''}" placeholder="تنورة"> <input id="efw" value="${u.f_waist||''}" placeholder="خصر">
-                <input id="ev1" type="number" value="${u.v1}" placeholder="العربون"> <input id="ev2" type="number" value="${u.v2}" placeholder="المتبقي">
-                <textarea id="enote" style="grid-column: span 2;" placeholder="ملاحظات">${u.note||''}</textarea>
+                <input id="ef_h" value="${u.f_hole||''}" placeholder="حفرة"> <input id="ev1" type="number" value="${u.v1}" placeholder="العربون">
+                <input id="ev2" type="number" value="${u.v2}" placeholder="المتبقي"> <textarea id="enote" style="grid-column: span 2;" placeholder="ملاحظات">${u.note||''}</textarea>
                 <button onclick="fullEdit(${i})" style="background:#2a9d8f; grid-column: span 2;">تحديث البيانات بالكامل ✅</button>
-                <button onclick="quickBlock('${u.p}')" style="background:#000; grid-column: span 2;">🚫 حظر هذا الرقم</button>
                 <button onclick="q(${i})" style="background:red; grid-column: span 2; margin-top:5px">حذف نهائي 🗑️</button>
               </div>`;
     }
@@ -365,187 +345,94 @@ window.showDet=(i)=>{
 };
 
 window.fullEdit=(i)=>{
-    window.d[i].n = document.getElementById('en').value;
-    window.d[i].inv = document.getElementById('ei').value;
-    window.d[i].p = document.getElementById('ep').value;
-    window.d[i].id = document.getElementById('ed').value;
-    window.d[i].qty = document.getElementById('eqty').value;
-    window.d[i].j = document.getElementById('ej').value;
-    window.d[i].f1 = document.getElementById('ef1').value;
-    window.d[i].f2 = document.getElementById('ef2').value;
-    window.d[i].f3 = document.getElementById('ef3').value;
-    window.d[i].f = document.getElementById('ef').value;
-    window.d[i].f_hole = document.getElementById('ef_h').value;
-    window.d[i].f_shirt = document.getElementById('efs').value;
-    window.d[i].f_skirt = document.getElementById('efsk').value;
-    window.d[i].f_waist = document.getElementById('efw').value;
-    window.d[i].v1 = document.getElementById('ev1').value;
-    window.d[i].v2 = document.getElementById('ev2').value;
-    window.d[i].note = document.getElementById('enote').value;
-    window.d[i].v3 = (parseFloat(window.d[i].v1) + parseFloat(window.d[i].v2)).toFixed(2);
-    set(ref(db,'abonat'), window.d);
-    alert("تم تحديث الفاتورة بالكامل");
-    document.getElementById('detailsBox').style.display='none';
-};
-
-window.quickBlock = (num) => {
-    if(!num || num === '--') return alert("لا يوجد رقم هاتف لحظره");
-    if(confirm(`هل تريد حظر الرقم ${num} تلقائياً؟`)) {
-        if(!window.blacklist.includes(num)) {
-            window.blacklist.push(num);
-            set(ref(db, 'blacklist'), window.blacklist);
-            alert("تم الحظر بنجاح");
-        } else alert("الرقم محظور مسبقاً");
-    }
+    let d = window.d[i];
+    d.n = document.getElementById('en').value; d.inv = document.getElementById('ei').value;
+    d.p = document.getElementById('ep').value; d.id = document.getElementById('ed').value;
+    d.qty = document.getElementById('eqty').value; d.j = document.getElementById('ej').value;
+    d.f1 = document.getElementById('ef1').value; d.f2 = document.getElementById('ef2').value;
+    d.f3 = document.getElementById('ef3').value; d.f = document.getElementById('ef').value;
+    d.f_hole = document.getElementById('ef_h').value; d.v1 = document.getElementById('ev1').value;
+    d.v2 = document.getElementById('ev2').value; d.note = document.getElementById('enote').value;
+    d.v3 = (parseFloat(d.v1) + parseFloat(d.v2)).toFixed(2);
+    set(ref(db,'abonat'), window.d); alert("تم التحديث"); document.getElementById('detailsBox').style.display='none';
 };
 
 window.q=(i)=>{ if(confirm("حذف؟")){window.d.splice(i,1);set(ref(db,'abonat'), window.d);document.getElementById('detailsBox').style.display='none';}};
-
-function renderBlacklist() {
-    let h = '';
-    window.blacklist.forEach((num, index) => {
-        h += `<div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:8px; margin-bottom:5px; border-radius:8px; border-right:4px solid red;">
-                <span>📱 ${num}</span>
-                <button onclick="removeFromBlacklist(${index})" style="width:auto; padding:2px 10px; background:#444; font-size:10px;">إزالة</button>
-              </div>`;
-    });
-    document.getElementById('blacklistItems').innerHTML = h || '<p style="text-align:center; font-size:12px; color:gray;">لا يوجد محظورين</p>';
-}
-
-document.getElementById('btnManageBlacklist').onclick = () => { document.getElementById('blacklistModal').style.display = 'block'; };
-
-document.getElementById('addBlackBtn').onclick = () => {
-    let num = document.getElementById('newBlackNum').value.trim();
-    if(num && !window.blacklist.includes(num)) {
-        window.blacklist.push(num);
-        set(ref(db, 'blacklist'), window.blacklist);
-        document.getElementById('newBlackNum').value = '';
-    }
-};
-
-window.removeFromBlacklist = (index) => {
-    if(confirm("إزالة؟")) {
-        window.blacklist.splice(index, 1);
-        set(ref(db, 'blacklist'), window.blacklist);
-    }
-};
 
 function updateCounter(){
     let tr=0, tp=0; window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
     let t = T[currentLang];
     let html = `#${window.d.length} ${t.customers} | `;
-    if(window.role === 'owner' || window.role === 'editor') {
-        html += `<span class="paid-highlight">${t.totalPaid}: ${tp.toFixed(2)}</span> | `;
-    }
+    if(window.role === 'owner' || window.role === 'editor') html += `<span class="paid-highlight">${t.totalPaid}: ${tp.toFixed(2)}</span> | `;
     html += `<span class="rem-highlight">${t.totalRem}: ${tr.toFixed(2)}</span>`;
     document.getElementById('counter').innerHTML = html;
 }
 
+function renderBlacklist() {
+    let h = '';
+    window.blacklist.forEach((num, index) => {
+        h += `<div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:8px; margin-bottom:5px; border-radius:8px; border-right:4px solid red;">
+                <span>📱 ${num}</span><button onclick="removeFromBlacklist(${index})" style="width:auto; padding:2px 10px; background:#444; font-size:10px;">إزالة</button>
+              </div>`;
+    });
+    document.getElementById('blacklistItems').innerHTML = h || '<p style="text-align:center; font-size:12px; color:gray;">لا يوجد محظورين</p>';
+}
+
+window.removeFromBlacklist = (index) => { if(confirm("إزالة؟")) { window.blacklist.splice(index, 1); set(ref(db, 'blacklist'), window.blacklist); }};
+
 document.getElementById('loginBtn').onclick=window.login;
 document.getElementById('langToggle').onchange=()=>{currentLang=document.getElementById('langToggle').checked?'en':'ar'; applyLang();};
-document.getElementById('g1').oninput=document.getElementById('g2').oninput=()=>{
-    let v1=parseFloat(document.getElementById('g1').value)||0, v2=parseFloat(document.getElementById('g2').value)||0;
-    document.getElementById('g3').value=(v1+v2).toFixed(2);
-};
-
-document.getElementById('btnClear').onclick=()=>{
-    let msg = currentLang === 'ar' ? "هل أنت متأكد من مسح جميع الخانات للبدء من جديد؟" : "Are you sure you want to clear all fields?";
-    if(confirm(msg)) {
-        ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
-        document.getElementById('checkOrder').checked = document.getElementById('checkReady').checked = false;
-        document.getElementById('b').classList.remove('blocked');
-    }
-};
 
 document.getElementById('btnSave').onclick=()=>{
     let inv=document.getElementById('invNum').value, tel=document.getElementById('b').value, date=document.getElementById('id').value, v1=document.getElementById('g1').value, v2=document.getElementById('g2').value;
     if(!inv || !tel || !date || !v1 || !v2) return alert("الرجاء تعبئة الخانات المطلوبة *");
-    if(window.blacklist && window.blacklist.includes(tel) && !confirm("⚠️ محظور! متابعة؟")) return;
-
     let o={
         inv:inv, n:document.getElementById('a').value, p:tel, qty:document.getElementById('qty').value, j:document.getElementById('j').value, 
         f1:document.getElementById('f1').value, f2:document.getElementById('f2').value, f3:document.getElementById('f3').value, f:document.getElementById('f').value, 
-        f_hole:document.getElementById('f_hole').value, f_shirt:document.getElementById('f_shirt').value, f_skirt:document.getElementById('f_skirt').value, f_waist:document.getElementById('f_waist').value,
-        v1:v1, v2:v2, v3:document.getElementById('g3').value, loc:document.querySelector('input[name="loc"]:checked').value,
+        f_hole:document.getElementById('f_hole').value, v1:v1, v2:v2, v3:document.getElementById('g3').value, loc:document.querySelector('input[name="loc"]:checked').value,
         isOrder: document.getElementById('checkOrder').checked, isReady: document.getElementById('checkReady').checked,
-        note:document.getElementById('k').value, id:date, by:window.currentUser, month:new Date(date).getMonth()+1, year:new Date(date).getFullYear()
+        note:document.getElementById('k').value, id:date, by:window.currentUser
     };
-    window.d.push(o); set(ref(db,'abonat'), window.d);
-    alert("✅ تم الحفظ");
-    ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
-    document.getElementById('checkOrder').checked = document.getElementById('checkReady').checked = false;
+    window.d.push(o); set(ref(db,'abonat'), window.d); alert("✅ تم الحفظ");
 };
 
-// --- الدالة المفقودة للتقارير ---
+// --- دالة الريبورت مع تحويل Word ---
 window.generateDetailedReport = (type) => {
     let t = T[currentLang];
     let reportData = {};
-
     window.d.forEach(u => {
         let dateObj = u.id ? new Date(u.id) : new Date();
-        let m = u.month || (dateObj.getMonth() + 1);
-        let y = u.year || dateObj.getFullYear();
-
-        let key = type === 'monthly' ? `${y} - ${m}` : `${y}`;
-
-        if (!reportData[key]) {
-            reportData[key] = { count: 0, qty: 0, v1: 0, v2: 0, v3: 0 };
-        }
+        let key = type === 'monthly' ? `${dateObj.getFullYear()} - ${dateObj.getMonth() + 1}` : `${dateObj.getFullYear()}`;
+        if (!reportData[key]) reportData[key] = { count: 0, qty: 0, v1: 0, v2: 0, v3: 0 };
         reportData[key].count++;
         reportData[key].qty += parseInt(u.qty) || 0;
         reportData[key].v1 += parseFloat(u.v1) || 0;
         reportData[key].v2 += parseFloat(u.v2) || 0;
         reportData[key].v3 += parseFloat(u.v3) || 0;
     });
-
     let sortedKeys = Object.keys(reportData).sort((a, b) => b.localeCompare(a));
-
-    let html = `<table style="width:100%; border-collapse:collapse; text-align:center; font-size:12px;">
-        <thead>
-            <tr style="background:#fdf6f2; color:#6b4f44;">
-                <th style="padding:8px; border-bottom:2px solid #ccc;">${type === 'monthly' ? 'الشهر' : 'السنة'}</th>
-                <th style="padding:8px; border-bottom:2px solid #ccc;">الطلبات</th>
-                <th style="padding:8px; border-bottom:2px solid #ccc;">العبايات</th>
-                <th style="padding:8px; border-bottom:2px solid #ccc;">المدفوع</th>
-                <th style="padding:8px; border-bottom:2px solid #ccc;">المتبقي</th>
-                <th style="padding:8px; border-bottom:2px solid #ccc;">الإجمالي</th>
-            </tr>
-        </thead>
-        <tbody>`;
-
-    let totalPaid = 0, totalRem = 0, totalAll = 0, totalQty = 0;
-
+    let html = `<div id="wordContent" dir="rtl"><table border="1" style="width:100%; border-collapse:collapse; text-align:center; font-family:tahoma;">
+        <thead><tr style="background:#fdf6f2; color:#6b4f44;">
+            <th>${type === 'monthly' ? 'الشهر' : 'السنة'}</th><th>الطلبات</th><th>العبايات</th><th>المدفوع</th><th>المتبقي</th><th>الإجمالي</th>
+        </tr></thead><tbody>`;
     sortedKeys.forEach(key => {
         let d = reportData[key];
-        totalPaid += d.v1;
-        totalRem += d.v2;
-        totalAll += d.v3;
-        totalQty += d.qty;
-
-        html += `<tr style="border-bottom:1px solid #eee;">
-            <td style="padding:8px; font-weight:bold;">${key}</td>
-            <td style="padding:8px;">${d.count}</td>
-            <td style="padding:8px;">${d.qty}</td>
-            <td style="padding:8px; color:#2a9d8f; font-weight:bold;">${d.v1.toFixed(2)}</td>
-            <td style="padding:8px; color:#d62828; font-weight:bold;">${d.v2.toFixed(2)}</td>
-            <td style="padding:8px; font-weight:bold;">${d.v3.toFixed(2)}</td>
-        </tr>`;
+        html += `<tr><td>${key}</td><td>${d.count}</td><td>${d.qty}</td><td>${d.v1.toFixed(2)}</td><td>${d.v2.toFixed(2)}</td><td>${d.v3.toFixed(2)}</td></tr>`;
     });
-
-    html += `<tr style="background:#f0f0f0; font-weight:bold;">
-        <td style="padding:8px;">الإجمالي الكلي</td>
-        <td style="padding:8px;">-</td>
-        <td style="padding:8px;">${totalQty}</td>
-        <td style="padding:8px; color:#2a9d8f;">${totalPaid.toFixed(2)}</td>
-        <td style="padding:8px; color:#d62828;">${totalRem.toFixed(2)}</td>
-        <td style="padding:8px;">${totalAll.toFixed(2)}</td>
-    </tr>`;
-
-    html += `</tbody></table>`;
-
+    html += `</tbody></table></div>`;
     document.getElementById('reportTitle').textContent = type === 'monthly' ? t.btnMonthly : t.btnYearly;
     document.getElementById('reportContent').innerHTML = html;
     document.getElementById('reportBox').style.display = 'block';
+};
+
+// دالة التصدير الحقيقية
+document.getElementById('btnExportWord').onclick = () => {
+    let content = document.getElementById('reportContent').innerHTML;
+    let converted = htmlDocx.asBlob('<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>' + content + '</body></html>');
+    let link = document.createElement('a');
+    link.href = URL.createObjectURL(converted);
+    link.download = 'AlOmara_Report.docx';
+    link.click();
 };
 
 document.getElementById('btnDebt').onclick=()=>{ onlyDebt = !onlyDebt; applyLang(); };
