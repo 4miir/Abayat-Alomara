@@ -61,13 +61,13 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 
 <div id="viewModal">
     <div class="modal-content">
-        <h3 style="text-align:center; color:#6b4f44">تفاصيل الفاتورة</h3>
+        <h3 id="modalTitle" style="text-align:center; color:#6b4f44">تفاصيل الفاتورة</h3>
         <div id="modalBody"></div>
         <div class="row-grid" style="margin-top:15px">
             <button id="btnEditInv" style="background:#2a9d8f">تعديل 📝</button>
             <button id="btnDelInv" style="background:#d62828; display:none;">حذف 🗑️</button>
         </div>
-        <button onclick="document.getElementById('viewModal').style.display='none'" style="background:#555; margin-top:5px">إغلاق</button>
+        <button id="btnCloseModal" onclick="document.getElementById('viewModal').style.display='none'" style="background:#555; margin-top:5px">إغلاق</button>
     </div>
 </div>
 
@@ -156,7 +156,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
     <div id="reportContent" style="overflow-x: auto; background: white; padding: 10px;"></div>
     <div class="row-grid" style="margin-top:10px">
         <button id="btnExportWord" style="background:#2b5797; font-size:11px;">تحميل Word 📄</button>
-        <button onclick="document.getElementById('reportBox').style.display='none'" style="background:#444;">إغلاق</button>
+        <button id="btnCloseReport" onclick="document.getElementById('reportBox').style.display='none'" style="background:#444;">إغلاق</button>
     </div>
   </div>
 
@@ -203,24 +203,31 @@ window.currentUser = "";
 let currentLang = 'ar';
 let onlyDebt = false;
 
+// كائن الترجمة الكامل لكل شيء في الصفحة
 const T = {
   ar: { 
-    title: "عبايات الأمراء", 
-    login: "🔐 دخول النظام", 
-    status: "✅ متصل - الحفظ تلقائي ☁️", 
-    hello: "مرحباً: ", 
+    title: "عبايات الأمراء", hello: "مرحباً: ", status: "✅ متصل - الحفظ تلقائي ☁️",
     shop: "محل", exh: "معرض", online: "أونلاين", order: "أوردر", ready: "جاهز",
-    inv: "رقم الفاتورة", name: "الاسم", phone: "الهاتف", total: "الإجمالي", date: "التاريخ",
-    search: "🔍 بحث سريع...", logout: "خروج", btnMonthly: "📊 شهري", btnYearly: "📅 سنوي", btnBlack: "🚫 المحظورين"
+    inv: "رقم الفاتورة *", date: "التاريخ", customer: "اسم الزبونة", phone: "رقم التلفون *",
+    qty: "عدد العبايات", code: "رقم كود العباية", sizes: "📐 عرض / إخفاء المقاسات",
+    f1: "الكتف", f2: "الكم", f3: "الصدر", f: "الطول", f_hole: "الحفرة", f_shirt: "طول القميص", f_skirt: "طول التنورة", f_waist: "الخصر",
+    paid: "العربون *", rem: "المتبقي *", total: "السعر الكامل", notes: "ملاحظات",
+    save: "حفظ الطلب ✅", clear: "🧹 تفريغ", debt: "💰 كشف المديونيات", all: "👥 عرض الجميع",
+    monthly: "📊 شهري", yearly: "📅 سنوي", black: "🚫 المحظورين", search: "🔍 بحث سريع...",
+    thInv: "فاتورة", thName: "الاسم", thLoc: "المكان", thBy: "بواسطة", thRem: "المتبقي", thView: "عرض",
+    logout: "خروج", export: "تحميل Word 📄", close: "إغلاق", details: "تفاصيل الفاتورة", edit: "تعديل 📝", del: "حذف 🗑️"
   },
   en: { 
-    title: "Al Omara Abayat", 
-    login: "🔐 System Login", 
-    status: "✅ Connected - Auto Sync ☁️", 
-    hello: "Welcome: ", 
-    shop: "Shop", exh: "Exhibition", online: "Online", order: "Order", ready: "Ready",
-    inv: "Invoice No", name: "Name", phone: "Phone", total: "Total", date: "Date",
-    search: "🔍 Quick Search...", logout: "Logout", btnMonthly: "📊 Monthly", btnYearly: "📅 Yearly", btnBlack: "🚫 Blocked"
+    title: "Al Omara Abayat", hello: "Welcome: ", status: "✅ Online - Auto Save ☁️",
+    shop: "Shop", exh: "Exh", online: "Online", order: "Order", ready: "Ready",
+    inv: "Invoice No *", date: "Date", customer: "Customer Name", phone: "Phone No *",
+    qty: "Qty", code: "Abaya Code", sizes: "📐 Show / Hide Sizes",
+    f1: "Shoulder", f2: "Sleeve", f3: "Chest", f: "Length", f_hole: "Arm Hole", f_shirt: "Shirt Len", f_skirt: "Skirt Len", f_waist: "Waist",
+    paid: "Paid *", rem: "Remaining *", total: "Total Price", notes: "Notes",
+    save: "Save Order ✅", clear: "🧹 Clear", debt: "💰 Debt List", all: "👥 Show All",
+    monthly: "📊 Monthly", yearly: "📅 Yearly", black: "🚫 Blocked", search: "🔍 Quick Search...",
+    thInv: "Inv", thName: "Name", thLoc: "Location", thBy: "By", thRem: "Rem", thView: "View",
+    logout: "Logout", export: "Download Word 📄", close: "Close", details: "Invoice Details", edit: "Edit 📝", del: "Delete 🗑️"
   }
 };
 
@@ -242,31 +249,79 @@ window.login=()=>{
         }
         document.getElementById('userNameDisplay').textContent= T[currentLang].hello + name;
         updateCounter();
+        window.toggleLang(); // لتأكيد اللغة المختارة عند الدخول
     } else alert('Error Password!');
 };
 
-// تشغيل تحويل اللغة بالكامل
+// وظيفة تبديل اللغة الشاملة لكل العناصر
 window.toggleLang = () => {
-    currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    let l = T[currentLang];
+    document.body.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
     document.getElementById('langText').innerText = currentLang === 'ar' ? "English" : "عربي";
-    document.getElementById('mainTitle').innerText = T[currentLang].title;
-    document.getElementById('userNameDisplay').textContent = T[currentLang].hello + window.currentUser;
-    document.getElementById('txtShop').innerText = T[currentLang].shop;
-    document.getElementById('txtExh').innerText = T[currentLang].exh;
-    document.getElementById('txtOnline').innerText = T[currentLang].online;
-    document.getElementById('txtOrder').innerText = T[currentLang].order;
-    document.getElementById('txtReady').innerText = T[currentLang].ready;
-    document.getElementById('z').placeholder = T[currentLang].search;
-    document.getElementById('logoutBtn').innerText = T[currentLang].logout;
-    document.getElementById('btnMonthly').innerText = T[currentLang].btnMonthly;
-    document.getElementById('btnYearly').innerText = T[currentLang].btnYearly;
-    document.getElementById('btnManageBlacklist').innerText = T[currentLang].btnBlack;
+    
+    // العناوين والنصوص الثابتة
+    document.getElementById('mainTitle').innerText = l.title;
+    document.getElementById('statusLine').innerText = l.status;
+    document.getElementById('userNameDisplay').innerText = l.hello + window.currentUser;
+    document.getElementById('logoutBtn').innerText = l.logout;
+    
+    // الخانات (Placeholders)
+    document.getElementById('invNum').placeholder = l.inv;
+    document.getElementById('a').placeholder = l.customer;
+    document.getElementById('b').placeholder = l.phone;
+    document.getElementById('qty').placeholder = l.qty;
+    document.getElementById('j').placeholder = l.code;
+    document.getElementById('f1').placeholder = l.f1;
+    document.getElementById('f2').placeholder = l.f2;
+    document.getElementById('f3').placeholder = l.f3;
+    document.getElementById('f').placeholder = l.f;
+    document.getElementById('f_hole').placeholder = l.f_hole;
+    document.getElementById('f_shirt').placeholder = l.f_shirt;
+    document.getElementById('f_skirt').placeholder = l.f_skirt;
+    document.getElementById('f_waist').placeholder = l.f_waist;
+    document.getElementById('g1').placeholder = l.paid;
+    document.getElementById('g2').placeholder = l.rem;
+    document.getElementById('g3').placeholder = l.total;
+    document.getElementById('k').placeholder = l.notes;
+    document.getElementById('z').placeholder = l.search;
+
+    // الأزرار
+    document.getElementById('btnShowSizes').innerText = l.sizes;
+    document.getElementById('btnSave').innerText = l.save;
+    document.getElementById('btnClear').innerText = l.clear;
+    document.getElementById('btnDebt').innerText = onlyDebt ? l.all : l.debt;
+    document.getElementById('btnMonthly').innerText = l.monthly;
+    document.getElementById('btnYearly').innerText = l.yearly;
+    document.getElementById('btnManageBlacklist').innerText = l.black;
+    document.getElementById('btnExportWord').innerText = l.export;
+    document.getElementById('btnCloseReport').innerText = l.close;
+    document.getElementById('btnCloseModal').innerText = l.close;
+    document.getElementById('btnEditInv').innerText = l.edit;
+    document.getElementById('btnDelInv').innerText = l.del;
+    document.getElementById('modalTitle').innerText = l.details;
+
+    // الراديو والتيك بوكس
+    document.getElementById('txtShop').innerText = l.shop;
+    document.getElementById('txtExh').innerText = l.exh;
+    document.getElementById('txtOnline').innerText = l.online;
+    document.getElementById('txtOrder').innerText = l.order;
+    document.getElementById('txtReady').innerText = l.ready;
+
+    // رؤوس الجدول
+    document.getElementById('thInv').innerText = l.thInv;
+    document.getElementById('thName').innerText = l.thName;
+    document.getElementById('thLoc').innerText = l.thLoc;
+    document.getElementById('thBy').innerText = l.thBy;
+    document.getElementById('thRem').innerText = l.thRem;
+    document.getElementById('thView').innerText = l.thView;
+
     r_table();
+    currentLang = currentLang === 'ar' ? 'en' : 'ar'; // للتبديل في المرة القادمة
 };
 
 onValue(ref(db,'abonat'),(s)=>{
     window.d = s.exists() ? s.val() : [];
-    document.getElementById('statusLine').innerHTML = T[currentLang].status;
+    document.getElementById('statusLine').innerHTML = T[currentLang==='ar'?'en':'ar'].status;
     r_table();
     updateCounter();
 });
@@ -276,16 +331,15 @@ function updateCounter(){
     let tr=0, tp=0; 
     window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
     if(window.role === 'owner' || window.role === 'editor') {
-        // المتبقي باللون الأحمر
         document.getElementById('counter').innerHTML = `#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span>`;
     } else {
         document.getElementById('counter').innerHTML = `# Total Orders: ${window.d.length}`;
     }
 }
 
-// تشغيل التقارير مع التاريخ الكامل
 const showReport = (type) => {
     let now = new Date();
+    let l = T[currentLang==='ar'?'en':'ar'];
     let filtered = window.d.filter(u => {
         let dDate = new Date(u.id);
         if(type==='monthly') return dDate.getMonth() === now.getMonth() && dDate.getFullYear() === now.getFullYear();
@@ -295,17 +349,17 @@ const showReport = (type) => {
     let total = 0;
     let h = `<table id="reportTable" border="1" style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
         <tr style="background:#f1f1f1">
-            <th>${T[currentLang].inv}</th>
-            <th>${T[currentLang].name}</th>
-            <th>${T[currentLang].date}</th>
-            <th>${T[currentLang].total}</th>
+            <th>${l.thInv}</th>
+            <th>${l.thName}</th>
+            <th>${l.date}</th>
+            <th>${l.total}</th>
         </tr>`;
     filtered.forEach(u => {
         h += `<tr><td>${u.inv}</td><td>${u.n}</td><td>${u.id}</td><td>${u.v3}</td></tr>`;
         total += parseFloat(u.v3) || 0;
     });
     h += `<tr style="background:#f9f9f9"><td colspan="3"><b>Total</b></td><td><b>${total.toFixed(2)}</b></td></tr></table>`;
-    document.getElementById('reportTitle').innerText = type === 'monthly' ? T[currentLang].btnMonthly : T[currentLang].btnYearly;
+    document.getElementById('reportTitle').innerText = type === 'monthly' ? l.monthly : l.yearly;
     document.getElementById('reportContent').innerHTML = h;
     document.getElementById('reportBox').style.display = 'block';
 };
@@ -313,7 +367,6 @@ const showReport = (type) => {
 document.getElementById('btnMonthly').onclick = () => showReport('monthly');
 document.getElementById('btnYearly').onclick = () => showReport('yearly');
 
-// تشغيل تصدير Word
 document.getElementById('btnExportWord').onclick = () => {
     let content = document.getElementById('reportContent').innerHTML;
     let header = `<div style="text-align:center"><h2>${document.getElementById('reportTitle').innerText}</h2></div>`;
@@ -329,7 +382,7 @@ document.getElementById('btnManageBlacklist').onclick = () => {
     if(num) {
         window.blacklist.push(num);
         set(ref(db, 'blacklist'), window.blacklist);
-        alert("تم الحظر");
+        alert("تم الحظر / Blocked");
     } else {
         alert("المحظورين: " + window.blacklist.join(", "));
     }
@@ -337,20 +390,21 @@ document.getElementById('btnManageBlacklist').onclick = () => {
 
 window.viewInv = (index) => {
     let u = window.d[index];
+    let l = T[currentLang==='ar'?'en':'ar'];
     let body = `
-        <div class="modal-detail"><b>الفاتورة:</b> <span>${u.inv}</span></div>
-        <div class="modal-detail"><b>الاسم:</b> <span>${u.n || '--'}</span></div>
-        <div class="modal-detail"><b>الهاتف:</b> <span>${u.p}</span></div>
+        <div class="modal-detail"><b>${l.thInv}:</b> <span>${u.inv}</span></div>
+        <div class="modal-detail"><b>${l.thName}:</b> <span>${u.n || '--'}</span></div>
+        <div class="modal-detail"><b>${l.phone}:</b> <span>${u.p}</span></div>
         <div class="modal-detail"><b>المقاسات:</b> <span>${u.f1}/${u.f2}/${u.f3}/${u.f}</span></div>
-        <div class="modal-detail"><b>المدفوع:</b> <span>${u.v1}</span></div>
-        <div class="modal-detail"><b>المتبقي:</b> <span style="color:red; font-weight:bold;">${u.v2}</span></div>
-        <div class="modal-detail"><b>التاريخ:</b> <span>${u.id}</span></div>
+        <div class="modal-detail"><b>${l.paid}:</b> <span>${u.v1}</span></div>
+        <div class="modal-detail"><b>${l.rem}:</b> <span style="color:red; font-weight:bold;">${u.v2}</span></div>
+        <div class="modal-detail"><b>${l.date}:</b> <span>${u.id}</span></div>
     `;
     document.getElementById('modalBody').innerHTML = body;
     document.getElementById('viewModal').style.display = 'block';
     
     document.getElementById('btnEditInv').onclick = () => {
-        if(confirm("هل تريد سحب البيانات للتعديل؟")) {
+        if(confirm("سحب البيانات للتعديل؟ / Edit?")) {
             document.getElementById('invNum').value = u.inv;
             document.getElementById('a').value = u.n || '';
             document.getElementById('b').value = u.p;
@@ -380,7 +434,7 @@ window.viewInv = (index) => {
     };
 
     document.getElementById('btnDelInv').onclick = () => {
-        if(confirm("سيتم حذف الفاتورة نهائياً؟")) {
+        if(confirm("حذف الفاتورة؟ / Delete?")) {
             window.d.splice(index, 1);
             set(ref(db, 'abonat'), window.d);
             document.getElementById('viewModal').style.display = 'none';
@@ -394,15 +448,16 @@ function r_table(){
     if(onlyDebt) fd=fd.filter(u=>(parseFloat(u.v2)||0)>0);
     
     let h='';
+    let l = T[currentLang==='ar'?'en':'ar'];
     fd.forEach(u=>{
         let i=window.d.indexOf(u);
         let isBlocked = window.blacklist.includes(u.p);
-        let locMap = { 'محل': T[currentLang].shop, 'معرض': T[currentLang].exh, 'أونلاين': T[currentLang].online };
+        let locMap = { 'محل': l.shop, 'معرض': l.exh, 'أونلاين': l.online };
         let displayLoc = (locMap[u.loc] || u.loc) + (u.isOrder?"+أ":"") + (u.isReady?"+ج":"");
         
         h+=`<tr class="${isBlocked ? 'blocked-row' : ''}">
                 <td>${u.inv||'--'}</td>
-                <td>${isBlocked ? '🚫 ' : ''}${u.n || 'بدون اسم'}</td>
+                <td>${isBlocked ? '🚫 ' : ''}${u.n || '--'}</td>
                 <td>${displayLoc}</td>
                 <td>${u.by || '--'}</td>
                 <td style="color:red;font-weight:bold">${u.v2}</td>
@@ -432,12 +487,12 @@ document.getElementById('btnSave').onclick=()=>{
 
     let existingIndex = window.d.findIndex(item => item.inv === inv);
     if(existingIndex !== -1) {
-        if(confirm("تحديث البيانات الحالية؟")) window.d[existingIndex] = o; else return;
+        if(confirm("تحديث؟ / Update?")) window.d[existingIndex] = o; else return;
     } else {
         window.d.push(o);
     }
     set(ref(db,'abonat'), window.d);
-    alert("✅ تم الحفظ");
+    alert("✅ تم الحفظ / Saved");
     document.getElementById('btnClear').click();
 };
 
@@ -451,7 +506,8 @@ document.getElementById('btnClear').onclick=()=>{
 
 document.getElementById('btnDebt').onclick = () => { 
     onlyDebt = !onlyDebt; 
-    document.getElementById('btnDebt').innerText = onlyDebt ? "👥 عرض الجميع" : "💰 كشف المديونيات"; 
+    let l = T[currentLang==='ar'?'en':'ar'];
+    document.getElementById('btnDebt').innerText = onlyDebt ? l.all : l.debt; 
     r_table(); 
 };
 
