@@ -40,10 +40,11 @@ input:checked+.slider:before{transform:translateX(16px)}
 .selection-row input[type="radio"]{-webkit-appearance:radio !important;}
 hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 
-#viewModal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; overflow-y: auto;}
-.modal-content {background:white; max-width:90%; width:380px; margin:40px auto; padding:20px; border-radius:15px; position:relative; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
+#viewModal, #blacklistModal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; overflow-y: auto;}
+.modal-content {background:white; max-width:90%; width:380px; margin:20px auto; padding:20px; border-radius:15px; position:relative; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
 .modal-detail {margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; display: flex; justify-content: space-between;}
 .modal-detail b {color: #6b4f44;}
+.bl-item {display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;}
 </style>
 </head>
 <body>
@@ -68,7 +69,19 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
             <button id="btnEditInv" style="background:#2a9d8f">تعديل 📝</button>
             <button id="btnDelInv" style="background:#d62828; display:none;">حذف 🗑️</button>
         </div>
+        <button id="btnWhatsApp" style="background:#25D366; margin-top:5px">إرسال واتساب 🟢</button>
         <button id="btnCloseModal" onclick="document.getElementById('viewModal').style.display='none'" style="background:#555; margin-top:5px">إغلاق</button>
+    </div>
+</div>
+
+<div id="blacklistModal">
+    <div class="modal-content">
+        <h3 style="text-align:center; color:#000">إدارة المحظورين</h3>
+        <input id="newBlockNum" placeholder="رقم الهاتف">
+        <button onclick="window.addBlack()" style="background:#000">حظر رقم جديد 🚫</button>
+        <hr>
+        <div id="blList" style="max-height: 200px; overflow-y: auto;"></div>
+        <button onclick="document.getElementById('blacklistModal').style.display='none'" style="background:#555; margin-top:10px">إغلاق</button>
     </div>
 </div>
 
@@ -176,7 +189,6 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
     </thead>
     <tbody id="t"></tbody>
   </table>
-
 </div>
 
 <script type="module">
@@ -372,15 +384,37 @@ document.getElementById('btnExportWord').onclick = () => {
 };
 
 document.getElementById('btnManageBlacklist').onclick = () => {
-    let num = prompt("أدخل رقم هاتف لحظره أو اتركه فارغاً لرؤية القائمة:");
+    document.getElementById('blacklistModal').style.display = 'block';
+    renderBlacklist();
+};
+
+window.addBlack = () => {
+    let num = document.getElementById('newBlockNum').value;
     if(num) {
-        window.blacklist.push(num);
-        set(ref(db, 'blacklist'), window.blacklist);
-        alert("تم الحظر / Blocked");
-    } else {
-        alert("المحظورين: " + window.blacklist.join(", "));
+        if(!window.blacklist.includes(num)) {
+            window.blacklist.push(num);
+            set(ref(db, 'blacklist'), window.blacklist);
+            document.getElementById('newBlockNum').value = '';
+            renderBlacklist();
+        } else alert("الرقم محظور بالفعل");
     }
 };
+
+window.removeBlack = (num) => {
+    if(confirm("إزالة الحظر عن " + num + "؟")) {
+        window.blacklist = window.blacklist.filter(n => n !== num);
+        set(ref(db, 'blacklist'), window.blacklist);
+        renderBlacklist();
+    }
+};
+
+function renderBlacklist() {
+    let h = '';
+    window.blacklist.forEach(num => {
+        h += `<div class="bl-item"><span>${num}</span> <button onclick="window.removeBlack('${num}')" style="width:auto; background:#d62828; padding:5px; font-size:10px">إزالة 🔓</button></div>`;
+    });
+    document.getElementById('blList').innerHTML = h || '<p style="text-align:center">القائمة فارغة</p>';
+}
 
 window.viewInv = (index) => {
     let u = window.d[index];
@@ -389,15 +423,41 @@ window.viewInv = (index) => {
         <div class="modal-detail"><b>${l.thInv}:</b> <span>${u.inv}</span></div>
         <div class="modal-detail"><b>${l.thName}:</b> <span>${u.n || '--'}</span></div>
         <div class="modal-detail"><b>${l.phone}:</b> <span>${u.p}</span></div>
-        <div class="modal-detail"><b>المقاسات:</b> <span>${u.f1}/${u.f2}/${u.f3}/${u.f}</span></div>
+        <div class="modal-detail"><b>العدد والكود:</b> <span>${u.qty || '1'} (Code: ${u.j || '--'})</span></div>
+        <div class="modal-detail"><b>المقاسات (كتف/كم/صدر/طول):</b> <span>${u.f1 || '-'}/${u.f2 || '-'}/${u.f3 || '-'}/${u.f || '-'}</span></div>
+        <div class="modal-detail"><b>مقاسات أخرى:</b> <span>حفرة: ${u.f_hole || '-'} | خصر: ${u.f_waist || '-'}</span></div>
+        <div class="modal-detail"><b>قميص/تنورة:</b> <span>ق: ${u.f_shirt || '-'} | ت: ${u.f_skirt || '-'}</span></div>
+        <hr>
         <div class="modal-detail"><b>${l.paid}:</b> <span>${u.v1}</span></div>
         <div class="modal-detail"><b>${l.rem}:</b> <span style="color:red; font-weight:bold;">${u.v2}</span></div>
+        <div class="modal-detail"><b>${l.total}:</b> <span>${u.v3}</span></div>
+        <hr>
+        <div class="modal-detail"><b>المكان:</b> <span>${u.loc}</span></div>
+        <div class="modal-detail"><b>الحالة:</b> <span>${u.isOrder ? 'أوردر' : ''} ${u.isReady ? 'جاهز' : ''}</span></div>
         <div class="modal-detail"><b>${l.notes}:</b> <span>${u.k || '--'}</span></div>
         <div class="modal-detail"><b>${l.date}:</b> <span>${u.id}</span></div>
+        <div class="modal-detail"><b>بواسطة:</b> <span>${u.by || '--'}</span></div>
     `;
     document.getElementById('modalBody').innerHTML = body;
     document.getElementById('viewModal').style.display = 'block';
     
+    document.getElementById('btnWhatsApp').onclick = () => {
+        let msg = `*فـاتـورة عـبـايـات الأمـراء*%0A` +
+                  `----------------------------%0A` +
+                  `*رقم الفاتورة:* ${u.inv}%0A` +
+                  `*الاسم:* ${u.n || 'غير مسجل'}%0A` +
+                  `*الكود:* ${u.j || '--'}%0A` +
+                  `*المقاسات:* طول(${u.f || '-'}) صدر(${u.f3 || '-'}) كم(${u.f2 || '-'}) كتف(${u.f1 || '-'})%0A` +
+                  `----------------------------%0A` +
+                  `*العربون:* ${u.v1} د.ك%0A` +
+                  `*المتبقي:* ${u.v2} د.ك%0A` +
+                  `*الإجمالي:* ${u.v3} د.ك%0A` +
+                  `*ملاحظات:* ${u.k || 'لا يوجد'}%0A` +
+                  `----------------------------%0A` +
+                  `شكراً لتعاملكم معنا ✨`;
+        window.open(`https://wa.me/${u.p.replace(/\s+/g, '')}?text=${msg}`, '_blank');
+    };
+
     document.getElementById('btnEditInv').onclick = () => {
         if(confirm("سحب البيانات للتعديل؟ / Edit?")) {
             document.getElementById('invNum').value = u.inv;
