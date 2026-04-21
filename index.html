@@ -207,7 +207,7 @@ onValue(ref(db,'abonat'),(s)=>{
 onValue(ref(db,'blacklist'),(s)=>{
     window.blacklist = s.exists() ? s.val() : [];
     renderBlacklist();
-    r_table(); // تحديث الجدول فوراً عند تغير قائمة الحظر
+    r_table();
 });
 
 const T = {
@@ -468,7 +468,7 @@ document.getElementById('btnSave').onclick=()=>{
         f_hole:document.getElementById('f_hole').value, f_shirt:document.getElementById('f_shirt').value, f_skirt:document.getElementById('f_skirt').value, f_waist:document.getElementById('f_waist').value,
         v1:v1, v2:v2, v3:document.getElementById('g3').value, loc:document.querySelector('input[name="loc"]:checked').value,
         isOrder: document.getElementById('checkOrder').checked, isReady: document.getElementById('checkReady').checked,
-        note:document.getElementById('k').value, id:date, by:window.currentUser, month:new Date().getMonth()+1, year:new Date().getFullYear()
+        note:document.getElementById('k').value, id:date, by:window.currentUser, month:new Date(date).getMonth()+1, year:new Date(date).getFullYear()
     };
     window.d.push(o); set(ref(db,'abonat'), window.d);
     alert("✅ تم الحفظ");
@@ -476,7 +476,81 @@ document.getElementById('btnSave').onclick=()=>{
     document.getElementById('checkOrder').checked = document.getElementById('checkReady').checked = false;
 };
 
+// --- الدالة المفقودة للتقارير ---
+window.generateDetailedReport = (type) => {
+    let t = T[currentLang];
+    let reportData = {};
+
+    window.d.forEach(u => {
+        let dateObj = u.id ? new Date(u.id) : new Date();
+        let m = u.month || (dateObj.getMonth() + 1);
+        let y = u.year || dateObj.getFullYear();
+
+        let key = type === 'monthly' ? `${y} - ${m}` : `${y}`;
+
+        if (!reportData[key]) {
+            reportData[key] = { count: 0, qty: 0, v1: 0, v2: 0, v3: 0 };
+        }
+        reportData[key].count++;
+        reportData[key].qty += parseInt(u.qty) || 0;
+        reportData[key].v1 += parseFloat(u.v1) || 0;
+        reportData[key].v2 += parseFloat(u.v2) || 0;
+        reportData[key].v3 += parseFloat(u.v3) || 0;
+    });
+
+    let sortedKeys = Object.keys(reportData).sort((a, b) => b.localeCompare(a));
+
+    let html = `<table style="width:100%; border-collapse:collapse; text-align:center; font-size:12px;">
+        <thead>
+            <tr style="background:#fdf6f2; color:#6b4f44;">
+                <th style="padding:8px; border-bottom:2px solid #ccc;">${type === 'monthly' ? 'الشهر' : 'السنة'}</th>
+                <th style="padding:8px; border-bottom:2px solid #ccc;">الطلبات</th>
+                <th style="padding:8px; border-bottom:2px solid #ccc;">العبايات</th>
+                <th style="padding:8px; border-bottom:2px solid #ccc;">المدفوع</th>
+                <th style="padding:8px; border-bottom:2px solid #ccc;">المتبقي</th>
+                <th style="padding:8px; border-bottom:2px solid #ccc;">الإجمالي</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+    let totalPaid = 0, totalRem = 0, totalAll = 0, totalQty = 0;
+
+    sortedKeys.forEach(key => {
+        let d = reportData[key];
+        totalPaid += d.v1;
+        totalRem += d.v2;
+        totalAll += d.v3;
+        totalQty += d.qty;
+
+        html += `<tr style="border-bottom:1px solid #eee;">
+            <td style="padding:8px; font-weight:bold;">${key}</td>
+            <td style="padding:8px;">${d.count}</td>
+            <td style="padding:8px;">${d.qty}</td>
+            <td style="padding:8px; color:#2a9d8f; font-weight:bold;">${d.v1.toFixed(2)}</td>
+            <td style="padding:8px; color:#d62828; font-weight:bold;">${d.v2.toFixed(2)}</td>
+            <td style="padding:8px; font-weight:bold;">${d.v3.toFixed(2)}</td>
+        </tr>`;
+    });
+
+    html += `<tr style="background:#f0f0f0; font-weight:bold;">
+        <td style="padding:8px;">الإجمالي الكلي</td>
+        <td style="padding:8px;">-</td>
+        <td style="padding:8px;">${totalQty}</td>
+        <td style="padding:8px; color:#2a9d8f;">${totalPaid.toFixed(2)}</td>
+        <td style="padding:8px; color:#d62828;">${totalRem.toFixed(2)}</td>
+        <td style="padding:8px;">${totalAll.toFixed(2)}</td>
+    </tr>`;
+
+    html += `</tbody></table>`;
+
+    document.getElementById('reportTitle').textContent = type === 'monthly' ? t.btnMonthly : t.btnYearly;
+    document.getElementById('reportContent').innerHTML = html;
+    document.getElementById('reportBox').style.display = 'block';
+};
+
 document.getElementById('btnDebt').onclick=()=>{ onlyDebt = !onlyDebt; applyLang(); };
+document.getElementById('btnMonthly').onclick=()=>window.generateDetailedReport('monthly');
+document.getElementById('btnYearly').onclick=()=>window.generateDetailedReport('yearly');
 document.getElementById('z').oninput=r_table;
 </script>
 </body>
