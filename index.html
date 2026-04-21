@@ -108,7 +108,11 @@ input:checked+.slider:before{transform:translateX(18px)}
   </div>
 
   <textarea id="k" placeholder="ملاحظات" rows="2"></textarea>
-  <button id="btnSave">حفظ الطلب ✅</button>
+  
+  <div style="display:flex;gap:10px;">
+    <button id="btnSave" style="flex:3;">حفظ الطلب ✅</button>
+    <button id="btnClear" style="flex:1;background:#555;">🧹 تفريغ</button>
+  </div>
 
   <div style="margin-top:10px">
     <button id="btnDebt" style="background:#d62828;">💰 كشف المتبقي (المديونيات)</button>
@@ -203,18 +207,29 @@ onValue(ref(db,'blacklist'),(s)=>{
     renderBlacklist();
 });
 
+// قواميس اللغة بالكامل لتحديث كل الخانات
 const T = {
   ar: {
-    mainTitle: "عبايات الأمراء - الزبائن", logout: "خروج", hello: "مرحباً: ", customers: "زبائن", totalPaid: "إجمالي المدفوع", totalRem: "إجمالي المتبقي",
-    invNum: "رقم الفاتورة", a: "الاسم", b: "رقم التلفون", qty: "عدد العبايات", j: "كود العباية",
-    f1: "الكتف", f2: "الكم", f3: "الصدر", f: "الطول", f_hole: "الحفرة", f_shirt: "القميص", f_skirt: "التنورة", f_waist: "الخصر",
-    g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات", thView: "عرض"
+    mainTitle: "عبايات الأمراء - الزبائن", logout: "خروج", dateLabel: "تاريخ الفاتورة", invNum: "رقم الفاتورة",
+    a: "اسم الزبونة", b: "رقم التلفون", qty: "عدد العبايات", j: "رقم كود العباية", f1: "الكتف", f2: "الكم",
+    f3: "الصدر", f: "الطول", f_hole: "الحفرة", f_shirt: "طول القميص", f_skirt: "طول التنورة", f_waist: "الخصر",
+    g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات",
+    btnSave: "حفظ الطلب ✅", btnClear: "🧹 تفريغ الخانات", btnDebt: "💰 كشف المتبقي (المديونيات)", btnAll: "👥 عرض جميع الزبائن", btnMonthly: "📊 ريبورت شهري",
+    btnYearly: "📅 ريبورت سنوي", search: "🔍 ابحث هنا عن اسم، رقم فاتورة، أو تليفون...", filterInfo: "⚠️ عرض المديونيات فقط",
+    thName: "الاسم", thRem: "المتبقي", thView: "عرض", thInv: "الفاتورة", thLoc: "المكان والحالة", thBy: "بواسطة",
+    hello: "مرحباً: ", shop: "محل", exh: "معرض", online: "أونلاين", order: "أوردر", ready: "جاهز",
+    totalPaid: "إجمالي المدفوع", totalRem: "إجمالي المتبقي", close: "إغلاق", customers: "زبائن"
   },
   en: {
-    mainTitle: "Abayat Al Omara - Customers", logout: "Logout", hello: "Welcome: ", customers: "Customers", totalPaid: "Paid", totalRem: "Rem",
-    invNum: "Inv #", a: "Name", b: "Phone", qty: "Qty", j: "Code",
-    f1: "Shoulder", f2: "Sleeve", f3: "Chest", f: "Height", f_hole: "Hole", f_shirt: "Shirt", f_skirt: "Skirt", f_waist: "Waist",
-    g1: "Deposit", g2: "Rem.", g3: "Total", k: "Notes", thView: "View"
+    mainTitle: "Abayat Al Omara - Customers", logout: "Logout", dateLabel: "Invoice Date", invNum: "Inv #",
+    a: "Customer Name", b: "Phone Number", qty: "Qty", j: "Abaya Code", f1: "Shoulder", f2: "Sleeve",
+    f3: "Chest", f: "Height", f_hole: "Hole", f_shirt: "Shirt L", f_skirt: "Skirt L", f_waist: "Waist",
+    g1: "Deposit", g2: "Remaining", g3: "Total Price", k: "Notes",
+    btnSave: "Save Order ✅", btnClear: "🧹 Clear Form", btnDebt: "💰 Debt Report", btnAll: "👥 Show All Customers", btnMonthly: "📊 Monthly Report",
+    btnYearly: "📅 Yearly Report", search: "🔍 Search name, invoice #, or phone...", filterInfo: "⚠️ Showing debts only",
+    thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #", thLoc: "Loc & Status", thBy: "By",
+    hello: "Welcome: ", shop: "Shop", exh: "Maarad", online: "Online", order: "Order", ready: "Ready",
+    totalPaid: "Total Paid", totalRem: "Total Remaining", close: "Close", customers: "Customers"
   }
 };
 
@@ -243,10 +258,47 @@ window.login=()=>{
     } else alert('الرمز خطأ!');
 };
 
+// دالة الترجمة الكاملة لإصلاح خطأ التحويل
 function applyLang(){
     let t=T[currentLang];
     document.getElementById('mainTitle').textContent=t.mainTitle;
+    document.getElementById('labelDate').textContent=t.dateLabel;
+    document.getElementById('invNum').placeholder=t.invNum + " *";
+    document.getElementById('a').placeholder=t.a;
+    document.getElementById('b').placeholder=t.b + " *";
+    document.getElementById('qty').placeholder=t.qty;
+    document.getElementById('j').placeholder=t.j;
+    document.getElementById('f1').placeholder=t.f1;
+    document.getElementById('f2').placeholder=t.f2;
+    document.getElementById('f3').placeholder=t.f3;
+    document.getElementById('f').placeholder=t.f;
+    document.getElementById('f_hole').placeholder=t.f_hole;
+    document.getElementById('f_shirt').placeholder=t.f_shirt;
+    document.getElementById('f_skirt').placeholder=t.f_skirt;
+    document.getElementById('f_waist').placeholder=t.f_waist;
+    document.getElementById('g1').placeholder=t.g1 + " *";
+    document.getElementById('g2').placeholder=t.g2 + " *";
+    document.getElementById('g3').placeholder=t.g3;
+    document.getElementById('k').placeholder=t.k;
+    document.getElementById('btnSave').textContent=t.btnSave;
+    document.getElementById('btnClear').textContent=t.btnClear;
+    document.getElementById('btnDebt').textContent = onlyDebt ? t.btnAll : t.btnDebt;
+    document.getElementById('btnMonthly').textContent=t.btnMonthly;
+    document.getElementById('btnYearly').textContent=t.btnYearly;
+    document.getElementById('z').placeholder=t.search;
     document.getElementById('userNameDisplay').textContent=t.hello + window.currentUser;
+    document.getElementById('txtShop').textContent=t.shop;
+    document.getElementById('txtExh').textContent=t.exh;
+    document.getElementById('txtOnline').textContent=t.online;
+    document.getElementById('txtOrder').textContent=t.order;
+    document.getElementById('txtReady').textContent=t.ready;
+    document.getElementById('thName').textContent=t.thName;
+    document.getElementById('thRem').textContent=t.thRem;
+    document.getElementById('thView').textContent=t.thView;
+    document.getElementById('thInv').textContent=t.thInv;
+    document.getElementById('thLoc').textContent=t.thLoc;
+    document.getElementById('thBy').textContent=t.thBy;
+    document.getElementById('btnCloseDetails').textContent=t.close;
     r_table(); updateCounter();
 }
 
@@ -255,9 +307,14 @@ function r_table(){
     let fd=window.d.filter(u=> (u.n && u.n.toLowerCase().includes(term)) || (u.p && u.p.includes(term)) || (u.inv && u.inv.includes(term)));
     if(onlyDebt) fd=fd.filter(u=>(parseFloat(u.v2)||0)>0);
     let h='';
+    let t = T[currentLang];
     fd.forEach(u=>{
         let i=window.d.indexOf(u);
-        h+=`<tr><td>${u.inv||'--'}</td><td>${u.n}</td><td>${u.loc||'--'}</td><td>${u.by || '--'}</td><td style="color:red;font-weight:bold">${u.v2}</td><td><button onclick="showDet(${i})" style="padding:2px 8px;">عرض</button></td></tr>`;
+        let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أونلاين': t.online };
+        let displayLoc = locMap[u.loc] || u.loc;
+        if(u.isOrder) displayLoc += " + " + t.order;
+        if(u.isReady) displayLoc += " + " + t.ready;
+        h+=`<tr><td>${u.inv||'--'}</td><td>${u.n}</td><td>${displayLoc}</td><td>${u.by || '--'}</td><td style="color:red;font-weight:bold">${u.v2}</td><td><button onclick="showDet(${i})" style="padding:2px 8px;">${t.thView}</button></td></tr>`;
     });
     document.getElementById('t').innerHTML=h;
 }
@@ -359,7 +416,11 @@ window.removeFromBlacklist = (index) => {
 function updateCounter(){
     let tr=0, tp=0; window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
     let t = T[currentLang];
-    let html = `#${window.d.length} ${t.customers} | <span class="paid-highlight">${t.totalPaid}: ${tp.toFixed(2)}</span> | <span class="rem-highlight">${t.totalRem}: ${tr.toFixed(2)}</span>`;
+    let html = `#${window.d.length} ${t.customers} | `;
+    if(window.role === 'owner' || window.role === 'editor') {
+        html += `<span class="paid-highlight">${t.totalPaid}: ${tp.toFixed(2)}</span> | `;
+    }
+    html += `<span class="rem-highlight">${t.totalRem}: ${tr.toFixed(2)}</span>`;
     document.getElementById('counter').innerHTML = html;
 }
 
@@ -368,6 +429,16 @@ document.getElementById('langToggle').onchange=()=>{currentLang=document.getElem
 document.getElementById('g1').oninput=document.getElementById('g2').oninput=()=>{
     let v1=parseFloat(document.getElementById('g1').value)||0, v2=parseFloat(document.getElementById('g2').value)||0;
     document.getElementById('g3').value=(v1+v2).toFixed(2);
+};
+
+// كود تفريغ الخانات الجديد
+document.getElementById('btnClear').onclick=()=>{
+    let msg = currentLang === 'ar' ? "هل أنت متأكد من مسح جميع الخانات للبدء من جديد؟" : "Are you sure you want to clear all fields?";
+    if(confirm(msg)) {
+        ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
+        document.getElementById('checkOrder').checked = document.getElementById('checkReady').checked = false;
+        document.getElementById('b').classList.remove('blocked');
+    }
 };
 
 document.getElementById('btnSave').onclick=()=>{
@@ -386,6 +457,7 @@ document.getElementById('btnSave').onclick=()=>{
     window.d.push(o); set(ref(db,'abonat'), window.d);
     alert("✅ تم الحفظ");
     ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('checkOrder').checked = document.getElementById('checkReady').checked = false;
 };
 
 document.getElementById('btnDebt').onclick=()=>{ onlyDebt = !onlyDebt; applyLang(); };
