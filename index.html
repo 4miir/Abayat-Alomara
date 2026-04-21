@@ -32,7 +32,6 @@ td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
 .slider:before{position:absolute;content:"";height:14px;width:14px;left:2px;bottom:2px;background-color:white;transition:.4s;border-radius:50%}
 input:checked+.slider{background-color:#6b4f44}
 input:checked+.slider:before{transform:translateX(16px)}
-/* تعديل لجعل الراديو والتشيك بوكس قابلة للضغط بسهولة */
 .selection-container{background:#f9f9f9;padding:10px;border-radius:10px;margin:5px 0;font-size:12px}
 .selection-row{display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:10px;}
 .selection-row label{display:flex;align-items:center;gap:5px;cursor:pointer;padding:5px;}
@@ -44,7 +43,6 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 .modal-content {background:white; max-width:90%; width:380px; margin:40px auto; padding:20px; border-radius:15px; position:relative; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
 .modal-detail {margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; display: flex; justify-content: space-between;}
 .modal-detail b {color: #6b4f44;}
-.rem-red {color: red !important; font-weight: bold;}
 </style>
 </head>
 <body>
@@ -77,7 +75,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
     <div style="font-size:12px">
         <label class="switch"><input type="checkbox" id="langToggle" onchange="window.toggleLang()"><span class="slider"></span></label>
-        <span>English</span>
+        <span id="langText">English</span>
     </div>
     <span id="userNameDisplay" style="font-weight:bold;color:#6b4f44; font-size:12px"></span>
     <button id="logoutBtn" onclick="location.reload()" style="width:auto;padding:3px 10px;background:#eee;color:#333;font-size:10px">خروج</button>
@@ -122,7 +120,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
   <div class="row-grid">
     <input id="g1" class="req" placeholder="العربون *" type="number">
     <input id="g2" class="req" placeholder="المتبقي *" type="number">
-    <input id="g3" placeholder="السعر الكامل" readonly style="background:#f1f1f1" class="rem-red">
+    <input id="g3" placeholder="السعر الكامل" readonly style="background:#f1f1f1">
   </div>
   
   <div class="selection-container">
@@ -155,9 +153,11 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 
   <div id="reportBox" class="report-area">
     <h3 id="reportTitle" style="text-align:center;color:#3a5a40; font-size:14px;"></h3>
-    <div id="reportContent" style="overflow-x: auto;"></div>
-    <button id="btnExportWord" style="background:#2b5797; font-size:11px;">تحميل Word 📄</button>
-    <button onclick="document.getElementById('reportBox').style.display='none'" style="background:#444;">إغلاق</button>
+    <div id="reportContent" style="overflow-x: auto; background: white; padding: 10px;"></div>
+    <div class="row-grid" style="margin-top:10px">
+        <button id="btnExportWord" style="background:#2b5797; font-size:11px;">تحميل Word 📄</button>
+        <button onclick="document.getElementById('reportBox').style.display='none'" style="background:#444;">إغلاق</button>
+    </div>
   </div>
 
   <input id="z" placeholder="🔍 بحث سريع..." style="margin-top:15px">
@@ -204,8 +204,24 @@ let currentLang = 'ar';
 let onlyDebt = false;
 
 const T = {
-  ar: { title: "عبايات الأمراء", login: "🔐 دخول النظام", status: "✅ متصل - الحفظ تلقائي ☁️", hello: "مرحباً: ", shop:"محل", exh:"معرض", online:"أونلاين", order:"أوردر", ready:"جاهز" },
-  en: { title: "Al Omara Abayat", login: "🔐 System Login", status: "✅ Connected - Auto Sync ☁️", hello: "Hi: ", shop:"Shop", exh:"Exh", online:"Online", order:"Order", ready:"Ready" }
+  ar: { 
+    title: "عبايات الأمراء", 
+    login: "🔐 دخول النظام", 
+    status: "✅ متصل - الحفظ تلقائي ☁️", 
+    hello: "مرحباً: ", 
+    shop: "محل", exh: "معرض", online: "أونلاين", order: "أوردر", ready: "جاهز",
+    inv: "رقم الفاتورة", name: "الاسم", phone: "الهاتف", total: "الإجمالي", date: "التاريخ",
+    search: "🔍 بحث سريع...", logout: "خروج", btnMonthly: "📊 شهري", btnYearly: "📅 سنوي", btnBlack: "🚫 المحظورين"
+  },
+  en: { 
+    title: "Al Omara Abayat", 
+    login: "🔐 System Login", 
+    status: "✅ Connected - Auto Sync ☁️", 
+    hello: "Welcome: ", 
+    shop: "Shop", exh: "Exhibition", online: "Online", order: "Order", ready: "Ready",
+    inv: "Invoice No", name: "Name", phone: "Phone", total: "Total", date: "Date",
+    search: "🔍 Quick Search...", logout: "Logout", btnMonthly: "📊 Monthly", btnYearly: "📅 Yearly", btnBlack: "🚫 Blocked"
+  }
 };
 
 window.login=()=>{
@@ -224,13 +240,15 @@ window.login=()=>{
             document.getElementById('adminPanel').style.display='block';
             document.getElementById('btnDelInv').style.display='block';
         }
-        document.getElementById('userNameDisplay').textContent= (T[currentLang].hello || "Hi: ") + name;
+        document.getElementById('userNameDisplay').textContent= T[currentLang].hello + name;
         updateCounter();
     } else alert('Error Password!');
 };
 
+// تشغيل تحويل اللغة بالكامل
 window.toggleLang = () => {
     currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    document.getElementById('langText').innerText = currentLang === 'ar' ? "English" : "عربي";
     document.getElementById('mainTitle').innerText = T[currentLang].title;
     document.getElementById('userNameDisplay').textContent = T[currentLang].hello + window.currentUser;
     document.getElementById('txtShop').innerText = T[currentLang].shop;
@@ -238,6 +256,11 @@ window.toggleLang = () => {
     document.getElementById('txtOnline').innerText = T[currentLang].online;
     document.getElementById('txtOrder').innerText = T[currentLang].order;
     document.getElementById('txtReady').innerText = T[currentLang].ready;
+    document.getElementById('z').placeholder = T[currentLang].search;
+    document.getElementById('logoutBtn').innerText = T[currentLang].logout;
+    document.getElementById('btnMonthly').innerText = T[currentLang].btnMonthly;
+    document.getElementById('btnYearly').innerText = T[currentLang].btnYearly;
+    document.getElementById('btnManageBlacklist').innerText = T[currentLang].btnBlack;
     r_table();
 };
 
@@ -253,12 +276,14 @@ function updateCounter(){
     let tr=0, tp=0; 
     window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
     if(window.role === 'owner' || window.role === 'editor') {
-        document.getElementById('counter').innerHTML = `#${window.d.length} | Paid: ${tp.toFixed(2)} | Rem: ${tr.toFixed(2)}`;
+        // المتبقي باللون الأحمر
+        document.getElementById('counter').innerHTML = `#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span>`;
     } else {
         document.getElementById('counter').innerHTML = `# Total Orders: ${window.d.length}`;
     }
 }
 
+// تشغيل التقارير مع التاريخ الكامل
 const showReport = (type) => {
     let now = new Date();
     let filtered = window.d.filter(u => {
@@ -268,19 +293,36 @@ const showReport = (type) => {
         return true;
     });
     let total = 0;
-    let h = '<table border="1" style="width:100%; border-collapse:collapse"><tr><th>Inv</th><th>Name</th><th>Total</th></tr>';
+    let h = `<table id="reportTable" border="1" style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
+        <tr style="background:#f1f1f1">
+            <th>${T[currentLang].inv}</th>
+            <th>${T[currentLang].name}</th>
+            <th>${T[currentLang].date}</th>
+            <th>${T[currentLang].total}</th>
+        </tr>`;
     filtered.forEach(u => {
-        h += `<tr><td>${u.inv}</td><td>${u.n}</td><td>${u.v3}</td></tr>`;
+        h += `<tr><td>${u.inv}</td><td>${u.n}</td><td>${u.id}</td><td>${u.v3}</td></tr>`;
         total += parseFloat(u.v3) || 0;
     });
-    h += `<tr><td colspan="2"><b>Total Sum</b></td><td><b>${total.toFixed(2)}</b></td></tr></table>`;
-    document.getElementById('reportTitle').innerText = type === 'monthly' ? "التقرير الشهري" : "التقرير السنوي";
+    h += `<tr style="background:#f9f9f9"><td colspan="3"><b>Total</b></td><td><b>${total.toFixed(2)}</b></td></tr></table>`;
+    document.getElementById('reportTitle').innerText = type === 'monthly' ? T[currentLang].btnMonthly : T[currentLang].btnYearly;
     document.getElementById('reportContent').innerHTML = h;
     document.getElementById('reportBox').style.display = 'block';
 };
 
 document.getElementById('btnMonthly').onclick = () => showReport('monthly');
 document.getElementById('btnYearly').onclick = () => showReport('yearly');
+
+// تشغيل تصدير Word
+document.getElementById('btnExportWord').onclick = () => {
+    let content = document.getElementById('reportContent').innerHTML;
+    let header = `<div style="text-align:center"><h2>${document.getElementById('reportTitle').innerText}</h2></div>`;
+    let converted = htmlDocx.asBlob(header + content);
+    let link = document.createElement('a');
+    link.href = URL.createObjectURL(converted);
+    link.download = `Report_${new Date().toLocaleDateString()}.docx`;
+    link.click();
+};
 
 document.getElementById('btnManageBlacklist').onclick = () => {
     let num = prompt("أدخل رقم هاتف لحظره أو اتركه فارغاً لرؤية القائمة:");
