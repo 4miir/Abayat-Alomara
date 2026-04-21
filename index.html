@@ -13,7 +13,6 @@ body{font-family:tahoma;padding:15px;background:#fcfaf8;margin:0}
 h2{text-align:center;color:#6b4f44;margin:5px 0}
 .status-text{text-align:center;font-size:11px;color:#2a9d8f;margin-bottom:15px;font-weight:bold}
 input,button,textarea,select{width:100%;padding:14px;margin:8px 0;border:1px solid #eee;border-radius:12px;box-sizing:border-box;font-size:14px}
-/* تمييز الخانات المطلوبة باللون الأحمر الخفيف */
 .req{border: 1px solid #ff000045 !important; background: #fff5f5;}
 button{background:#6b4f44;color:white;border:none;font-weight:bold;cursor:pointer}
 .counter-box{text-align:center;background:#fdf6f2;padding:12px;border-radius:12px;margin-bottom:15px;font-size:13px;color:#6b4f44;font-weight:bold;line-height:2}
@@ -119,7 +118,18 @@ input:checked+.slider:before{transform:translateX(18px)}
     <div style="display:flex;gap:5px;flex-wrap:wrap">
       <button id="btnMonthly" style="background:#3a5a40;flex:1;min-width:140px;">📊 ريبورت شهري</button>
       <button id="btnYearly" style="background:#3a5a40;flex:1;min-width:140px;">📅 ريبورت سنوي</button>
+      <button id="btnManageBlacklist" style="background:#000;flex:1;min-width:140px;">🚫 إدارة المحظورين</button>
     </div>
+  </div>
+
+  <div id="blacklistModal" class="report-area" style="border-color: #000;">
+    <h3 style="text-align:center;">🚫 قائمة الأرقام المحظورة</h3>
+    <div style="display:flex; gap:5px;">
+        <input id="newBlackNum" placeholder="أدخل الرقم للحظر">
+        <button id="addBlackBtn" style="width: auto; background: #d62828;">إضافة</button>
+    </div>
+    <div id="blacklistItems" style="margin-top:10px; max-height: 200px; overflow-y: auto;"></div>
+    <button onclick="document.getElementById('blacklistModal').style.display='none'" style="background:#444;margin-top:10px">إغلاق</button>
   </div>
 
   <div id="reportBox" class="report-area">
@@ -171,22 +181,28 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 window.d = [];
+window.blacklist = []; // ستملأ من قاعدة البيانات
 window.isDataLoaded = false;
 window.ownerPass = "4400";
 window.nainaPass = "1234";
 window.otherPass = "1357";
 window.editorPass = "98988";
-// قائمة الأرقام المحظورة (يمكنك إضافة أي رقم هنا)
-window.blacklist = ["99988877", "55566677"]; 
 
 let currentLang = 'ar';
 let onlyDebt = false;
 
+// جلب بيانات الفواتير
 onValue(ref(db,'abonat'),(s)=>{
     window.d = s.exists() ? s.val() : [];
     window.isDataLoaded = true;
     document.getElementById('statusLine').innerHTML = "✅ متصل - الحفظ تلقائي ☁️";
     r_table(); updateCounter();
+});
+
+// جلب قائمة الحظر من Firebase
+onValue(ref(db,'blacklist'),(s)=>{
+    window.blacklist = s.exists() ? s.val() : [];
+    renderBlacklist();
 });
 
 const T = {
@@ -214,11 +230,10 @@ const T = {
   }
 };
 
-// فحص الحظر
+// فحص الحظر اللحظي
 document.getElementById('b').oninput = function() {
     if(window.blacklist.includes(this.value)) {
         this.classList.add('blocked');
-        alert("⚠️ تنبيه: هذا الرقم موجود في قائمة الحظر!");
     } else {
         this.classList.remove('blocked');
     }
@@ -238,7 +253,6 @@ window.login=()=>{
         document.getElementById('loginPage').style.display='none';
         document.getElementById('mainApp').style.display='block';
         if(u==='owner'||u==='editor') document.getElementById('adminPanel').style.display='block';
-        else document.getElementById('adminPanel').style.display='none';
         applyLang();
     } else alert('الرمز خطأ!');
 };
@@ -315,32 +329,20 @@ function r_table(){
 
 window.showDet=(i)=>{
     let u=window.d[i], t=T[currentLang];
-    let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أونلاين': t.online };
-    let displayLoc = locMap[u.loc] || u.loc;
-    if(u.isOrder) displayLoc += " + " + t.order;
-    if(u.isReady) displayLoc += " + " + t.ready;
-
     document.getElementById('detInfo').innerHTML=`
         <h4>👤 ${u.n}</h4><p>🧾 ${t.invNum}: ${u.inv||'--'} | 📅 ${u.id || '--'}</p>
         <div style="background:#fdf6f2;padding:8px;border-radius:10px;line-height:1.6">
         📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f} | ${t.f_hole}: ${u.f_hole||'--'}<br>
         📏 ${t.f_shirt}: ${u.f_shirt||'--'} | ${t.f_skirt}: ${u.f_skirt||'--'} | ${t.f_waist}: ${u.f_waist||'--'}</div>
-        <p>📍 ${t.thLoc}: ${displayLoc} | 👤 ${t.thBy}: ${u.by || '--'}</p>
-        <p>📝 ${t.k}: ${u.note||'--'}</p>`;
+        <p>📍 الحالة: ${u.loc} | 👤 بواسطة: ${u.by || '--'}</p>
+        <p>📝 ملاحظات: ${u.note||'--'}</p>`;
     
     let e = ``;
     if(window.role==='owner' || window.role==='editor') {
-        // زر تعديل كل شيء لصاحبة الحلال
         e += `<div style="border-top:1px solid #ddd; padding-top:10px">
-                <p style="font-size:11px; color:#6b4f44"><b>تعديل البيانات:</b></p>
-                <input id="en" value="${u.n}" placeholder="الاسم">
-                <input id="ei" value="${u.inv||''}" placeholder="رقم الفاتورة">
-                <input id="ep" value="${u.p||''}" placeholder="رقم التلفون">
-                <input id="ed" type="date" value="${u.id||''}">
-                <div style="display:flex; gap:5px">
-                  <input id="ev1" type="number" value="${u.v1}" placeholder="العربون">
-                  <input id="ev2" type="number" value="${u.v2}" placeholder="المتبقي">
-                </div>
+                <input id="en" value="${u.n}" placeholder="الاسم"><input id="ei" value="${u.inv||''}" placeholder="رقم الفاتورة">
+                <input id="ep" value="${u.p||''}" placeholder="رقم التلفون"><input id="ed" type="date" value="${u.id||''}">
+                <div style="display:flex; gap:5px"><input id="ev1" type="number" value="${u.v1}" placeholder="العربون"><input id="ev2" type="number" value="${u.v2}" placeholder="المتبقي"></div>
                 <button onclick="fullEdit(${i})" style="background:#2a9d8f">تحديث البيانات ✅</button>
                 <button onclick="q(${i})" style="background:red;margin-top:5px">حذف الفاتورة 🗑️</button>
               </div>`;
@@ -358,11 +360,43 @@ window.fullEdit=(i)=>{
     window.d[i].v2 = document.getElementById('ev2').value;
     window.d[i].v3 = (parseFloat(window.d[i].v1) + parseFloat(window.d[i].v2)).toFixed(2);
     set(ref(db,'abonat'), window.d);
-    alert("تم التحديث بنجاح");
+    alert("تم التحديث");
     document.getElementById('detailsBox').style.display='none';
 };
 
-window.q=(i)=>{ if(confirm("هل أنت متأكد من حذف هذه الفاتورة نهائياً؟")){window.d.splice(i,1);set(ref(db,'abonat'), window.d);document.getElementById('detailsBox').style.display='none';}};
+window.q=(i)=>{ if(confirm("حذف؟")){window.d.splice(i,1);set(ref(db,'abonat'), window.d);document.getElementById('detailsBox').style.display='none';}};
+
+// وظائف الحظر الجديدة
+function renderBlacklist() {
+    let h = '';
+    window.blacklist.forEach((num, index) => {
+        h += `<div style="display:flex; justify-content:space-between; align-items:center; background:#f9f9f9; padding:8px; margin-bottom:5px; border-radius:8px; border-right:4px solid red;">
+                <span>📱 ${num}</span>
+                <button onclick="removeFromBlacklist(${index})" style="width:auto; padding:2px 10px; background:#444; font-size:10px;">إزالة</button>
+              </div>`;
+    });
+    document.getElementById('blacklistItems').innerHTML = h || '<p style="text-align:center; font-size:12px; color:gray;">لا يوجد محظورين</p>';
+}
+
+document.getElementById('btnManageBlacklist').onclick = () => {
+    document.getElementById('blacklistModal').style.display = 'block';
+};
+
+document.getElementById('addBlackBtn').onclick = () => {
+    let num = document.getElementById('newBlackNum').value.trim();
+    if(num && !window.blacklist.includes(num)) {
+        window.blacklist.push(num);
+        set(ref(db, 'blacklist'), window.blacklist);
+        document.getElementById('newBlackNum').value = '';
+    }
+};
+
+window.removeFromBlacklist = (index) => {
+    if(confirm("إزالة من الحظر؟")) {
+        window.blacklist.splice(index, 1);
+        set(ref(db, 'blacklist'), window.blacklist);
+    }
+};
 
 function updateCounter(){
     let tr=0, tp=0; window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
@@ -383,26 +417,14 @@ document.getElementById('g1').oninput=document.getElementById('g2').oninput=()=>
 };
 
 document.getElementById('btnSave').onclick=()=>{
-    // الخانات الإلزامية
-    let inv=document.getElementById('invNum').value;
-    let tel=document.getElementById('b').value;
-    let date=document.getElementById('id').value;
-    let v1=document.getElementById('g1').value;
-    let v2=document.getElementById('g2').value;
+    let inv=document.getElementById('invNum').value, tel=document.getElementById('b').value, date=document.getElementById('id').value, v1=document.getElementById('g1').value, v2=document.getElementById('g2').value;
+    if(!inv || !tel || !date || !v1 || !v2) return alert("الرجاء تعبئة الخانات المطلوبة *");
     
-    if(!inv || !tel || !date || !v1 || !v2) {
-        alert("⚠️ عذراً، يجب تعبئة جميع الخانات المميزة باللون الأحمر قبل الحفظ.");
-        return;
-    }
-
     if(window.blacklist.includes(tel)) {
-        if(!confirm("هذا الرقم محظور! هل تريد المتابعة على أي حال؟")) return;
+        if(!confirm("⚠️ هذا الرقم محظور! هل تريد المتابعة؟")) return;
     }
 
     let loc = document.querySelector('input[name="loc"]:checked').value;
-    let isOrder = document.getElementById('checkOrder').checked;
-    let isReady = document.getElementById('checkReady').checked;
-
     let o={
         inv:inv, n:document.getElementById('a').value, p:tel, 
         qty:document.getElementById('qty').value, j:document.getElementById('j').value, 
@@ -411,24 +433,16 @@ document.getElementById('btnSave').onclick=()=>{
         f_hole:document.getElementById('f_hole').value, f_shirt:document.getElementById('f_shirt').value,
         f_skirt:document.getElementById('f_skirt').value, f_waist:document.getElementById('f_waist').value,
         v1:v1, v2:v2, v3:document.getElementById('g3').value, 
-        loc:loc, isOrder: isOrder, isReady: isReady,
-        note:document.getElementById('k').value, id:date, 
-        by:window.currentUser, month:new Date().getMonth()+1, year:new Date().getFullYear()
+        loc:loc, isOrder: document.getElementById('checkOrder').checked, isReady: document.getElementById('checkReady').checked,
+        note:document.getElementById('k').value, id:date, by:window.currentUser, month:new Date().getMonth()+1, year:new Date().getFullYear()
     };
-    window.d.push(o); 
-    set(ref(db,'abonat'), window.d);
-    alert("✅ تم الحفظ بنجاح ويتم قبول الحفظ الآن.");
-    
+    window.d.push(o); set(ref(db,'abonat'), window.d);
+    alert("✅ تم الحفظ");
     ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
-    document.getElementById('checkOrder').checked = false;
-    document.getElementById('checkReady').checked = false;
+    document.getElementById('checkOrder').checked = document.getElementById('checkReady').checked = false;
 };
 
-document.getElementById('btnDebt').onclick=()=>{
-    onlyDebt = !onlyDebt; 
-    applyLang();
-};
-
+document.getElementById('btnDebt').onclick=()=>{ onlyDebt = !onlyDebt; applyLang(); };
 document.getElementById('btnMonthly').onclick=()=>window.generateDetailedReport('monthly');
 document.getElementById('btnYearly').onclick=()=>window.generateDetailedReport('yearly');
 document.getElementById('z').oninput=r_table;
