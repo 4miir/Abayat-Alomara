@@ -181,7 +181,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 window.d = [];
-window.blacklist = []; // ستملأ من قاعدة البيانات
+window.blacklist = [];
 window.isDataLoaded = false;
 window.ownerPass = "4400";
 window.nainaPass = "1234";
@@ -191,7 +191,6 @@ window.editorPass = "98988";
 let currentLang = 'ar';
 let onlyDebt = false;
 
-// جلب بيانات الفواتير
 onValue(ref(db,'abonat'),(s)=>{
     window.d = s.exists() ? s.val() : [];
     window.isDataLoaded = true;
@@ -199,7 +198,6 @@ onValue(ref(db,'abonat'),(s)=>{
     r_table(); updateCounter();
 });
 
-// جلب قائمة الحظر من Firebase
 onValue(ref(db,'blacklist'),(s)=>{
     window.blacklist = s.exists() ? s.val() : [];
     renderBlacklist();
@@ -207,30 +205,19 @@ onValue(ref(db,'blacklist'),(s)=>{
 
 const T = {
   ar: {
-    mainTitle: "عبايات الأمراء - الزبائن", logout: "خروج", dateLabel: "تاريخ الفاتورة", invNum: "رقم الفاتورة",
-    a: "اسم الزبونة", b: "رقم التلفون", qty: "عدد العبايات", j: "رقم كود العباية", f1: "الكتف", f2: "الكم",
-    f3: "الصدر", f: "الطول", f_hole: "الحفرة", f_shirt: "طول القميص", f_skirt: "طول التنورة", f_waist: "الخصر",
-    g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات",
-    btnSave: "حفظ الطلب ✅", btnDebt: "💰 كشف المتبقي (المديونيات)", btnAll: "👥 عرض جميع الزبائن", btnMonthly: "📊 ريبورت شهري",
-    btnYearly: "📅 ريبورت سنوي", search: "🔍 ابحث هنا عن اسم أو رقم...", filterInfo: "⚠️ عرض المديونيات فقط",
-    thName: "الاسم", thRem: "المتبقي", thView: "عرض", thInv: "الفاتورة", thLoc: "المكان والحالة", thBy: "بواسطة",
-    hello: "مرحباً: ", btnWord: "📄 تحميل ملف Word", shop: "محل", exh: "معرض", online: "أونلاين", order: "أوردر", ready: "جاهز",
-    totalPaid: "إجمالي المدفوع", totalRem: "إجمالي المتبقي", close: "إغلاق", customers: "زبائن"
+    mainTitle: "عبايات الأمراء - الزبائن", logout: "خروج", hello: "مرحباً: ", customers: "زبائن", totalPaid: "إجمالي المدفوع", totalRem: "إجمالي المتبقي",
+    invNum: "رقم الفاتورة", a: "الاسم", b: "رقم التلفون", qty: "عدد العبايات", j: "كود العباية",
+    f1: "الكتف", f2: "الكم", f3: "الصدر", f: "الطول", f_hole: "الحفرة", f_shirt: "القميص", f_skirt: "التنورة", f_waist: "الخصر",
+    g1: "العربون", g2: "المتبقي", g3: "السعر الكامل", k: "ملاحظات", thView: "عرض"
   },
   en: {
-    mainTitle: "Abayat Al Omara - Customers", logout: "Logout", dateLabel: "Invoice Date", invNum: "Inv #",
-    a: "Customer Name", b: "Phone Number", qty: "Qty", j: "Abaya Code", f1: "Shoulder", f2: "Sleeve",
-    f3: "Chest", f: "Height", f_hole: "Hole", f_shirt: "Shirt L", f_skirt: "Skirt L", f_waist: "Waist",
-    g1: "Deposit", g2: "Remaining", g3: "Total Price", k: "Notes",
-    btnSave: "Save Order ✅", btnDebt: "💰 Debt Report", btnAll: "👥 Show All Customers", btnMonthly: "📊 Monthly Report",
-    btnYearly: "📅 Yearly Report", search: "🔍 Search...", filterInfo: "⚠️ Showing debts only",
-    thName: "Name", thRem: "Rem.", thView: "View", thInv: "Inv #", thLoc: "Loc & Status", thBy: "By",
-    hello: "Welcome: ", btnWord: "📄 Download Word", shop: "Shop", exh: "Exhibition", online: "Online", order: "Order", ready: "Ready",
-    totalPaid: "Total Paid", totalRem: "Total Remaining", close: "Close", customers: "Customers"
+    mainTitle: "Abayat Al Omara - Customers", logout: "Logout", hello: "Welcome: ", customers: "Customers", totalPaid: "Paid", totalRem: "Rem",
+    invNum: "Inv #", a: "Name", b: "Phone", qty: "Qty", j: "Code",
+    f1: "Shoulder", f2: "Sleeve", f3: "Chest", f: "Height", f_hole: "Hole", f_shirt: "Shirt", f_skirt: "Skirt", f_waist: "Waist",
+    g1: "Deposit", g2: "Rem.", g3: "Total", k: "Notes", thView: "View"
   }
 };
 
-// فحص الحظر اللحظي
 document.getElementById('b').oninput = function() {
     if(window.blacklist.includes(this.value)) {
         this.classList.add('blocked');
@@ -240,8 +227,7 @@ document.getElementById('b').oninput = function() {
 };
 
 window.login=()=>{
-    let u=document.getElementById('userSelect').value;
-    let p=document.getElementById('passInput').value;
+    let u=document.getElementById('userSelect').value, p=document.getElementById('passInput').value;
     let ok=false, name="";
     if(u==='owner' && p==window.ownerPass){ok=true;name="صاحبة الحلال";}
     else if(u==='naina' && p==window.nainaPass){ok=true;name="ناينا";}
@@ -260,69 +246,18 @@ window.login=()=>{
 function applyLang(){
     let t=T[currentLang];
     document.getElementById('mainTitle').textContent=t.mainTitle;
-    document.getElementById('labelDate').textContent=t.dateLabel;
-    document.getElementById('invNum').placeholder=t.invNum + " *";
-    document.getElementById('a').placeholder=t.a;
-    document.getElementById('b').placeholder=t.b + " *";
-    document.getElementById('qty').placeholder=t.qty;
-    document.getElementById('j').placeholder=t.j;
-    document.getElementById('f1').placeholder=t.f1;
-    document.getElementById('f2').placeholder=t.f2;
-    document.getElementById('f3').placeholder=t.f3;
-    document.getElementById('f').placeholder=t.f;
-    document.getElementById('f_hole').placeholder=t.f_hole;
-    document.getElementById('f_shirt').placeholder=t.f_shirt;
-    document.getElementById('f_skirt').placeholder=t.f_skirt;
-    document.getElementById('f_waist').placeholder=t.f_waist;
-    document.getElementById('g1').placeholder=t.g1 + " *";
-    document.getElementById('g2').placeholder=t.g2 + " *";
-    document.getElementById('g3').placeholder=t.g3;
-    document.getElementById('k').placeholder=t.k;
-    document.getElementById('btnSave').textContent=t.btnSave;
-    document.getElementById('btnDebt').textContent = onlyDebt ? t.btnAll : t.btnDebt;
-    document.getElementById('btnMonthly').textContent=t.btnMonthly;
-    document.getElementById('btnYearly').textContent=t.btnYearly;
-    document.getElementById('z').placeholder=t.search;
     document.getElementById('userNameDisplay').textContent=t.hello + window.currentUser;
-    document.getElementById('txtShop').textContent=t.shop;
-    document.getElementById('txtExh').textContent=t.exh;
-    document.getElementById('txtOnline').textContent=t.online;
-    document.getElementById('txtOrder').textContent=t.order;
-    document.getElementById('txtReady').textContent=t.ready;
-    document.getElementById('thName').textContent=t.thName;
-    document.getElementById('thRem').textContent=t.thRem;
-    document.getElementById('thView').textContent=t.thView;
-    document.getElementById('thInv').textContent=t.thInv;
-    document.getElementById('thLoc').textContent=t.thLoc;
-    document.getElementById('thBy').textContent=t.thBy;
-    document.getElementById('btnCloseDetails').textContent=t.close;
     r_table(); updateCounter();
 }
 
 function r_table(){
-    let t=T[currentLang];
     let term=document.getElementById('z').value.toLowerCase();
-    let fd=window.d.filter(u=>
-        (u.n && u.n.toLowerCase().includes(term)) || 
-        (u.p && u.p.includes(term)) || 
-        (u.inv && u.inv.includes(term))
-    );
+    let fd=window.d.filter(u=> (u.n && u.n.toLowerCase().includes(term)) || (u.p && u.p.includes(term)) || (u.inv && u.inv.includes(term)));
     if(onlyDebt) fd=fd.filter(u=>(parseFloat(u.v2)||0)>0);
     let h='';
     fd.forEach(u=>{
         let i=window.d.indexOf(u);
-        let locMap = { 'محل': t.shop, 'معرض': t.exh, 'أونلاين': t.online };
-        let displayLoc = locMap[u.loc] || u.loc;
-        if(u.isOrder) displayLoc += " + " + t.order;
-        if(u.isReady) displayLoc += " + " + t.ready;
-        h+=`<tr>
-            <td>${u.inv||'--'}</td>
-            <td>${u.n}</td>
-            <td>${displayLoc}</td>
-            <td>${u.by || '--'}</td>
-            <td style="color:red;font-weight:bold">${u.v2}</td>
-            <td><button onclick="showDet(${i})" style="padding:2px 8px;">${t.thView}</button></td>
-        </tr>`;
+        h+=`<tr><td>${u.inv||'--'}</td><td>${u.n}</td><td>${u.loc||'--'}</td><td>${u.by || '--'}</td><td style="color:red;font-weight:bold">${u.v2}</td><td><button onclick="showDet(${i})" style="padding:2px 8px;">عرض</button></td></tr>`;
     });
     document.getElementById('t').innerHTML=h;
 }
@@ -332,19 +267,23 @@ window.showDet=(i)=>{
     document.getElementById('detInfo').innerHTML=`
         <h4>👤 ${u.n}</h4><p>🧾 ${t.invNum}: ${u.inv||'--'} | 📅 ${u.id || '--'}</p>
         <div style="background:#fdf6f2;padding:8px;border-radius:10px;line-height:1.6">
-        📏 ${t.f1}: ${u.f1} | ${t.f2}: ${u.f2} | ${t.f3}: ${u.f3} | ${t.f}: ${u.f} | ${t.f_hole}: ${u.f_hole||'--'}<br>
-        📏 ${t.f_shirt}: ${u.f_shirt||'--'} | ${t.f_skirt}: ${u.f_skirt||'--'} | ${t.f_waist}: ${u.f_waist||'--'}</div>
-        <p>📍 الحالة: ${u.loc} | 👤 بواسطة: ${u.by || '--'}</p>
-        <p>📝 ملاحظات: ${u.note||'--'}</p>`;
+        📏 المقاسات: كتف ${u.f1} | كم ${u.f2} | صدر ${u.f3} | طول ${u.f} | حفرة ${u.f_hole||'--'}</div>`;
     
     let e = ``;
     if(window.role==='owner' || window.role==='editor') {
-        e += `<div style="border-top:1px solid #ddd; padding-top:10px">
-                <input id="en" value="${u.n}" placeholder="الاسم"><input id="ei" value="${u.inv||''}" placeholder="رقم الفاتورة">
-                <input id="ep" value="${u.p||''}" placeholder="رقم التلفون"><input id="ed" type="date" value="${u.id||''}">
-                <div style="display:flex; gap:5px"><input id="ev1" type="number" value="${u.v1}" placeholder="العربون"><input id="ev2" type="number" value="${u.v2}" placeholder="المتبقي"></div>
-                <button onclick="fullEdit(${i})" style="background:#2a9d8f">تحديث البيانات ✅</button>
-                <button onclick="q(${i})" style="background:red;margin-top:5px">حذف الفاتورة 🗑️</button>
+        e += `<div style="border-top:1px solid #ddd; padding-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+                <input id="en" value="${u.n}" placeholder="الاسم"> <input id="ei" value="${u.inv||''}" placeholder="الفاتورة">
+                <input id="ep" value="${u.p||''}" placeholder="التلفون"> <input id="ed" type="date" value="${u.id||''}">
+                <input id="eqty" value="${u.qty||''}" placeholder="الكمية"> <input id="ej" value="${u.j||''}" placeholder="الكود">
+                <input id="ef1" value="${u.f1||''}" placeholder="كتف"> <input id="ef2" value="${u.f2||''}" placeholder="كم">
+                <input id="ef3" value="${u.f3||''}" placeholder="صدر"> <input id="ef" value="${u.f||''}" placeholder="طول">
+                <input id="ef_h" value="${u.f_hole||''}" placeholder="حفرة"> <input id="efs" value="${u.f_shirt||''}" placeholder="قميص">
+                <input id="efsk" value="${u.f_skirt||''}" placeholder="تنورة"> <input id="efw" value="${u.f_waist||''}" placeholder="خصر">
+                <input id="ev1" type="number" value="${u.v1}" placeholder="العربون"> <input id="ev2" type="number" value="${u.v2}" placeholder="المتبقي">
+                <textarea id="enote" style="grid-column: span 2;" placeholder="ملاحظات">${u.note||''}</textarea>
+                <button onclick="fullEdit(${i})" style="background:#2a9d8f; grid-column: span 2;">تحديث البيانات بالكامل ✅</button>
+                <button onclick="quickBlock('${u.p}')" style="background:#000; grid-column: span 2;">🚫 حظر هذا الرقم</button>
+                <button onclick="q(${i})" style="background:red; grid-column: span 2; margin-top:5px">حذف نهائي 🗑️</button>
               </div>`;
     }
     document.getElementById('editArea').innerHTML=e;
@@ -356,17 +295,38 @@ window.fullEdit=(i)=>{
     window.d[i].inv = document.getElementById('ei').value;
     window.d[i].p = document.getElementById('ep').value;
     window.d[i].id = document.getElementById('ed').value;
+    window.d[i].qty = document.getElementById('eqty').value;
+    window.d[i].j = document.getElementById('ej').value;
+    window.d[i].f1 = document.getElementById('ef1').value;
+    window.d[i].f2 = document.getElementById('ef2').value;
+    window.d[i].f3 = document.getElementById('ef3').value;
+    window.d[i].f = document.getElementById('ef').value;
+    window.d[i].f_hole = document.getElementById('ef_h').value;
+    window.d[i].f_shirt = document.getElementById('efs').value;
+    window.d[i].f_skirt = document.getElementById('efsk').value;
+    window.d[i].f_waist = document.getElementById('efw').value;
     window.d[i].v1 = document.getElementById('ev1').value;
     window.d[i].v2 = document.getElementById('ev2').value;
+    window.d[i].note = document.getElementById('enote').value;
     window.d[i].v3 = (parseFloat(window.d[i].v1) + parseFloat(window.d[i].v2)).toFixed(2);
     set(ref(db,'abonat'), window.d);
-    alert("تم التحديث");
+    alert("تم تحديث الفاتورة بالكامل");
     document.getElementById('detailsBox').style.display='none';
+};
+
+window.quickBlock = (num) => {
+    if(!num || num === '--') return alert("لا يوجد رقم هاتف لحظره");
+    if(confirm(`هل تريد حظر الرقم ${num} تلقائياً؟`)) {
+        if(!window.blacklist.includes(num)) {
+            window.blacklist.push(num);
+            set(ref(db, 'blacklist'), window.blacklist);
+            alert("تم الحظر بنجاح");
+        } else alert("الرقم محظور مسبقاً");
+    }
 };
 
 window.q=(i)=>{ if(confirm("حذف؟")){window.d.splice(i,1);set(ref(db,'abonat'), window.d);document.getElementById('detailsBox').style.display='none';}};
 
-// وظائف الحظر الجديدة
 function renderBlacklist() {
     let h = '';
     window.blacklist.forEach((num, index) => {
@@ -378,9 +338,7 @@ function renderBlacklist() {
     document.getElementById('blacklistItems').innerHTML = h || '<p style="text-align:center; font-size:12px; color:gray;">لا يوجد محظورين</p>';
 }
 
-document.getElementById('btnManageBlacklist').onclick = () => {
-    document.getElementById('blacklistModal').style.display = 'block';
-};
+document.getElementById('btnManageBlacklist').onclick = () => { document.getElementById('blacklistModal').style.display = 'block'; };
 
 document.getElementById('addBlackBtn').onclick = () => {
     let num = document.getElementById('newBlackNum').value.trim();
@@ -392,7 +350,7 @@ document.getElementById('addBlackBtn').onclick = () => {
 };
 
 window.removeFromBlacklist = (index) => {
-    if(confirm("إزالة من الحظر؟")) {
+    if(confirm("إزالة؟")) {
         window.blacklist.splice(index, 1);
         set(ref(db, 'blacklist'), window.blacklist);
     }
@@ -401,11 +359,7 @@ window.removeFromBlacklist = (index) => {
 function updateCounter(){
     let tr=0, tp=0; window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
     let t = T[currentLang];
-    let html = `#${window.d.length} ${t.customers} | `;
-    if(window.role === 'owner' || window.role === 'editor') {
-        html += `<span class="paid-highlight">${t.totalPaid}: ${tp.toFixed(2)}</span> | `;
-    }
-    html += `<span class="rem-highlight">${t.totalRem}: ${tr.toFixed(2)}</span>`;
+    let html = `#${window.d.length} ${t.customers} | <span class="paid-highlight">${t.totalPaid}: ${tp.toFixed(2)}</span> | <span class="rem-highlight">${t.totalRem}: ${tr.toFixed(2)}</span>`;
     document.getElementById('counter').innerHTML = html;
 }
 
@@ -419,27 +373,19 @@ document.getElementById('g1').oninput=document.getElementById('g2').oninput=()=>
 document.getElementById('btnSave').onclick=()=>{
     let inv=document.getElementById('invNum').value, tel=document.getElementById('b').value, date=document.getElementById('id').value, v1=document.getElementById('g1').value, v2=document.getElementById('g2').value;
     if(!inv || !tel || !date || !v1 || !v2) return alert("الرجاء تعبئة الخانات المطلوبة *");
-    
-    if(window.blacklist.includes(tel)) {
-        if(!confirm("⚠️ هذا الرقم محظور! هل تريد المتابعة؟")) return;
-    }
+    if(window.blacklist.includes(tel) && !confirm("⚠️ محظور! متابعة؟")) return;
 
-    let loc = document.querySelector('input[name="loc"]:checked').value;
     let o={
-        inv:inv, n:document.getElementById('a').value, p:tel, 
-        qty:document.getElementById('qty').value, j:document.getElementById('j').value, 
-        f1:document.getElementById('f1').value, f2:document.getElementById('f2').value, 
-        f3:document.getElementById('f3').value, f:document.getElementById('f').value, 
-        f_hole:document.getElementById('f_hole').value, f_shirt:document.getElementById('f_shirt').value,
-        f_skirt:document.getElementById('f_skirt').value, f_waist:document.getElementById('f_waist').value,
-        v1:v1, v2:v2, v3:document.getElementById('g3').value, 
-        loc:loc, isOrder: document.getElementById('checkOrder').checked, isReady: document.getElementById('checkReady').checked,
+        inv:inv, n:document.getElementById('a').value, p:tel, qty:document.getElementById('qty').value, j:document.getElementById('j').value, 
+        f1:document.getElementById('f1').value, f2:document.getElementById('f2').value, f3:document.getElementById('f3').value, f:document.getElementById('f').value, 
+        f_hole:document.getElementById('f_hole').value, f_shirt:document.getElementById('f_shirt').value, f_skirt:document.getElementById('f_skirt').value, f_waist:document.getElementById('f_waist').value,
+        v1:v1, v2:v2, v3:document.getElementById('g3').value, loc:document.querySelector('input[name="loc"]:checked').value,
+        isOrder: document.getElementById('checkOrder').checked, isReady: document.getElementById('checkReady').checked,
         note:document.getElementById('k').value, id:date, by:window.currentUser, month:new Date().getMonth()+1, year:new Date().getFullYear()
     };
     window.d.push(o); set(ref(db,'abonat'), window.d);
     alert("✅ تم الحفظ");
     ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k','id'].forEach(i=>document.getElementById(i).value='');
-    document.getElementById('checkOrder').checked = document.getElementById('checkReady').checked = false;
 };
 
 document.getElementById('btnDebt').onclick=()=>{ onlyDebt = !onlyDebt; applyLang(); };
