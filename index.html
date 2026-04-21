@@ -32,15 +32,19 @@ td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
 .slider:before{position:absolute;content:"";height:14px;width:14px;left:2px;bottom:2px;background-color:white;transition:.4s;border-radius:50%}
 input:checked+.slider{background-color:#6b4f44}
 input:checked+.slider:before{transform:translateX(16px)}
-.selection-container{background:#f9f9f9;padding:8px;border-radius:10px;margin:5px 0;font-size:12px}
-.selection-row{display:flex;justify-content:space-around;align-items:center;}
+/* تعديل لجعل الراديو والتشيك بوكس قابلة للضغط بسهولة */
+.selection-container{background:#f9f9f9;padding:10px;border-radius:10px;margin:5px 0;font-size:12px}
+.selection-row{display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:10px;}
+.selection-row label{display:flex;align-items:center;gap:5px;cursor:pointer;padding:5px;}
+.selection-row input[type="radio"], .selection-row input[type="checkbox"]{width:20px;height:20px;margin:0;cursor:pointer;-webkit-appearance:checkbox !important;}
+.selection-row input[type="radio"]{-webkit-appearance:radio !important;}
 hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 
-/* Modal Style - محسن للايفون */
 #viewModal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; overflow-y: auto;}
 .modal-content {background:white; max-width:90%; width:380px; margin:40px auto; padding:20px; border-radius:15px; position:relative; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
 .modal-detail {margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; display: flex; justify-content: space-between;}
 .modal-detail b {color: #6b4f44;}
+.rem-red {color: red !important; font-weight: bold;}
 </style>
 </head>
 <body>
@@ -48,7 +52,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 <div id="loginPage" class="box">
   <h2 id="loginTitle">🔐 دخول النظام</h2>
   <select id="userSelect">
-    <option value="owner">Amir</option>
+    <option value="owner">صاحبة الحلال</option>
     <option value="naina">ناينا</option>
     <option value="other">أخرى</option>
     <option value="editor">Editor</option>
@@ -118,7 +122,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
   <div class="row-grid">
     <input id="g1" class="req" placeholder="العربون *" type="number">
     <input id="g2" class="req" placeholder="المتبقي *" type="number">
-    <input id="g3" placeholder="السعر الكامل" readonly style="background:#f1f1f1">
+    <input id="g3" placeholder="السعر الكامل" readonly style="background:#f1f1f1" class="rem-red">
   </div>
   
   <div class="selection-container">
@@ -126,7 +130,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
       <label><input type="radio" name="loc" value="محل" checked> <span id="txtShop">محل</span></label>
       <label><input type="radio" name="loc" value="معرض"> <span id="txtExh">معرض</span></label>
       <label><input type="radio" name="loc" value="أونلاين"> <span id="txtOnline">أونلاين</span></label>
-      |
+      <span style="color:#ccc">|</span>
       <label><input type="checkbox" id="checkOrder"> <span id="txtOrder">أوردر</span></label>
       <label><input type="checkbox" id="checkReady"> <span id="txtReady">جاهز</span></label>
     </div>
@@ -207,7 +211,7 @@ const T = {
 window.login=()=>{
     let u=document.getElementById('userSelect').value, p=document.getElementById('passInput').value;
     let ok=false, name="";
-    if(u==='owner' && p=="4400"){ok=true;name="Amir";}
+    if(u==='owner' && p=="4400"){ok=true;name="صاحبة الحلال";}
     else if(u==='naina' && p=="1234"){ok=true;name="Naina";}
     else if(u==='other' && p=="1357"){ok=true;name="Employee";}
     else if(u==='editor' && p=="98988"){ok=true;name="Editor";}
@@ -225,7 +229,6 @@ window.login=()=>{
     } else alert('Error Password!');
 };
 
-// تشغيل اللغة
 window.toggleLang = () => {
     currentLang = currentLang === 'ar' ? 'en' : 'ar';
     document.getElementById('mainTitle').innerText = T[currentLang].title;
@@ -256,7 +259,6 @@ function updateCounter(){
     }
 }
 
-// تشغيل التقارير
 const showReport = (type) => {
     let now = new Date();
     let filtered = window.d.filter(u => {
@@ -280,7 +282,6 @@ const showReport = (type) => {
 document.getElementById('btnMonthly').onclick = () => showReport('monthly');
 document.getElementById('btnYearly').onclick = () => showReport('yearly');
 
-// تشغيل الحظر
 document.getElementById('btnManageBlacklist').onclick = () => {
     let num = prompt("أدخل رقم هاتف لحظره أو اتركه فارغاً لرؤية القائمة:");
     if(num) {
@@ -300,7 +301,7 @@ window.viewInv = (index) => {
         <div class="modal-detail"><b>الهاتف:</b> <span>${u.p}</span></div>
         <div class="modal-detail"><b>المقاسات:</b> <span>${u.f1}/${u.f2}/${u.f3}/${u.f}</span></div>
         <div class="modal-detail"><b>المدفوع:</b> <span>${u.v1}</span></div>
-        <div class="modal-detail"><b>المتبقي:</b> <span style="color:red">${u.v2}</span></div>
+        <div class="modal-detail"><b>المتبقي:</b> <span style="color:red; font-weight:bold;">${u.v2}</span></div>
         <div class="modal-detail"><b>التاريخ:</b> <span>${u.id}</span></div>
     `;
     document.getElementById('modalBody').innerHTML = body;
@@ -325,6 +326,12 @@ window.viewInv = (index) => {
             document.getElementById('g2').value = u.v2 || '';
             document.getElementById('g3').value = u.v3 || '';
             document.getElementById('id').value = u.id || '';
+            if(u.loc) {
+               let rads = document.getElementsByName('loc');
+               for(let r of rads) if(r.value === u.loc) r.checked = true;
+            }
+            document.getElementById('checkOrder').checked = u.isOrder || false;
+            document.getElementById('checkReady').checked = u.isReady || false;
             document.getElementById('viewModal').style.display = 'none';
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
@@ -396,6 +403,8 @@ document.getElementById('btnClear').onclick=()=>{
     ['invNum','a','b','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','id','k'].forEach(i=>{
         if(document.getElementById(i)) document.getElementById(i).value='';
     });
+    document.getElementById('checkOrder').checked = false;
+    document.getElementById('checkReady').checked = false;
 };
 
 document.getElementById('btnDebt').onclick = () => { 
