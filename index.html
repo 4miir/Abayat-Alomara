@@ -48,7 +48,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 <div id="loginPage" class="box">
   <h2 id="loginTitle">🔐 دخول النظام</h2>
   <select id="userSelect">
-    <option value="owner">صاحبة الحلال</option>
+    <option value="owner">Amir</option>
     <option value="naina">ناينا</option>
     <option value="other">أخرى</option>
     <option value="editor">Editor</option>
@@ -72,7 +72,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 <div id="mainApp" class="box">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
     <div style="font-size:12px">
-        <label class="switch"><input type="checkbox" id="langToggle" onchange="toggleLang()"><span class="slider"></span></label>
+        <label class="switch"><input type="checkbox" id="langToggle" onchange="window.toggleLang()"><span class="slider"></span></label>
         <span>English</span>
     </div>
     <span id="userNameDisplay" style="font-weight:bold;color:#6b4f44; font-size:12px"></span>
@@ -200,8 +200,8 @@ let currentLang = 'ar';
 let onlyDebt = false;
 
 const T = {
-  ar: { title: "عبايات الأمراء", login: "🔐 دخول النظام", status: "✅ متصل - الحفظ تلقائي ☁️", hello: "مرحباً: " },
-  en: { title: "Al Omara Abayat", login: "🔐 System Login", status: "✅ Connected - Auto Sync ☁️", hello: "Hi: " }
+  ar: { title: "عبايات الأمراء", login: "🔐 دخول النظام", status: "✅ متصل - الحفظ تلقائي ☁️", hello: "مرحباً: ", shop:"محل", exh:"معرض", online:"أونلاين", order:"أوردر", ready:"جاهز" },
+  en: { title: "Al Omara Abayat", login: "🔐 System Login", status: "✅ Connected - Auto Sync ☁️", hello: "Hi: ", shop:"Shop", exh:"Exh", online:"Online", order:"Order", ready:"Ready" }
 };
 
 window.login=()=>{
@@ -221,8 +221,21 @@ window.login=()=>{
             document.getElementById('btnDelInv').style.display='block';
         }
         document.getElementById('userNameDisplay').textContent= (T[currentLang].hello || "Hi: ") + name;
-        updateCounter(); // تحديث العداد فور تسجيل الدخول بناء على الصلاحية
+        updateCounter();
     } else alert('Error Password!');
+};
+
+// تشغيل اللغة
+window.toggleLang = () => {
+    currentLang = currentLang === 'ar' ? 'en' : 'ar';
+    document.getElementById('mainTitle').innerText = T[currentLang].title;
+    document.getElementById('userNameDisplay').textContent = T[currentLang].hello + window.currentUser;
+    document.getElementById('txtShop').innerText = T[currentLang].shop;
+    document.getElementById('txtExh').innerText = T[currentLang].exh;
+    document.getElementById('txtOnline').innerText = T[currentLang].online;
+    document.getElementById('txtOrder').innerText = T[currentLang].order;
+    document.getElementById('txtReady').innerText = T[currentLang].ready;
+    r_table();
 };
 
 onValue(ref(db,'abonat'),(s)=>{
@@ -232,13 +245,10 @@ onValue(ref(db,'abonat'),(s)=>{
     updateCounter();
 });
 
-// دالة العداد مع نظام حماية الخصوصية (Private for Owner)
 function updateCounter(){
     if(!window.currentUser) return;
     let tr=0, tp=0; 
     window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
-    
-    // إذا كانت صاحبة الحلال أو المحرر، أظهر المبالغ، وإلا أظهر العدد فقط
     if(window.role === 'owner' || window.role === 'editor') {
         document.getElementById('counter').innerHTML = `#${window.d.length} | Paid: ${tp.toFixed(2)} | Rem: ${tr.toFixed(2)}`;
     } else {
@@ -246,7 +256,42 @@ function updateCounter(){
     }
 }
 
-// دالة العرض والتعديل (محسنة للايفون)
+// تشغيل التقارير
+const showReport = (type) => {
+    let now = new Date();
+    let filtered = window.d.filter(u => {
+        let dDate = new Date(u.id);
+        if(type==='monthly') return dDate.getMonth() === now.getMonth() && dDate.getFullYear() === now.getFullYear();
+        if(type==='yearly') return dDate.getFullYear() === now.getFullYear();
+        return true;
+    });
+    let total = 0;
+    let h = '<table border="1" style="width:100%; border-collapse:collapse"><tr><th>Inv</th><th>Name</th><th>Total</th></tr>';
+    filtered.forEach(u => {
+        h += `<tr><td>${u.inv}</td><td>${u.n}</td><td>${u.v3}</td></tr>`;
+        total += parseFloat(u.v3) || 0;
+    });
+    h += `<tr><td colspan="2"><b>Total Sum</b></td><td><b>${total.toFixed(2)}</b></td></tr></table>`;
+    document.getElementById('reportTitle').innerText = type === 'monthly' ? "التقرير الشهري" : "التقرير السنوي";
+    document.getElementById('reportContent').innerHTML = h;
+    document.getElementById('reportBox').style.display = 'block';
+};
+
+document.getElementById('btnMonthly').onclick = () => showReport('monthly');
+document.getElementById('btnYearly').onclick = () => showReport('yearly');
+
+// تشغيل الحظر
+document.getElementById('btnManageBlacklist').onclick = () => {
+    let num = prompt("أدخل رقم هاتف لحظره أو اتركه فارغاً لرؤية القائمة:");
+    if(num) {
+        window.blacklist.push(num);
+        set(ref(db, 'blacklist'), window.blacklist);
+        alert("تم الحظر");
+    } else {
+        alert("المحظورين: " + window.blacklist.join(", "));
+    }
+};
+
 window.viewInv = (index) => {
     let u = window.d[index];
     let body = `
@@ -261,7 +306,6 @@ window.viewInv = (index) => {
     document.getElementById('modalBody').innerHTML = body;
     document.getElementById('viewModal').style.display = 'block';
     
-    // التعديل (يعمل في الايفون)
     document.getElementById('btnEditInv').onclick = () => {
         if(confirm("هل تريد سحب البيانات للتعديل؟")) {
             document.getElementById('invNum').value = u.inv;
@@ -303,12 +347,13 @@ function r_table(){
     let h='';
     fd.forEach(u=>{
         let i=window.d.indexOf(u);
-        let locMap = { 'محل': 'محل', 'معرض': 'معرض', 'أونلاين': 'أونلاين' };
+        let isBlocked = window.blacklist.includes(u.p);
+        let locMap = { 'محل': T[currentLang].shop, 'معرض': T[currentLang].exh, 'أونلاين': T[currentLang].online };
         let displayLoc = (locMap[u.loc] || u.loc) + (u.isOrder?"+أ":"") + (u.isReady?"+ج":"");
         
-        h+=`<tr>
+        h+=`<tr class="${isBlocked ? 'blocked-row' : ''}">
                 <td>${u.inv||'--'}</td>
-                <td>${u.n || 'بدون اسم'}</td>
+                <td>${isBlocked ? '🚫 ' : ''}${u.n || 'بدون اسم'}</td>
                 <td>${displayLoc}</td>
                 <td>${u.by || '--'}</td>
                 <td style="color:red;font-weight:bold">${u.v2}</td>
@@ -333,7 +378,7 @@ document.getElementById('btnSave').onclick=()=>{
         f_hole:document.getElementById('f_hole').value, f_shirt:document.getElementById('f_shirt').value, f_skirt:document.getElementById('f_skirt').value, f_waist:document.getElementById('f_waist').value,
         v1:v1, v2:v2, v3:document.getElementById('g3').value, loc:document.querySelector('input[name="loc"]:checked').value,
         isOrder: document.getElementById('checkOrder').checked, isReady: document.getElementById('checkReady').checked,
-        by:window.currentUser, id:date, month:new Date().getMonth()+1, year:new Date().getFullYear()
+        by:window.currentUser, id:date, month:new Date(date).getMonth()+1, year:new Date(date).getFullYear()
     };
 
     let existingIndex = window.d.findIndex(item => item.inv === inv);
