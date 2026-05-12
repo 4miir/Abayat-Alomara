@@ -167,6 +167,18 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 
   <div id="reportBox" class="report-area">
     <h3 id="reportTitle" style="text-align:center;color:#3a5a40; font-size:14px;"></h3>
+    
+    <div id="reportFilters" style="margin-bottom:10px; display:flex; gap:5px;">
+        <select id="selMonth" style="display:none; flex:1;">
+            <option value="0">اختر الشهر</option>
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+        </select>
+        <select id="selYear" style="display:none; flex:1;"></select>
+    </div>
+
     <div id="reportContent" style="overflow-x: auto; background: white; padding: 10px;"></div>
     <div class="row-grid" style="margin-top:10px">
         <button id="btnExportWord" style="background:#2b5797; font-size:11px;">تحميل Word 📄</button>
@@ -215,6 +227,7 @@ window.role = "";
 window.currentUser = "";
 let currentLang = 'ar';
 let onlyDebt = false;
+let currentReportType = '';
 
 const T = {
   ar: { 
@@ -328,6 +341,7 @@ window.toggleLang = () => {
 onValue(ref(db,'abonat'),(s)=>{
     window.d = s.exists() ? s.val() : [];
     document.getElementById('statusLine').innerHTML = T[currentLang==='ar'?'en':'ar'].status;
+    updateYearSelect(); // تحديث قائمة السنوات عند تحميل البيانات
     r_table();
     updateCounter();
 });
@@ -343,43 +357,78 @@ function updateCounter(){
     }
 }
 
+// تحديث السنوات ديناميكياً بناءً على البيانات الموجودة
+function updateYearSelect() {
+    let years = [new Date().getFullYear()];
+    window.d.forEach(u => {
+        let y = new Date(u.id).getFullYear();
+        if(!years.includes(y)) years.push(y);
+    });
+    years.sort((a,b)=> b-a);
+    let h = '<option value="0">اختر السنة</option>';
+    years.forEach(y => { h += `<option value="${y}">${y}</option>`; });
+    document.getElementById('selYear').innerHTML = h;
+}
+
 const showReport = (type) => {
+    currentReportType = type;
     let now = new Date();
+    document.getElementById('selMonth').style.display = (type === 'monthly') ? 'block' : 'none';
+    document.getElementById('selYear').style.display = 'block'; 
+    if(document.getElementById('selMonth').value == "0") document.getElementById('selMonth').value = now.getMonth() + 1;
+    if(document.getElementById('selYear').value == "0") document.getElementById('selYear').value = now.getFullYear();
+    renderFilteredReport();
+    document.getElementById('reportBox').style.display = 'block';
+};
+
+function renderFilteredReport() {
     let l = T[currentLang==='ar'?'en':'ar'];
+    let selectedMonth = parseInt(document.getElementById('selMonth').value);
+    let selectedYear = parseInt(document.getElementById('selYear').value);
+
     let filtered = window.d.filter(u => {
         let dDate = new Date(u.id);
-        if(type==='monthly') return dDate.getMonth() === now.getMonth() && dDate.getFullYear() === now.getFullYear();
-        if(type==='yearly') return dDate.getFullYear() === now.getFullYear();
-        return true;
+        let mMatch = (currentReportType === 'monthly') ? (dDate.getMonth() + 1 === selectedMonth) : true;
+        let yMatch = (dDate.getFullYear() === selectedYear);
+        return mMatch && yMatch;
     });
+
     let total = 0;
     let h = `<table id="reportTable" border="1" style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
-        <tr style="background:#f1f1f1">
+        <thead><tr style="background:#f1f1f1">
             <th>${l.thInv}</th>
             <th>${l.thName}</th>
             <th>${l.date}</th>
             <th>${l.total}</th>
-        </tr>`;
+        </tr></thead><tbody>`;
+    
     filtered.forEach(u => {
-        h += `<tr><td>${u.inv}</td><td>${u.n}</td><td>${u.id}</td><td>${u.v3}</td></tr>`;
+        h += `<tr><td>${u.inv}</td><td>${u.n}</td><td>${u.id}</td><td>${parseFloat(u.v3).toFixed(2)}</td></tr>`;
         total += parseFloat(u.v3) || 0;
     });
-    h += `<tr style="background:#f9f9f9"><td colspan="3"><b>Total</b></td><td><b>${total.toFixed(2)}</b></td></tr></table>`;
-    document.getElementById('reportTitle').innerText = type === 'monthly' ? l.monthly : l.yearly;
+    
+    h += `</tbody><tfoot><tr style="background:#f9f9f9; font-weight:bold;">
+            <td colspan="3" style="text-align:left; padding:10px;">المجموع الإجمالي / Total:</td>
+            <td style="color:#d62828;">${total.toFixed(2)}</td>
+          </tr></tfoot></table>`;
+    
+    document.getElementById('reportTitle').innerText = (currentReportType === 'monthly' ? l.monthly : l.yearly) + " (" + selectedYear + (currentReportType === 'monthly' ? " - " + selectedMonth : "") + ")";
     document.getElementById('reportContent').innerHTML = h;
-    document.getElementById('reportBox').style.display = 'block';
-};
+}
 
+document.getElementById('selMonth').onchange = renderFilteredReport;
+document.getElementById('selYear').onchange = renderFilteredReport;
 document.getElementById('btnMonthly').onclick = () => showReport('monthly');
 document.getElementById('btnYearly').onclick = () => showReport('yearly');
 
 document.getElementById('btnExportWord').onclick = () => {
     let content = document.getElementById('reportContent').innerHTML;
-    let header = `<div style="text-align:center"><h2>${document.getElementById('reportTitle').innerText}</h2></div>`;
+    let title = document.getElementById('reportTitle').innerText;
+    let header = `<div style="text-align:center"><h2>${title}</h2></div>`;
     let converted = htmlDocx.asBlob(header + content);
     let link = document.createElement('a');
     link.href = URL.createObjectURL(converted);
-    link.download = `Report_${new Date().toLocaleDateString()}.docx`;
+    link.download = `Report_${title}.docx`;
     link.click();
 };
 
