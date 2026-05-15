@@ -69,7 +69,10 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
             <button id="btnEditInv" style="background:#2a9d8f">تعديل 📝</button>
             <button id="btnDelInv" style="background:#d62828; display:none;">حذف 🗑️</button>
         </div>
-        <button id="btnWhatsApp" style="background:#25D366; margin-top:5px">إرسال واتساب 🟢</button>
+        <div class="row-grid" style="margin-top:5px">
+          <button id="btnWhatsApp" style="background:#25D366">واتساب 🟢</button>
+          <button id="btnCopyForDriver" style="background:#0077b6">نسخ للمندوب 📋</button>
+        </div>
         <button id="btnCloseModal" onclick="document.getElementById('viewModal').style.display='none'" style="background:#555; margin-top:5px">إغلاق</button>
     </div>
 </div>
@@ -242,7 +245,7 @@ const db = firebase.database();
 window.d = [];
 window.blacklist = [];
 window.currentUser = "";
-let currentLang = 'ar'; // العربية هي الافتراضية
+let currentLang = 'ar'; 
 let onlyDebt = false;
 let currentReportType = '';
 
@@ -309,7 +312,6 @@ function init() {
         updateYearSelect(); 
         r_table();
         updateCounter();
-        // تطبيق اللغة العربية فور التحميل
         applyLang('ar');
     });
 
@@ -541,52 +543,54 @@ window.viewInv = (index) => {
         <div class="modal-detail"><b>${l.address}:</b> <span>${u.addr || '--'}</span></div>
         <div class="modal-detail"><b>العدد والكود:</b> <span>${u.qty || '1'} (Code: ${u.j || '--'})</span></div>
         <div class="modal-detail"><b>المقاسات (كتف/كم/صدر/طول):</b> <span>${u.f1 || '-'}/${u.f2 || '-'}/${u.f3 || '-'}/${u.f || '-'}</span></div>
-        <div class="modal-detail"><b>مقاسات أخرى:</b> <span>حفرة: ${u.f_hole || '-'} | خصر: ${u.f_waist || '-'}</span></div>
-        <div class="modal-detail"><b>قميص/تنورة:</b> <span>ق: ${u.f_shirt || '-'} | ت: ${u.f_skirt || '-'}</span></div>
         <hr>
         <div class="modal-detail"><b>${l.paid}:</b> <span>${u.v1}</span></div>
         <div class="modal-detail"><b>${l.rem}:</b> <span style="color:red; font-weight:bold;">${u.v2}</span></div>
         <div class="modal-detail"><b>${l.total}:</b> <span>${u.v3}</span></div>
         <hr>
-        <div class="modal-detail"><b>المكان:</b> <span>${u.loc}</span></div>
         <div class="modal-detail"><b>الحالة:</b> <span>${u.isOrder ? 'أوردر' : ''} ${u.isReady ? 'جاهز' : ''}</span></div>
         <div class="modal-detail"><b>${l.notes}:</b> <span>${u.k || '--'}</span></div>
-        <div class="modal-detail"><b>${l.date}:</b> <span>${u.id || '--'}</span></div>
-        <div class="modal-detail"><b>بواسطة:</b> <span>${u.by || '--'}</span></div>
     `;
     document.getElementById('modalBody').innerHTML = body;
     document.getElementById('viewModal').style.display = 'block';
+    
+    // إرسال واتساب للزبونة
     document.getElementById('btnWhatsApp').onclick = () => {
         let msg = `*فـاتـورة عـبـايـات الأمـراء*%0A` +
                   `----------------------------%0A` +
                   `*رقم الفاتورة:* ${u.inv}%0A` +
                   `*الاسم:* ${u.n || 'غير مسجل'}%0A` +
                   `*العنوان:* ${u.addr || '--'}%0A` +
-                  `*الكود:* ${u.j || '--'}%0A` +
-                  `*المقاسات:* طول(${u.f || '-'}) صدر(${u.f3 || '-'}) كم(${u.f2 || '-'}) كتف(${u.f1 || '-'})%0A` +
                   `----------------------------%0A` +
                   `*العربون:* ${u.v1} د.ك%0A` +
                   `*المتبقي:* ${u.v2} د.ك%0A` +
                   `*الإجمالي:* ${u.v3} د.ك%0A` +
-                  `*ملاحظات:* ${u.k || 'لا يوجد'}%0A` +
-                  `----------------------------%0A` +
                   `شكراً لتعاملكم معنا ✨`;
         window.open(`https://wa.me/${u.p.replace(/\s+/g, '')}?text=${msg}`, '_blank');
     };
+
+    // نسخ بيانات المندوب
+    document.getElementById('btnCopyForDriver').onclick = () => {
+        let copyText = `--- طلب توصيل جديد ---\n` +
+                       `رقم الفاتورة: ${u.inv}\n` +
+                       `اسم الزبونة: ${u.n || 'غير مسجل'}\n` +
+                       `رقم التلفون: ${u.p}\n` +
+                       `العنوان: ${u.addr || 'غير مسجل'}\n` +
+                       `----------------------`;
+        
+        navigator.clipboard.writeText(copyText).then(() => {
+            alert("✅ تم نسخ بيانات المندوب بنجاح!");
+        }).catch(err => {
+            alert("❌ حدث خطأ أثناء النسخ");
+        });
+    };
+
     document.getElementById('btnEditInv').onclick = () => {
         if(confirm("سحب البيانات للتعديل؟ / Edit?")) {
             document.getElementById('invNum').value = u.inv;
             document.getElementById('a').value = u.n || '';
             document.getElementById('b').value = u.p;
             document.getElementById('addr_main').value = u.addr || '';
-            if(u.addr) {
-                document.getElementById('addr_area').value = u.addr.match(/المنطقة: (.*?) قطعة:/)?.[1] || '';
-                document.getElementById('addr_block').value = u.addr.match(/قطعة: (.*?) شارع:/)?.[1] || '';
-                document.getElementById('addr_street').value = u.addr.match(/شارع: (.*?) جادة:/)?.[1] || '';
-                document.getElementById('addr_jadda').value = u.addr.match(/جادة: (.*?) منزل:/)?.[1] || '';
-                document.getElementById('addr_house').value = u.addr.match(/منزل: (.*?) ملاحظة:/)?.[1] || '';
-                document.getElementById('addr_note').value = u.addr.match(/ملاحظة: (.*)/)?.[1] || '';
-            }
             document.getElementById('qty').value = u.qty || '';
             document.getElementById('j').value = u.j || '';
             document.getElementById('f1').value = u.f1 || '';
@@ -602,10 +606,6 @@ window.viewInv = (index) => {
             document.getElementById('g3').value = u.v3 || '';
             document.getElementById('id').value = u.id || '';
             document.getElementById('k').value = u.k || '';
-            if(u.loc) {
-               let rads = document.getElementsByName('loc');
-               for(let r of rads) if(r.value === u.loc) r.checked = true;
-            }
             document.getElementById('checkOrder').checked = u.isOrder || false;
             document.getElementById('checkReady').checked = u.isReady || false;
             document.getElementById('viewModal').style.display = 'none';
