@@ -61,6 +61,8 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 .modal-detail {margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; display: flex; justify-content: space-between;}
 .modal-detail b {color: #6b4f44;}
 .bl-item {display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;}
+.modal-sizes-box {background: #fdf6f2; border: 1px solid #e9dcd3; border-radius: 10px; padding: 10px; margin-top: 5px;}
+.modal-size-item {display: inline-block; width: 45%; margin-bottom: 5px; font-size: 12px;}
 </style>
 </head>
 <body>
@@ -271,7 +273,6 @@ const T = {
   }
 };
 
-// وظيفة التحقق من الصلاحيات
 function isAuthorized() {
     return window.currentUser.includes('admin') || window.currentUser.includes('owner') || window.currentUser.includes('editor');
 }
@@ -391,7 +392,6 @@ function updateCounter(){
         if(u.loc === 'محل') cShop++; if(u.loc === 'معرض') cExh++;
     });
     
-    // إخفاء المبالغ المالية من العداد للموظفين العاديين
     if(isAuthorized()) {
         document.getElementById('counter').innerHTML = `<div>#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span></div>
         <div style="font-size:10px; margin-top:4px; color:#555;">جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}</div>`;
@@ -492,13 +492,45 @@ function renderBlacklist() {
 
 window.viewInv = (index) => {
     let u = window.d[index], l = T[currentLang], auth = isAuthorized();
+    
+    // بناء وعرض المقاسات بالتفصيل وباللغتين حسب اختيار لغة النظام لسهولة الفهم
+    let sizesHTML = '';
+    if (currentLang === 'ar') {
+        sizesHTML = `
+            <div class="modal-sizes-box">
+                <div class="modal-size-item"><b>الكتف:</b> ${u.f1 || '-'}</div>
+                <div class="modal-size-item"><b>الكم:</b> ${u.f2 || '-'}</div>
+                <div class="modal-size-item"><b>الصدر:</b> ${u.f3 || '-'}</div>
+                <div class="modal-size-item"><b>الطول:</b> ${u.f || '-'}</div>
+                <div class="modal-size-item"><b>الحفرة:</b> ${u.f_hole || '-'}</div>
+                <div class="modal-size-item"><b>طول القميص:</b> ${u.f_shirt || '-'}</div>
+                <div class="modal-size-item"><b>طول التنورة:</b> ${u.f_skirt || '-'}</div>
+                <div class="modal-size-item"><b>الخصر:</b> ${u.f_waist || '-'}</div>
+            </div>
+        `;
+    } else {
+        sizesHTML = `
+            <div class="modal-sizes-box">
+                <div class="modal-size-item"><b>Shoulder:</b> ${u.f1 || '-'}</div>
+                <div class="modal-size-item"><b>Sleeve:</b> ${u.f2 || '-'}</div>
+                <div class="modal-size-item"><b>Chest:</b> ${u.f3 || '-'}</div>
+                <div class="modal-size-item"><b>Length:</b> ${u.f || '-'}</div>
+                <div class="modal-size-item"><b>Armhole:</b> ${u.f_hole || '-'}</div>
+                <div class="modal-size-item"><b>Shirt L:</b> ${u.f_shirt || '-'}</div>
+                <div class="modal-size-item"><b>Skirt L:</b> ${u.f_skirt || '-'}</div>
+                <div class="modal-size-item"><b>Waist:</b> ${u.f_waist || '-'}</div>
+            </div>
+        `;
+    }
+
     document.getElementById('modalBody').innerHTML = `
         <div class="modal-detail"><b>${l.thInv}:</b> <span>${u.inv}</span></div>
         <div class="modal-detail"><b>${l.thName}:</b> <span>${u.n || '--'}</span></div>
         <div class="modal-detail"><b>${l.phone}:</b> <span>${u.p}</span></div>
         <div class="modal-detail"><b>${l.address}:</b> <span>${u.addr || '--'}</span></div>
         <div class="modal-detail"><b>العدد والكود:</b> <span>${u.qty || '1'} (Code: ${u.j || '--'})</span></div>
-        <div class="modal-detail"><b>المقاسات:</b> <span>${u.f1 || '-'}/${u.f2 || '-'}/${u.f3 || '-'}/${u.f || '-'}</span></div>
+        <div style="margin-top:8px; font-weight:bold; color:#6b4f44;">${l.sizes}:</div>
+        ${sizesHTML}
         <hr>
         ${auth ? `
         <div class="modal-detail"><b>${l.paid}:</b> <span>${u.v1}</span></div>
