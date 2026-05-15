@@ -20,7 +20,7 @@ button{background:#6b4f44;color:white;border:none;font-weight:bold;cursor:pointe
 .size-section {background: #fdf6f2; padding: 10px; border-radius: 12px; margin: 10px 0; display: none; border: 1px solid #e9dcd3;}
 .size-grid {display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;}
 .size-grid input {padding: 8px; font-size: 11px; text-align: center; margin: 0;}
-.counter-box{text-align:center;background:#fdf6f2;padding:8px;border-radius:10px;margin-bottom:10px;font-size:12px;color:#6b4f44;font-weight:bold;line-height:1.5}
+.counter-box{text-align:center;background:#fdf6f2;padding:8px;border-radius:10px;margin-bottom:10px;font-size:11px;color:#6b4f44;font-weight:bold;line-height:1.6}
 table{width:100%;margin-top:15px;border-collapse:collapse;font-size:10px}
 th{background:#fdf6f2;color:#6b4f44;padding:8px}
 td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
@@ -163,21 +163,29 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
       <button id="btnYearly" style="background:#3a5a40; font-size:11px;">📅 سنوي</button>
       <button id="btnManageBlacklist" style="background:#000; font-size:11px;">🚫 المحظورين</button>
     </div>
+    <div class="row-grid" style="margin-top:5px">
+      <button id="btnShopRep" onclick="window.showReport('محل')" style="background:#6b4f44; font-size:10px;">🏠 تقرير محل</button>
+      <button id="btnExhRep" onclick="window.showReport('معرض')" style="background:#6b4f44; font-size:10px;">🏛️ تقرير معرض</button>
+      <button id="btnOrderRep" onclick="window.showReport('أوردر')" style="background:#8d7166; font-size:10px;">📦 تقرير أوردر</button>
+      <button id="btnReadyRep" onclick="window.showReport('جاهز')" style="background:#8d7166; font-size:10px;">✨ تقرير جاهز</button>
+    </div>
   </div>
 
   <div id="reportBox" class="report-area">
     <h3 id="reportTitle" style="text-align:center;color:#3a5a40; font-size:14px;"></h3>
     
     <div id="reportFilters" style="margin-bottom:10px; display:flex; gap:5px;">
-        <select id="selMonth" style="display:none; flex:1;">
-            <option value="0">اختر الشهر</option>
+        <select id="selMonth" style="flex:1;">
+            <option value="0">كل الشهور</option>
             <option value="1">1</option><option value="2">2</option><option value="3">3</option>
             <option value="4">4</option><option value="5">5</option><option value="6">6</option>
             <option value="7">7</option><option value="8">8</option><option value="9">9</option>
             <option value="10">10</option><option value="11">11</option><option value="12">12</option>
         </select>
-        <select id="selYear" style="display:none; flex:1;"></select>
+        <select id="selYear" style="flex:1;"></select>
     </div>
+
+    <div id="reportSummary" style="margin-bottom:10px; font-size:11px; background:#f9f9f9; padding:8px; border-radius:10px; display:grid; grid-template-columns: 1fr 1fr; gap:5px;"></div>
 
     <div id="reportContent" style="overflow-x: auto; background: white; padding: 10px;"></div>
     <div class="row-grid" style="margin-top:10px">
@@ -341,23 +349,31 @@ window.toggleLang = () => {
 onValue(ref(db,'abonat'),(s)=>{
     window.d = s.exists() ? s.val() : [];
     document.getElementById('statusLine').innerHTML = T[currentLang==='ar'?'en':'ar'].status;
-    updateYearSelect(); // تحديث قائمة السنوات عند تحميل البيانات
+    updateYearSelect(); 
     r_table();
     updateCounter();
 });
 
 function updateCounter(){
     if(!window.currentUser) return;
-    let tr=0, tp=0; 
-    window.d.forEach(u=>{tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;});
-    if(window.role === 'owner' || window.role === 'editor') {
-        document.getElementById('counter').innerHTML = `#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span>`;
-    } else {
-        document.getElementById('counter').innerHTML = `# Total Orders: ${window.d.length}`;
-    }
+    let tr=0, tp=0, cReady=0, cOrder=0, cShop=0, cExh=0; 
+    window.d.forEach(u=>{
+        tr+=parseFloat(u.v2)||0; 
+        tp+=parseFloat(u.v1)||0;
+        if(u.isReady) cReady++;
+        if(u.isOrder) cOrder++;
+        if(u.loc === 'محل') cShop++;
+        if(u.loc === 'معرض') cExh++;
+    });
+    
+    let html = `<div>#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span></div>`;
+    html += `<div style="font-size:10px; margin-top:4px; color:#555;">`;
+    html += `جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}`;
+    html += `</div>`;
+    
+    document.getElementById('counter').innerHTML = html;
 }
 
-// تحديث السنوات ديناميكياً بناءً على البيانات الموجودة
 function updateYearSelect() {
     let years = [new Date().getFullYear()];
     window.d.forEach(u => {
@@ -365,66 +381,104 @@ function updateYearSelect() {
         if(!years.includes(y)) years.push(y);
     });
     years.sort((a,b)=> b-a);
-    let h = '<option value="0">اختر السنة</option>';
+    let h = '<option value="0">كل السنوات</option>';
     years.forEach(y => { h += `<option value="${y}">${y}</option>`; });
     document.getElementById('selYear').innerHTML = h;
 }
 
-const showReport = (type) => {
+window.showReport = (type) => {
     currentReportType = type;
-    let now = new Date();
-    document.getElementById('selMonth').style.display = (type === 'monthly') ? 'block' : 'none';
-    document.getElementById('selYear').style.display = 'block'; 
-    if(document.getElementById('selMonth').value == "0") document.getElementById('selMonth').value = now.getMonth() + 1;
-    if(document.getElementById('selYear').value == "0") document.getElementById('selYear').value = now.getFullYear();
-    renderFilteredReport();
     document.getElementById('reportBox').style.display = 'block';
+    
+    // ضبط الحالة الافتراضية للفلاتر عند فتح أي تقرير
+    let now = new Date();
+    document.getElementById('selMonth').value = "0"; // بشكل افتراضي يعرض كل شهور السنة المختارة
+    document.getElementById('selYear').value = now.getFullYear();
+
+    renderFilteredReport();
 };
 
 function renderFilteredReport() {
     let l = T[currentLang==='ar'?'en':'ar'];
+    let filtered = [];
     let selectedMonth = parseInt(document.getElementById('selMonth').value);
     let selectedYear = parseInt(document.getElementById('selYear').value);
 
-    let filtered = window.d.filter(u => {
+    // المنطق الجديد: الفلترة حسب النوع (محل/معرض/أوردر/جاهز/شهري/سنوي) + التاريخ المختصر
+    filtered = window.d.filter(u => {
         let dDate = new Date(u.id);
-        let mMatch = (currentReportType === 'monthly') ? (dDate.getMonth() + 1 === selectedMonth) : true;
+        let mMatch = (selectedMonth === 0) ? true : (dDate.getMonth() + 1 === selectedMonth);
         let yMatch = (dDate.getFullYear() === selectedYear);
-        return mMatch && yMatch;
+        
+        let typeMatch = false;
+        if(currentReportType === 'محل') typeMatch = (u.loc === 'محل');
+        else if(currentReportType === 'معرض') typeMatch = (u.loc === 'معرض');
+        else if(currentReportType === 'أوردر') typeMatch = (u.isOrder === true);
+        else if(currentReportType === 'جاهز') typeMatch = (u.isReady === true);
+        else if(currentReportType === 'monthly') typeMatch = true; // الشهري والسنوي يعتمدون فقط على التاريخ
+        else if(currentReportType === 'yearly') { typeMatch = true; mMatch = true; } // السنوي يتجاهل الشهر
+
+        return typeMatch && mMatch && yMatch;
     });
 
-    let total = 0;
+    let title = "تقرير " + currentReportType + " (" + selectedYear + (selectedMonth !== 0 ? " - شهر " + selectedMonth : "") + ")";
+
+    let totalPaid = 0, totalRem = 0, totalVal = 0;
     let h = `<table id="reportTable" border="1" style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
         <thead><tr style="background:#f1f1f1">
             <th>${l.thInv}</th>
             <th>${l.thName}</th>
-            <th>${l.date}</th>
-            <th>${l.total}</th>
+            <th>المدفوع</th>
+            <th>المتبقي</th>
+            <th>المجموع</th>
         </tr></thead><tbody>`;
     
     filtered.forEach(u => {
-        h += `<tr><td>${u.inv}</td><td>${u.n}</td><td>${u.id}</td><td>${parseFloat(u.v3).toFixed(2)}</td></tr>`;
-        total += parseFloat(u.v3) || 0;
+        let p = parseFloat(u.v1) || 0;
+        let r = parseFloat(u.v2) || 0;
+        let t = parseFloat(u.v3) || 0;
+        h += `<tr><td>${u.inv}</td><td>${u.n}</td><td>${p.toFixed(2)}</td><td>${r.toFixed(2)}</td><td>${t.toFixed(2)}</td></tr>`;
+        totalPaid += p;
+        totalRem += r;
+        totalVal += t;
     });
     
     h += `</tbody><tfoot><tr style="background:#f9f9f9; font-weight:bold;">
-            <td colspan="3" style="text-align:left; padding:10px;">المجموع الإجمالي / Total:</td>
-            <td style="color:#d62828;">${total.toFixed(2)}</td>
+            <td colspan="2">الإجمالي:</td>
+            <td>${totalPaid.toFixed(2)}</td>
+            <td style="color:red">${totalRem.toFixed(2)}</td>
+            <td style="color:green">${totalVal.toFixed(2)}</td>
           </tr></tfoot></table>`;
     
-    document.getElementById('reportTitle').innerText = (currentReportType === 'monthly' ? l.monthly : l.yearly) + " (" + selectedYear + (currentReportType === 'monthly' ? " - " + selectedMonth : "") + ")";
+    let summaryHtml = `
+        <div><b>العدد:</b> ${filtered.length}</div>
+        <div><b>المدفوع:</b> ${totalPaid.toFixed(2)}</div>
+        <div style="color:red"><b>المتبقي:</b> ${totalRem.toFixed(2)}</div>
+        <div style="color:green"><b>المجموع:</b> ${totalVal.toFixed(2)}</div>
+    `;
+    
+    document.getElementById('reportSummary').innerHTML = summaryHtml;
+    document.getElementById('reportTitle').innerText = title;
     document.getElementById('reportContent').innerHTML = h;
 }
 
 document.getElementById('selMonth').onchange = renderFilteredReport;
 document.getElementById('selYear').onchange = renderFilteredReport;
-document.getElementById('btnMonthly').onclick = () => showReport('monthly');
-document.getElementById('btnYearly').onclick = () => showReport('yearly');
+document.getElementById('btnMonthly').onclick = () => window.showReport('monthly');
+document.getElementById('btnYearly').onclick = () => window.showReport('yearly');
 
 document.getElementById('btnExportWord').onclick = () => {
+    let summary = document.getElementById('reportSummary').innerHTML;
     let content = document.getElementById('reportContent').innerHTML;
     let title = document.getElementById('reportTitle').innerText;
-    let header = `<div style="text-align:center"><h2>${title}</h2></div>`;
+    
+    let header = `<div style="text-align:center; font-family: tahoma; direction: rtl;">
+                    <h2>${title}</h2>
+                    <div style="background:#eee; padding:10px; margin-bottom:20px; border:1px solid #ccc;">
+                        ${summary}
+                    </div>
+                  </div>`;
+                  
     let converted = htmlDocx.asBlob(header + content);
     let link = document.createElement('a');
     link.href = URL.createObjectURL(converted);
