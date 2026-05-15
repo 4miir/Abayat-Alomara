@@ -61,6 +61,8 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 .modal-detail {margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; display: flex; justify-content: space-between;}
 .modal-detail b {color: #6b4f44;}
 .bl-item {display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;}
+.modal-sizes-box {background: #fdf6f2; border: 1px solid #e9dcd3; border-radius: 10px; padding: 10px; margin-top: 5px;}
+.modal-size-item {display: inline-block; width: 46%; margin: 2%; font-size: 12px;}
 </style>
 </head>
 <body>
@@ -271,7 +273,6 @@ const T = {
   }
 };
 
-// وظيفة التحقق من الصلاحيات
 function isAuthorized() {
     return window.currentUser.includes('admin') || window.currentUser.includes('owner') || window.currentUser.includes('editor');
 }
@@ -391,7 +392,6 @@ function updateCounter(){
         if(u.loc === 'محل') cShop++; if(u.loc === 'معرض') cExh++;
     });
     
-    // إخفاء المبالغ المالية من العداد للموظفين العاديين
     if(isAuthorized()) {
         document.getElementById('counter').innerHTML = `<div>#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span></div>
         <div style="font-size:10px; margin-top:4px; color:#555;">جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}</div>`;
@@ -492,13 +492,32 @@ function renderBlacklist() {
 
 window.viewInv = (index) => {
     let u = window.d[index], l = T[currentLang], auth = isAuthorized();
+    
+    // بناء قسم المقاسات بالتفصيل لتفادي الخلط
+    let sizesHTML = '';
+    let sizeLabels = {
+        'f1': 'الكتف', 'f2': 'الكم', 'f3': 'الصدر', 'f': 'الطول',
+        'f_hole': 'الحفرة', 'f_shirt': 'طول القميص', 'f_skirt': 'طول التنورة', 'f_waist': 'الخصر'
+    };
+    
+    let hasSizes = false;
+    for (let key in sizeLabels) {
+        if (u[key] && u[key].trim() !== '') {
+            sizesHTML += `<div class="modal-size-item"><b>${sizeLabels[key]}:</b> <span>${u[key]}</span></div>`;
+            hasSizes = true;
+        }
+    }
+    if (!hasSizes) sizesHTML = '<div style="text-align:center; color:#888;">لا توجد مقاسات مسجلة</div>';
+
     document.getElementById('modalBody').innerHTML = `
         <div class="modal-detail"><b>${l.thInv}:</b> <span>${u.inv}</span></div>
         <div class="modal-detail"><b>${l.thName}:</b> <span>${u.n || '--'}</span></div>
         <div class="modal-detail"><b>${l.phone}:</b> <span>${u.p}</span></div>
-        <div class="modal-detail"><b>${l.address}:</b> <span>${u.addr || '--'}</span></div>
+        <div class="modal-detail"><b>العنوان:</b> <span>${u.addr || '--'}</span></div>
         <div class="modal-detail"><b>العدد والكود:</b> <span>${u.qty || '1'} (Code: ${u.j || '--'})</span></div>
-        <div class="modal-detail"><b>المقاسات:</b> <span>${u.f1 || '-'}/${u.f2 || '-'}/${u.f3 || '-'}/${u.f || '-'}</span></div>
+        
+        <div style="margin-top:10px; font-weight:bold; color:#6b4f44;">📐 تفاصيل المقاسات:</div>
+        <div class="modal-sizes-box">${sizesHTML}</div>
         <hr>
         ${auth ? `
         <div class="modal-detail"><b>${l.paid}:</b> <span>${u.v1}</span></div>
@@ -518,7 +537,7 @@ window.viewInv = (index) => {
     };
     document.getElementById('btnEditInv').onclick = () => {
         if(confirm("تعديل؟")) {
-            ['invNum','a','b','addr_main','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','id','k'].forEach(i => { if(document.getElementById(i)) document.getElementById(i).value = u[i] || u.v1 || u.v2 || u.v3 || ''; });
+            ['invNum','a','b','addr_main','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','id','k'].forEach(i => { if(document.getElementById(i)) document.getElementById(i).value = u[i] || ''; });
             document.getElementById('invNum').value = u.inv; document.getElementById('a').value = u.n || ''; document.getElementById('b').value = u.p; document.getElementById('g1').value = u.v1; document.getElementById('g2').value = u.v2; document.getElementById('g3').value = u.v3;
             document.getElementById('checkOrder').checked = u.isOrder; document.getElementById('checkReady').checked = u.isReady;
             document.getElementById('viewModal').style.display = 'none'; window.scrollTo(0,0);
@@ -539,7 +558,7 @@ function r_table(){
         h+=`<tr class="${rowClass}">
             <td>${u.inv||'--'}</td>
             <td>${isBlocked ? '🚫 ' : ''}${u.n || '--'}</td>
-            <td>${(locMap[u.loc] || u.loc) + (u.isOrder?"+أ":"") + (u.isReady?"+ج":"")}</td>
+            <td>${(locMap[u.loc] || u.loc) + (u.isOrder?"+أ":"") + (u.isReady?"+ج")}</td>
             <td>${u.by || '--'}</td>
             <td style="font-weight:bold">${auth ? (u.v3 || '--') : '***'}</td>
             <td><button onclick="viewInv(${i})" style="padding:4px 8px; font-size:10px; border-radius:5px;">👁️</button></td>
