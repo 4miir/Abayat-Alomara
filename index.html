@@ -44,14 +44,13 @@ input:checked+.slider:before{transform:translateX(16px)}
 .selection-row input[type="radio"]{-webkit-appearance:radio !important;}
 hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 
-/* تنسيق القائمة الجديدة للتقارير */
 .reports-dropdown {
     background: #f1f1f1;
     border: 1px solid #ddd;
     border-radius: 12px;
     padding: 10px;
     margin-top: 5px;
-    display: none; /* مخفية افتراضياً */
+    display: none; 
 }
 .reports-dropdown h4 { margin: 0 0 10px 0; font-size: 13px; color: #6b4f44; text-align: center; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
 .reports-dropdown .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
@@ -183,7 +182,6 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
     <button id="btnClear" style="background:#555;">🧹 تفريغ</button>
   </div>
 
-  <!-- زر القائمة المدمجة الجديد -->
   <div id="adminPanel" style="display:none; margin-top:10px">
     <button id="toggleReportsBtn" onclick="window.toggleReportsMenu()" style="background:#3a5a40; padding:12px;">📊 إدارة التقارير والحسابات</button>
     
@@ -254,7 +252,6 @@ const T = {
     shop: "محل", exh: "معرض", online: "أونلاين", order: "أوردر", ready: "جاهز",
     inv: "رقم الفاتورة *", date: "التاريخ", customer: "اسم الزبونة", phone: "رقم التلفون *", address: "العنوان",
     qty: "عدد العبايات", code: "رقم كود العباية", sizes: "✨ تفاصيل ومقاسات العباية",
-    f1: "الكتف", f2: "الكم", f3: "الصدر", f: "الطول", f_hole: "الحفرة", f_shirt: "طول القميص", f_skirt: "طول التنورة", f_waist: "الخصر",
     paid: "العربون *", rem: "المتبقي *", total: "السعر الكامل", notes: "ملاحظات",
     save: "حفظ الطلب ✅", clear: "🧹 تفريغ", debt: "💰 كشف المديونيات", all: "👥 عرض الجميع",
     monthly: "📊 شهري", yearly: "📅 سنوي", black: "🚫 المحظورين", search: "🔍 بحث سريع...",
@@ -266,7 +263,6 @@ const T = {
     shop: "Shop", exh: "Exh", online: "Online", order: "Order", ready: "Ready",
     inv: "Invoice No *", date: "Date", customer: "Customer Name", phone: "Phone No *", address: "Address",
     qty: "Qty", code: "Abaya Code", sizes: "✨ Abaya Details & Sizes",
-    f1: "Shoulder", f2: "Sleeve", f3: "Chest", f: "Length", f_hole: "Arm Hole", f_shirt: "Shirt Len", f_skirt: "Skirt Len", f_waist: "Waist",
     paid: "Paid *", rem: "Remaining *", total: "Total Price", notes: "Notes",
     save: "Save Order ✅", clear: "🧹 Clear", debt: "💰 Debt List", all: "👥 Show All",
     monthly: "📊 Monthly", yearly: "📅 Yearly", black: "🚫 Blocked", search: "🔍 Quick Search...",
@@ -274,6 +270,11 @@ const T = {
     logout: "Logout", export: "Download Word 📄", close: "Close", details: "Invoice Details", edit: "Edit 📝", del: "Delete 🗑️"
   }
 };
+
+// وظيفة التحقق من الصلاحيات
+function isAuthorized() {
+    return window.currentUser.includes('admin') || window.currentUser.includes('owner') || window.currentUser.includes('editor');
+}
 
 window.login = () => {
     const email = document.getElementById('userEmail').value;
@@ -289,8 +290,8 @@ auth.onAuthStateChanged(user => {
     if (user) {
         document.getElementById('loginPage').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
-        window.currentUser = user.email.split('@')[0];
-        if(window.currentUser.includes('admin') || window.currentUser.includes('owner') || window.currentUser.includes('editor')) {
+        window.currentUser = user.email.split('@')[0].toLowerCase();
+        if(isAuthorized()) {
             document.getElementById('adminPanel').style.display = 'block';
             document.getElementById('btnDelInv').style.display = 'block';
         }
@@ -315,7 +316,6 @@ function init() {
     });
 }
 
-// وظيفة فتح/إغلاق قائمة التقارير
 window.toggleReportsMenu = () => {
     let m = document.getElementById('reportsMenu');
     m.style.display = (m.style.display === 'block') ? 'none' : 'block';
@@ -337,14 +337,6 @@ function applyLang(langCode) {
     document.getElementById('addr_main').placeholder = l.address;
     document.getElementById('qty').placeholder = l.qty;
     document.getElementById('j').placeholder = l.code;
-    document.getElementById('f1').placeholder = l.f1;
-    document.getElementById('f2').placeholder = l.f2;
-    document.getElementById('f3').placeholder = l.f3;
-    document.getElementById('f').placeholder = l.f;
-    document.getElementById('f_hole').placeholder = l.f_hole;
-    document.getElementById('f_shirt').placeholder = l.f_shirt;
-    document.getElementById('f_skirt').placeholder = l.f_skirt;
-    document.getElementById('f_waist').placeholder = l.f_waist;
     document.getElementById('g1').placeholder = l.paid;
     document.getElementById('g2').placeholder = l.rem;
     document.getElementById('g3').placeholder = l.total;
@@ -398,8 +390,15 @@ function updateCounter(){
         if(u.isReady) cReady++; if(u.isOrder) cOrder++;
         if(u.loc === 'محل') cShop++; if(u.loc === 'معرض') cExh++;
     });
-    document.getElementById('counter').innerHTML = `<div>#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span></div>
-    <div style="font-size:10px; margin-top:4px; color:#555;">جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}</div>`;
+    
+    // إخفاء المبالغ المالية من العداد للموظفين العاديين
+    if(isAuthorized()) {
+        document.getElementById('counter').innerHTML = `<div>#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span></div>
+        <div style="font-size:10px; margin-top:4px; color:#555;">جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}</div>`;
+    } else {
+        document.getElementById('counter').innerHTML = `<div>#${window.d.length} | <span style="font-size:9px">مجموع الفواتير</span></div>
+        <div style="font-size:10px; margin-top:4px; color:#555;">جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}</div>`;
+    }
 }
 
 function updateYearSelect() {
@@ -431,18 +430,25 @@ function renderFilteredReport() {
         else if(currentReportType === 'yearly') { typeMatch = true; mMatch = true; } 
         return typeMatch && mMatch && yMatch;
     });
-    let title = "تقرير " + currentReportType + " (" + selectedYear + (selectedMonth !== 0 ? " - شهر " + selectedMonth : "") + ")";
+
     let totalPaid = 0, totalRem = 0, totalVal = 0;
+    let auth = isAuthorized();
     let h = `<table id="reportTable" border="1" style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
         <thead><tr style="background:#f1f1f1"><th>${l.thInv}</th><th>${l.thName}</th><th>المدفوع</th><th>المتبقي</th><th>المجموع</th></tr></thead><tbody>`;
+    
     filtered.forEach(u => {
         let p = parseFloat(u.v1) || 0, r = parseFloat(u.v2) || 0, t = parseFloat(u.v3) || 0;
-        h += `<tr><td>${u.inv}</td><td>${u.n || '--'}</td><td>${p.toFixed(2)}</td><td>${r.toFixed(2)}</td><td>${t.toFixed(2)}</td></tr>`;
+        h += `<tr><td>${u.inv}</td><td>${u.n || '--'}</td><td>${auth ? p.toFixed(2) : '***'}</td><td>${auth ? r.toFixed(2) : '***'}</td><td>${auth ? t.toFixed(2) : '***'}</td></tr>`;
         totalPaid += p; totalRem += r; totalVal += t;
     });
-    h += `</tbody><tfoot><tr style="background:#f9f9f9; font-weight:bold;"><td colspan="2">الإجمالي:</td><td>${totalPaid.toFixed(2)}</td><td style="color:red">${totalRem.toFixed(2)}</td><td style="color:green">${totalVal.toFixed(2)}</td></tr></tfoot></table>`;
-    document.getElementById('reportSummary').innerHTML = `<div><b>العدد:</b> ${filtered.length}</div><div><b>المدفوع:</b> ${totalPaid.toFixed(2)}</div><div style="color:red"><b>المتبقي:</b> ${totalRem.toFixed(2)}</div><div style="color:green"><b>المجموع:</b> ${totalVal.toFixed(2)}</div>`;
-    document.getElementById('reportTitle').innerText = title;
+
+    h += `</tbody><tfoot><tr style="background:#f9f9f9; font-weight:bold;"><td colspan="2">الإجمالي:</td><td>${auth ? totalPaid.toFixed(2) : '***'}</td><td style="color:red">${auth ? totalRem.toFixed(2) : '***'}</td><td style="color:green">${auth ? totalVal.toFixed(2) : '***'}</td></tr></tfoot></table>`;
+    
+    document.getElementById('reportSummary').innerHTML = auth ? 
+        `<div><b>العدد:</b> ${filtered.length}</div><div><b>المدفوع:</b> ${totalPaid.toFixed(2)}</div><div style="color:red"><b>المتبقي:</b> ${totalRem.toFixed(2)}</div><div style="color:green"><b>المجموع:</b> ${totalVal.toFixed(2)}</div>` :
+        `<div><b>العدد:</b> ${filtered.length}</div><div><b>المدفوع:</b> ***</div><div><b>المتبقي:</b> ***</div><div><b>المجموع:</b> ***</div>`;
+    
+    document.getElementById('reportTitle').innerText = "تقرير " + currentReportType;
     document.getElementById('reportContent').innerHTML = h;
 }
 
@@ -485,7 +491,7 @@ function renderBlacklist() {
 }
 
 window.viewInv = (index) => {
-    let u = window.d[index], l = T[currentLang];
+    let u = window.d[index], l = T[currentLang], auth = isAuthorized();
     document.getElementById('modalBody').innerHTML = `
         <div class="modal-detail"><b>${l.thInv}:</b> <span>${u.inv}</span></div>
         <div class="modal-detail"><b>${l.thName}:</b> <span>${u.n || '--'}</span></div>
@@ -493,14 +499,18 @@ window.viewInv = (index) => {
         <div class="modal-detail"><b>${l.address}:</b> <span>${u.addr || '--'}</span></div>
         <div class="modal-detail"><b>العدد والكود:</b> <span>${u.qty || '1'} (Code: ${u.j || '--'})</span></div>
         <div class="modal-detail"><b>المقاسات:</b> <span>${u.f1 || '-'}/${u.f2 || '-'}/${u.f3 || '-'}/${u.f || '-'}</span></div>
-        <hr><div class="modal-detail"><b>${l.paid}:</b> <span>${u.v1}</span></div>
+        <hr>
+        ${auth ? `
+        <div class="modal-detail"><b>${l.paid}:</b> <span>${u.v1}</span></div>
         <div class="modal-detail"><b>${l.rem}:</b> <span style="color:red; font-weight:bold;">${u.v2}</span></div>
         <div class="modal-detail"><b>${l.total}:</b> <span>${u.v3}</span></div><hr>
         <div class="modal-detail"><b>الحالة:</b> <span>${u.isOrder ? 'أوردر' : ''} ${u.isReady ? 'جاهز' : ''}</span></div>
+        ` : `<div style="text-align:center; color:#888; font-size:10px;">المبالغ والحالة مخفية للصلاحيات</div><hr>`}
         <div class="modal-detail"><b>${l.notes}:</b> <span>${u.k || '--'}</span></div>`;
     document.getElementById('viewModal').style.display = 'block';
+    
     document.getElementById('btnWhatsApp').onclick = () => {
-        let msg = `*فـاتـورة عـبـايـات الأمـراء*%0A*رقم الفاتورة:* ${u.inv}%0A*الاسم:* ${u.n || 'غير مسجل'}%0A*العنوان:* ${u.addr || '--'}%0A*العربون:* ${u.v1}%0A*المتبقي:* ${u.v2}%0A*الإجمالي:* ${u.v3}%0Aشكراً لتعاملكم معنا ✨`;
+        let msg = `*فـاتـورة عـبـايـات الأمـراء*%0A*رقم الفاتورة:* ${u.inv}%0A*الاسم:* ${u.n || 'غير مسجل'}%0A*العنوان:* ${u.addr || '--'}%0A${auth ? `*العربون:* ${u.v1}%0A*المتبقي:* ${u.v2}%0A*الإجمالي:* ${u.v3}%0A` : ''}شكراً لتعاملكم معنا ✨`;
         window.open(`https://wa.me/${u.p.replace(/\s+/g, '')}?text=${msg}`, '_blank');
     };
     document.getElementById('btnCopyForDriver').onclick = () => {
@@ -521,12 +531,19 @@ function r_table(){
     let term=document.getElementById('z').value.toLowerCase();
     let fd=window.d.filter(u=> ((u.n||'').toLowerCase().includes(term)) || ((u.p||'').includes(term)) || ((u.inv||'').includes(term)));
     if(onlyDebt) fd=fd.filter(u=>(parseFloat(u.v2)||0)>0);
-    let h='', l = T[currentLang];
+    let h='', l = T[currentLang], auth = isAuthorized();
     fd.forEach(u=>{
         let i=window.d.indexOf(u), isBlocked = window.blacklist.includes(u.p), rem = parseFloat(u.v2) || 0;
         let rowClass = isBlocked ? 'blocked-row' : (rem > 0 ? 'debt-row' : '');
         let locMap = { 'محل': l.shop, 'معرض': l.exh, 'أونلاين': l.online };
-        h+=`<tr class="${rowClass}"><td>${u.inv||'--'}</td><td>${isBlocked ? '🚫 ' : ''}${u.n || '--'}</td><td>${(locMap[u.loc] || u.loc) + (u.isOrder?"+أ":"") + (u.isReady?"+ج":"")}</td><td>${u.by || '--'}</td><td style="font-weight:bold">${u.v3 || '--'}</td><td><button onclick="viewInv(${i})" style="padding:4px 8px; font-size:10px; border-radius:5px;">👁️</button></td></tr>`;
+        h+=`<tr class="${rowClass}">
+            <td>${u.inv||'--'}</td>
+            <td>${isBlocked ? '🚫 ' : ''}${u.n || '--'}</td>
+            <td>${(locMap[u.loc] || u.loc) + (u.isOrder?"+أ":"") + (u.isReady?"+ج":"")}</td>
+            <td>${u.by || '--'}</td>
+            <td style="font-weight:bold">${auth ? (u.v3 || '--') : '***'}</td>
+            <td><button onclick="viewInv(${i})" style="padding:4px 8px; font-size:10px; border-radius:5px;">👁️</button></td>
+        </tr>`;
     });
     document.getElementById('t').innerHTML=h;
 }
