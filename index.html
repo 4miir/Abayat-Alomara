@@ -13,9 +13,9 @@ body{font-family:tahoma;padding:10px;background:#fcfaf8;margin:0; -webkit-tap-hi
 .box{max-width:550px;margin:auto;background:white;padding:15px;border-radius:20px;box-shadow:0 5px 15px rgba(0,0,0,0.05)}
 #loginPage,#mainApp{display:none}
 #loginPage{display:block;text-align:center;padding:40px 20px}
-h2{text-align:center;color:#6b4f44;margin:5px 0; font-size: 18px;}
-.status-text{text-align:center;font-size:10px;color:#2a9d8f;margin-bottom:10px;font-weight:bold}
-input,button,textarea,select{width:100%;padding:10px;margin:5px 0;border:1px solid #eee;border-radius:10px;box-sizing:border-box;font-size:13px; -webkit-appearance: none;}
+h2{text-align:center;color:#6b4f44;margin:5px 0; font-size: 20px; font-weight: bold;}
+.status-text{text-align:center;font-size:13px;color:#1a7a6e;margin-bottom:10px;font-weight:bold}
+input,button,textarea,select{width:100%;padding:10px;margin:5px 0;border:1px solid #eee;border-radius:10px;box-sizing:border-box;font-size:14px; -webkit-appearance: none;}
 .req{border: 1px solid #ff000045 !important; background: #fff5f5;}
 button{background:#6b4f44;color:white;border:none;font-weight:bold;cursor:pointer; touch-action: manipulation;}
 .row-grid {display: flex; gap: 5px; align-items: center;}
@@ -23,11 +23,11 @@ button{background:#6b4f44;color:white;border:none;font-weight:bold;cursor:pointe
 .size-section, .address-section {background: #fdf6f2; padding: 10px; border-radius: 12px; margin: 10px 0; display: none; border: 1px solid #e9dcd3;}
 .size-grid, .address-grid {display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;}
 .address-grid { grid-template-columns: repeat(2, 1fr); }
-.size-grid input, .address-grid input {padding: 8px; font-size: 11px; text-align: center; margin: 0;}
-.counter-box{text-align:center;background:#fdf6f2;padding:8px;border-radius:10px;margin-bottom:10px;font-size:11px;color:#6b4f44;font-weight:bold;line-height:1.6}
-table{width:100%;margin-top:15px;border-collapse:collapse;font-size:10px}
-th{background:#fdf6f2;color:#6b4f44;padding:8px}
-td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
+.size-grid input, .address-grid input {padding: 8px; font-size: 13px; text-align: center; margin: 0;}
+.counter-box{text-align:center;background:#fdf6f2;padding:8px;border-radius:10px;margin-bottom:10px;font-size:14px;color:#4a3328;font-weight:bold;line-height:1.8}
+table{width:100%;margin-top:15px;border-collapse:collapse;font-size:13px}
+th{background:#fdf6f2;color:#4a3328;padding:8px;font-weight:bold;font-size:13px}
+td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center;font-size:13px;color:#222}
 .blocked-row {background-color: #ff000021 !important; color: #d62828; font-weight: bold;}
 .debt-row {background-color: #fff3e0 !important;} 
 .report-area{margin-top:20px;padding:10px;background:#fff;border:2px solid #3a5a40;border-radius:15px;display:none}
@@ -37,9 +37,9 @@ td{border-bottom:1px solid #f9f9f9;padding:8px;text-align:center}
 .slider:before{position:absolute;content:"";height:14px;width:14px;left:2px;bottom:2px;background-color:white;transition:.4s;border-radius:50%}
 input:checked+.slider{background-color:#6b4f44}
 input:checked+.slider:before{transform:translateX(16px)}
-.selection-container{background:#f9f9f9;padding:10px;border-radius:10px;margin:5px 0;font-size:12px}
+.selection-container{background:#f9f9f9;padding:10px;border-radius:10px;margin:5px 0;font-size:14px}
 .selection-row{display:flex;justify-content:space-around;align-items:center;flex-wrap:wrap;gap:10px;}
-.selection-row label{display:flex;align-items:center;gap:5px;cursor:pointer;padding:5px;}
+.selection-row label{display:flex;align-items:center;gap:5px;cursor:pointer;padding:5px;font-size:14px;color:#222;font-weight:bold;}
 .selection-row input[type="radio"], .selection-row input[type="checkbox"]{width:20px;height:20px;margin:0;cursor:pointer;-webkit-appearance:checkbox !important;}
 .selection-row input[type="radio"]{-webkit-appearance:radio !important;}
 hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
@@ -52,17 +52,18 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
     margin-top: 5px;
     display: none; 
 }
-.reports-dropdown h4 { margin: 0 0 10px 0; font-size: 13px; color: #6b4f44; text-align: center; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+.reports-dropdown h4 { margin: 0 0 10px 0; font-size: 15px; color: #4a3328; font-weight: bold; text-align: center; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
 .reports-dropdown .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-.reports-dropdown button { font-size: 11px; padding: 8px; margin: 0; }
+.reports-dropdown button { font-size: 13px; padding: 10px; margin: 0; }
 
 #viewModal, #blacklistModal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; overflow-y: auto;}
-.modal-content {background:white; max-width:90%; width:380px; margin:20px auto; padding:20px; border-radius:15px; position:relative; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
-.modal-detail {margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; display: flex; justify-content: space-between;}
-.modal-detail b {color: #6b4f44;}
-.bl-item {display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;}
+.modal-content {background:white; max-width:90%; width:380px; margin:20px auto; padding:20px; border-radius:15px; position:relative; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);}
+.modal-detail {margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; display: flex; justify-content: space-between; font-size: 14px; color: #222;}
+.modal-detail b {color: #4a3328; font-size: 14px;}
+.bl-item {display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px;}
 .modal-sizes-box {background: #fdf6f2; border: 1px solid #e9dcd3; border-radius: 10px; padding: 10px; margin-top: 5px;}
-.modal-size-item {display: inline-block; width: 45%; margin-bottom: 5px; font-size: 12px;}
+.modal-size-item {display: inline-block; width: 45%; margin-bottom: 5px; font-size: 14px; color: #222;}
+.modal-size-item b {color: #4a3328;}
 </style>
 </head>
 <body>
@@ -72,12 +73,12 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
   <input id="userEmail" type="email" placeholder="الايميل">
   <input id="passInput" type="password" placeholder="كلمة السر">
   <button id="loginBtn" onclick="window.login()">دخول</button>
-  <p id="loginError" style="color:red; display:none; margin-top:10px;">خطأ في بيانات الدخول!</p>
+  <p id="loginError" style="color:red; display:none; margin-top:10px; font-size:14px; font-weight:bold;">خطأ في بيانات الدخول!</p>
 </div>
 
 <div id="viewModal">
     <div class="modal-content">
-        <h3 id="modalTitle" style="text-align:center; color:#6b4f44">تفاصيل الفاتورة</h3>
+        <h3 id="modalTitle" style="text-align:center; color:#4a3328; font-size:17px; font-weight:bold;">تفاصيل الفاتورة</h3>
         <div id="modalBody"></div>
         <div class="row-grid" style="margin-top:15px">
             <button id="btnEditInv" style="background:#2a9d8f">تعديل 📝</button>
@@ -93,7 +94,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 
 <div id="blacklistModal">
     <div class="modal-content">
-        <h3 style="text-align:center; color:#000">إدارة المحظورين</h3>
+        <h3 style="text-align:center; color:#000; font-size:17px; font-weight:bold;">إدارة المحظورين</h3>
         <input id="newBlockNum" placeholder="رقم الهاتف">
         <button onclick="window.addBlack()" style="background:#000">حظر رقم جديد 🚫</button>
         <hr>
@@ -104,12 +105,12 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
 
 <div id="mainApp" class="box">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-    <div style="font-size:12px">
+    <div style="font-size:14px; font-weight:bold; color:#222;">
         <label class="switch"><input type="checkbox" id="langToggle" onchange="window.toggleLang()"><span class="slider"></span></label>
         <span id="langText">English</span>
     </div>
-    <span id="userNameDisplay" style="font-weight:bold;color:#6b4f44; font-size:12px"></span>
-    <button id="logoutBtn" onclick="window.logout()" style="width:auto;padding:3px 10px;background:#eee;color:#333;font-size:10px">خروج</button>
+    <span id="userNameDisplay" style="font-weight:bold;color:#4a3328; font-size:14px"></span>
+    <button id="logoutBtn" onclick="window.logout()" style="width:auto;padding:5px 12px;background:#ddd;color:#222;font-size:12px;font-weight:bold;">خروج</button>
   </div>
   
   <h2 id="mainTitle">عبايات الأمراء</h2>
@@ -135,12 +136,12 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
           <input id="addr_house" placeholder="منزل">
           <input id="addr_note" placeholder="ملاحظة:">
       </div>
-      <button type="button" onclick="window.confirmAddr()" style="background:#3a5a40; margin-top:8px; font-size:11px;">تأكيد العنوان</button>
+      <button type="button" onclick="window.confirmAddr()" style="background:#3a5a40; margin-top:8px; font-size:13px;">تأكيد العنوان</button>
   </div>
 
   <hr>
 
-  <button type="button" id="btnShowSizes" onclick="window.toggleSizes()" style="background:#8d7166; font-size:11px; margin:5px 0;">✨ تفاصيل ومقاسات العباية</button>
+  <button type="button" id="btnShowSizes" onclick="window.toggleSizes()" style="background:#8d7166; font-size:13px; margin:5px 0;">✨ تفاصيل ومقاسات العباية</button>
   <div id="sizeSection" class="size-section">
     <div class="size-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 8px;">
         <input id="qty" placeholder="عدد العبايات">
@@ -171,7 +172,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
       <label><input type="radio" name="loc" value="محل" checked> <span id="txtShop">محل</span></label>
       <label><input type="radio" name="loc" value="معرض"> <span id="txtExh">معرض</span></label>
       <label><input type="radio" name="loc" value="أونلاين"> <span id="txtOnline">أونلاين</span></label>
-      <span style="color:#ccc">|</span>
+      <span style="color:#aaa">|</span>
       <label><input type="checkbox" id="checkOrder"> <span id="txtOrder">أوردر</span></label>
       <label><input type="checkbox" id="checkReady"> <span id="txtReady">جاهز</span></label>
     </div>
@@ -185,7 +186,7 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
   </div>
 
   <div id="adminPanel" style="display:none; margin-top:10px">
-    <button id="toggleReportsBtn" onclick="window.toggleReportsMenu()" style="background:#3a5a40; padding:12px;">📊 إدارة التقارير والحسابات</button>
+    <button id="toggleReportsBtn" onclick="window.toggleReportsMenu()" style="background:#3a5a40; padding:12px; font-size:14px;">📊 إدارة التقارير والحسابات</button>
     
     <div id="reportsMenu" class="reports-dropdown">
         <h4>📋 اختر نوع التقرير</h4>
@@ -203,15 +204,15 @@ hr {border: 0; border-top: 1px solid #eee; margin: 10px 0;}
   </div>
 
   <div id="reportBox" class="report-area">
-    <h3 id="reportTitle" style="text-align:center;color:#3a5a40; font-size:14px;"></h3>
+    <h3 id="reportTitle" style="text-align:center;color:#3a5a40; font-size:16px; font-weight:bold;"></h3>
     <div id="reportFilters" style="margin-bottom:10px; display:flex; gap:5px;">
         <select id="selMonth" style="flex:1;"><option value="0">كل الشهور</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
         <select id="selYear" style="flex:1;"></select>
     </div>
-    <div id="reportSummary" style="margin-bottom:10px; font-size:11px; background:#f9f9f9; padding:8px; border-radius:10px; display:grid; grid-template-columns: 1fr 1fr; gap:5px;"></div>
+    <div id="reportSummary" style="margin-bottom:10px; font-size:13px; background:#f9f9f9; padding:8px; border-radius:10px; display:grid; grid-template-columns: 1fr 1fr; gap:5px; color:#222; font-weight:bold;"></div>
     <div id="reportContent" style="overflow-x: auto; background: white; padding: 10px;"></div>
     <div class="row-grid" style="margin-top:10px">
-        <button id="btnExportWord" style="background:#2b5797; font-size:11px;">تحميل Word 📄</button>
+        <button id="btnExportWord" style="background:#2b5797; font-size:13px;">تحميل Word 📄</button>
         <button id="btnCloseReport" onclick="document.getElementById('reportBox').style.display='none'" style="background:#444;">إغلاق</button>
     </div>
   </div>
@@ -393,11 +394,11 @@ function updateCounter(){
     });
     
     if(isAuthorized()) {
-        document.getElementById('counter').innerHTML = `<div>#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span></div>
-        <div style="font-size:10px; margin-top:4px; color:#555;">جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}</div>`;
+        document.getElementById('counter').innerHTML = `<div style="font-size:14px;">#${window.d.length} | Paid: ${tp.toFixed(2)} | <span style="color:red">Rem: ${tr.toFixed(2)}</span></div>
+        <div style="font-size:13px; margin-top:4px; color:#333; font-weight:bold;">جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}</div>`;
     } else {
-        document.getElementById('counter').innerHTML = `<div>#${window.d.length} | <span style="font-size:9px">مجموع الفواتير</span></div>
-        <div style="font-size:10px; margin-top:4px; color:#555;">جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}</div>`;
+        document.getElementById('counter').innerHTML = `<div style="font-size:14px;">#${window.d.length} | <span style="font-size:12px">مجموع الفواتير</span></div>
+        <div style="font-size:13px; margin-top:4px; color:#333; font-weight:bold;">جاهز: ${cReady} | أوردر: ${cOrder} | محل: ${cShop} | معرض: ${cExh}</div>`;
     }
 }
 
@@ -433,7 +434,7 @@ function renderFilteredReport() {
 
     let totalPaid = 0, totalRem = 0, totalVal = 0;
     let auth = isAuthorized();
-    let h = `<table id="reportTable" border="1" style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
+    let h = `<table id="reportTable" border="1" style="width:100%; border-collapse:collapse; font-size:13px; text-align:center;">
         <thead><tr style="background:#f1f1f1"><th>${l.thInv}</th><th>${l.thName}</th><th>المدفوع</th><th>المتبقي</th><th>المجموع</th></tr></thead><tbody>`;
     
     filtered.forEach(u => {
@@ -486,14 +487,13 @@ window.removeBlack = (num) => {
 
 function renderBlacklist() {
     let h = '';
-    window.blacklist.forEach(num => { h += `<div class="bl-item"><span>${num}</span> <button onclick="window.removeBlack('${num}')" style="width:auto; background:#d62828; padding:5px; font-size:10px">إزالة 🔓</button></div>`; });
-    document.getElementById('blList').innerHTML = h || '<p style="text-align:center">القائمة فارغة</p>';
+    window.blacklist.forEach(num => { h += `<div class="bl-item"><span>${num}</span> <button onclick="window.removeBlack('${num}')" style="width:auto; background:#d62828; padding:5px; font-size:12px">إزالة 🔓</button></div>`; });
+    document.getElementById('blList').innerHTML = h || '<p style="text-align:center; font-size:14px; color:#333;">القائمة فارغة</p>';
 }
 
 window.viewInv = (index) => {
     let u = window.d[index], l = T[currentLang], auth = isAuthorized();
     
-    // بناء وعرض المقاسات بالتفصيل وباللغتين حسب اختيار لغة النظام لسهولة الفهم
     let sizesHTML = '';
     if (currentLang === 'ar') {
         sizesHTML = `
@@ -529,7 +529,7 @@ window.viewInv = (index) => {
         <div class="modal-detail"><b>${l.phone}:</b> <span>${u.p}</span></div>
         <div class="modal-detail"><b>${l.address}:</b> <span>${u.addr || '--'}</span></div>
         <div class="modal-detail"><b>العدد والكود:</b> <span>${u.qty || '1'} (Code: ${u.j || '--'})</span></div>
-        <div style="margin-top:8px; font-weight:bold; color:#6b4f44;">${l.sizes}:</div>
+        <div style="margin-top:8px; font-weight:bold; color:#4a3328; font-size:14px;">${l.sizes}:</div>
         ${sizesHTML}
         <hr>
         ${auth ? `
@@ -537,7 +537,7 @@ window.viewInv = (index) => {
         <div class="modal-detail"><b>${l.rem}:</b> <span style="color:red; font-weight:bold;">${u.v2}</span></div>
         <div class="modal-detail"><b>${l.total}:</b> <span>${u.v3}</span></div><hr>
         <div class="modal-detail"><b>الحالة:</b> <span>${u.isOrder ? 'أوردر' : ''} ${u.isReady ? 'جاهز' : ''}</span></div>
-        ` : `<div style="text-align:center; color:#888; font-size:10px;">المبالغ والحالة مخفية للصلاحيات</div><hr>`}
+        ` : `<div style="text-align:center; color:#555; font-size:13px; font-weight:bold;">المبالغ والحالة مخفية للصلاحيات</div><hr>`}
         <div class="modal-detail"><b>${l.notes}:</b> <span>${u.k || '--'}</span></div>`;
     document.getElementById('viewModal').style.display = 'block';
     
@@ -553,67 +553,104 @@ window.viewInv = (index) => {
             ['invNum','a','b','addr_main','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','id','k'].forEach(i => { if(document.getElementById(i)) document.getElementById(i).value = u[i] || u.v1 || u.v2 || u.v3 || ''; });
             document.getElementById('invNum').value = u.inv; document.getElementById('a').value = u.n || ''; document.getElementById('b').value = u.p; document.getElementById('g1').value = u.v1; document.getElementById('g2').value = u.v2; document.getElementById('g3').value = u.v3;
             document.getElementById('checkOrder').checked = u.isOrder; document.getElementById('checkReady').checked = u.isReady;
-            document.getElementById('viewModal').style.display = 'none'; window.scrollTo(0,0);
+            document.querySelectorAll('input[name="loc"]').forEach(r => { r.checked = (r.value === u.loc); });
+            document.getElementById('viewModal').style.display = 'none';
         }
     };
-    document.getElementById('btnDelInv').onclick = () => { if(confirm("حذف؟")) { window.d.splice(index, 1); db.ref('abonat').set(window.d); document.getElementById('viewModal').style.display = 'none'; } };
+    document.getElementById('btnDelInv').onclick = () => {
+        if(confirm("حذف الفاتورة؟")) {
+            window.d.splice(index, 1); db.ref('abonat').set(window.d);
+            document.getElementById('viewModal').style.display = 'none';
+        }
+    };
 };
 
-function r_table(){
-    let term=document.getElementById('z').value.toLowerCase();
-    let fd=window.d.filter(u=> ((u.n||'').toLowerCase().includes(term)) || ((u.p||'').includes(term)) || ((u.inv||'').includes(term)));
-    if(onlyDebt) fd=fd.filter(u=>(parseFloat(u.v2)||0)>0);
-    let h='', l = T[currentLang], auth = isAuthorized();
-    fd.forEach(u=>{
-        let i=window.d.indexOf(u), isBlocked = window.blacklist.includes(u.p), rem = parseFloat(u.v2) || 0;
-        let rowClass = isBlocked ? 'blocked-row' : (rem > 0 ? 'debt-row' : '');
-        let locMap = { 'محل': l.shop, 'معرض': l.exh, 'أونلاين': l.online };
-        h+=`<tr class="${rowClass}">
-            <td>${u.inv||'--'}</td>
-            <td>${isBlocked ? '🚫 ' : ''}${u.n || '--'}</td>
-            <td>${(locMap[u.loc] || u.loc) + (u.isOrder?"+أ":"") + (u.isReady?"+ج":"")}</td>
-            <td>${u.by || '--'}</td>
-            <td style="font-weight:bold">${auth ? (u.v3 || '--') : '***'}</td>
-            <td><button onclick="viewInv(${i})" style="padding:4px 8px; font-size:10px; border-radius:5px;">👁️</button></td>
-        </tr>`;
-    });
-    document.getElementById('t').innerHTML=h;
-}
+window.toggleSizes = () => {
+    let s = document.getElementById('sizeSection');
+    s.style.display = (s.style.display === 'block') ? 'none' : 'block';
+};
 
 document.getElementById('g1').oninput = document.getElementById('g2').oninput = () => {
-    let v1=parseFloat(document.getElementById('g1').value)||0, v2=parseFloat(document.getElementById('g2').value)||0;
-    document.getElementById('g3').value=(v1+v2).toFixed(2);
-};
-
-document.getElementById('btnSave').onclick=()=>{
-    let inv=document.getElementById('invNum').value, tel=document.getElementById('b').value, date=document.getElementById('id').value, v1=document.getElementById('g1').value, v2=document.getElementById('g2').value;
-    if(!inv || !tel || !date || !v1 || !v2) return alert("Required fields *");
-    let o={ inv, n:document.getElementById('a').value, p:tel, addr: document.getElementById('addr_main').value, qty:document.getElementById('qty').value, j:document.getElementById('j').value, f1:document.getElementById('f1').value, f2:document.getElementById('f2').value, f3:document.getElementById('f3').value, f:document.getElementById('f').value, f_hole:document.getElementById('f_hole').value, f_shirt:document.getElementById('f_shirt').value, f_skirt:document.getElementById('f_skirt').value, f_waist:document.getElementById('f_waist').value, v1, v2, v3:document.getElementById('g3').value, loc:document.querySelector('input[name="loc"]:checked').value, isOrder: document.getElementById('checkOrder').checked, isReady: document.getElementById('checkReady').checked, k:document.getElementById('k').value, by:window.currentUser, id:date };
-    let idx = window.d.findIndex(item => item.inv === inv);
-    if(idx !== -1) { if(confirm("تحديث؟")) window.d[idx] = o; else return; } else window.d.push(o);
-    db.ref('abonat').set(window.d).then(() => { alert("✅ تم الحفظ"); document.getElementById('btnClear').click(); });
-};
-
-document.getElementById('btnClear').onclick=()=>{
-    ['invNum','a','b','addr_main','addr_area','addr_block','addr_street','addr_jadda','addr_house','addr_note','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','id','k'].forEach(i=>{ if(document.getElementById(i)) document.getElementById(i).value=''; });
-    document.getElementById('checkOrder').checked = false; document.getElementById('checkReady').checked = false; document.getElementById('addrSection').style.display = 'none';
-};
-
-document.getElementById('btnDebt').onclick = () => { 
-    onlyDebt = !onlyDebt; 
-    document.getElementById('btnDebt').innerText = onlyDebt ? T[currentLang].all : T[currentLang].debt; 
-    window.toggleReportsMenu();
-    r_table(); 
+    let p = parseFloat(document.getElementById('g1').value) || 0;
+    let r = parseFloat(document.getElementById('g2').value) || 0;
+    document.getElementById('g3').value = (p + r).toFixed(2);
 };
 
 document.getElementById('btnManageBlacklist').onclick = () => {
+    renderBlacklist();
     document.getElementById('blacklistModal').style.display = 'block';
     window.toggleReportsMenu();
-    renderBlacklist();
 };
 
-window.toggleSizes = () => { let s = document.getElementById('sizeSection'); s.style.display = (s.style.display === 'block') ? 'none' : 'block'; };
+document.getElementById('btnDebt').onclick = () => {
+    onlyDebt = !onlyDebt;
+    document.getElementById('btnDebt').innerText = onlyDebt ? T[currentLang].all : T[currentLang].debt;
+    r_table();
+    window.toggleReportsMenu();
+};
+
 document.getElementById('z').oninput = r_table;
+
+function r_table() {
+    let q = document.getElementById('z').value.toLowerCase(), h = '', l = T[currentLang];
+    let list = window.d.slice().reverse();
+    list.forEach((u, i) => {
+        let realIndex = window.d.length - 1 - i;
+        if(onlyDebt && (parseFloat(u.v2) || 0) <= 0) return;
+        if(q && !JSON.stringify(u).toLowerCase().includes(q)) return;
+        let isBlocked = window.blacklist.includes(u.p);
+        let rowClass = isBlocked ? 'blocked-row' : ((parseFloat(u.v2) || 0) > 0 ? 'debt-row' : '');
+        let tags = `${u.isOrder ? '📦' : ''}${u.isReady ? '✨' : ''}`;
+        h += `<tr class="${rowClass}"><td>${u.inv}</td><td>${u.n || '--'} ${isBlocked ? '🚫' : ''}</td><td>${u.loc || '--'} ${tags}</td><td style="font-size:12px;">${u.by || '--'}</td><td>${isAuthorized() ? (u.v3 || '0') : '***'}</td><td><button onclick="window.viewInv(${realIndex})" style="padding:4px 8px; font-size:12px; width:auto;">👁️</button></td></tr>`;
+    });
+    document.getElementById('t').innerHTML = h || `<tr><td colspan="6" style="text-align:center; color:#555; font-size:14px; padding:20px;">لا توجد بيانات</td></tr>`;
+}
+
+document.getElementById('btnSave').onclick = () => {
+    let inv = document.getElementById('invNum').value, phone = document.getElementById('b').value, paid = document.getElementById('g1').value, rem = document.getElementById('g2').value;
+    if(!inv || !phone || !paid || !rem) {
+        ['invNum','b','g1','g2'].forEach(id => { if(!document.getElementById(id).value) document.getElementById(id).classList.add('req'); });
+        alert("يرجى تعبئة الحقول المطلوبة *"); return;
+    }
+    if(window.blacklist.includes(phone)) { alert("🚫 هذا الرقم محظور!"); return; }
+    
+    let existing = window.d.findIndex(u => u.inv === inv);
+    let obj = {
+        inv, n: document.getElementById('a').value, p: phone,
+        addr: document.getElementById('addr_main').value,
+        qty: document.getElementById('qty').value, j: document.getElementById('j').value,
+        f1: document.getElementById('f1').value, f2: document.getElementById('f2').value,
+        f3: document.getElementById('f3').value, f: document.getElementById('f').value,
+        f_hole: document.getElementById('f_hole').value, f_shirt: document.getElementById('f_shirt').value,
+        f_skirt: document.getElementById('f_skirt').value, f_waist: document.getElementById('f_waist').value,
+        v1: paid, v2: rem, v3: document.getElementById('g3').value,
+        id: document.getElementById('id').value, k: document.getElementById('k').value,
+        loc: document.querySelector('input[name="loc"]:checked').value,
+        isOrder: document.getElementById('checkOrder').checked,
+        isReady: document.getElementById('checkReady').checked,
+        by: window.currentUser
+    };
+    
+    if(existing !== -1) { window.d[existing] = obj; } else { window.d.push(obj); }
+    db.ref('abonat').set(window.d);
+    alert("✅ تم الحفظ");
+    clearForm();
+};
+
+document.getElementById('btnClear').onclick = clearForm;
+
+function clearForm() {
+    ['invNum','a','b','addr_main','addr_area','addr_block','addr_street','addr_jadda','addr_house','addr_note','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k'].forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('id').value = new Date().toISOString().split('T')[0];
+    document.querySelector('input[name="loc"][value="محل"]').checked = true;
+    document.getElementById('checkOrder').checked = false;
+    document.getElementById('checkReady').checked = false;
+    document.getElementById('addrSection').style.display = 'none';
+    document.getElementById('sizeSection').style.display = 'none';
+}
+
+// Set today's date on load
+document.getElementById('id').value = new Date().toISOString().split('T')[0];
 </script>
 </body>
 </html>
