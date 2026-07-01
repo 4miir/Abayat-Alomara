@@ -248,7 +248,7 @@ window.currentUser = "";
 let currentLang = 'ar'; 
 let onlyDebt = false;
 let currentReportType = '';
-let isEditingMode = false; // تتبع وضع التعديل لعدم اعتراض رقم الفاتورة أثناء التحديث
+let isEditingMode = false; 
 
 const T = {
   ar: { 
@@ -307,14 +307,16 @@ auth.onAuthStateChanged(user => {
 
 function init() {
     db.ref('abonat').on('value', s => {
-        window.d = s.exists() ? s.val() : [];
+        let rawData = s.exists() ? s.val() : [];
+        // التأكد من تحويل البيانات لمصفوفة صحيحة في حال عادت كـ Object من Firebase
+        window.d = Array.isArray(rawData) ? rawData : Object.values(rawData);
         updateYearSelect(); 
-        r_table();
         updateCounter();
-        applyLang('ar');
+        r_table(); 
     });
     db.ref('blacklist').on('value', s => {
-        window.blacklist = s.exists() ? s.val() : [];
+        let rawBlack = s.exists() ? s.val() : [];
+        window.blacklist = Array.isArray(rawBlack) ? rawBlack : Object.values(rawBlack);
         r_table();
     });
 }
@@ -389,6 +391,7 @@ function updateCounter(){
     if(!window.currentUser) return;
     let tr=0, tp=0, cReady=0, cOrder=0, cShop=0, cExh=0; 
     window.d.forEach(u=>{
+        if(!u) return;
         tr+=parseFloat(u.v2)||0; tp+=parseFloat(u.v1)||0;
         if(u.isReady) cReady++; if(u.isOrder) cOrder++;
         if(u.loc === 'محل') cShop++; if(u.loc === 'معرض') cExh++;
@@ -405,7 +408,7 @@ function updateCounter(){
 
 function updateYearSelect() {
     let years = [new Date().getFullYear()];
-    window.d.forEach(u => { if(u.id) { let y = new Date(u.id).getFullYear(); if(!years.includes(y)) years.push(y); } });
+    window.d.forEach(u => { if(u && u.id) { let y = new Date(u.id).getFullYear(); if(!years.includes(y)) years.push(y); } });
     years.sort((a,b)=> b-a);
     let h = '<option value="0">كل السنوات</option>';
     years.forEach(y => { h += `<option value="${y}">${y}</option>`; });
@@ -423,6 +426,7 @@ window.showReport = (type) => {
 function renderFilteredReport() {
     let l = T[currentLang], selectedMonth = parseInt(document.getElementById('selMonth').value), selectedYear = parseInt(document.getElementById('selYear').value);
     let filtered = window.d.filter(u => {
+        if(!u) return false;
         let dDate = new Date(u.id), mMatch = (selectedMonth === 0) ? true : (dDate.getMonth() + 1 === selectedMonth), yMatch = (dDate.getFullYear() === selectedYear), typeMatch = false;
         if(currentReportType === 'محل') typeMatch = (u.loc === 'محل');
         else if(currentReportType === 'معرض') typeMatch = (u.loc === 'معرض');
@@ -551,7 +555,7 @@ window.viewInv = (index) => {
     };
     document.getElementById('btnEditInv').onclick = () => {
         if(confirm("تعديل؟")) {
-            isEditingMode = true; // تفعيل وضع التعديل للسماح بحفظ نفس الرقم
+            isEditingMode = true; 
             ['invNum','a','b','addr_main','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','id','k'].forEach(i => { if(document.getElementById(i)) document.getElementById(i).value = u[i] || u.v1 || u.v2 || u.v3 || ''; });
             document.getElementById('invNum').value = u.inv; document.getElementById('a').value = u.n || ''; document.getElementById('b').value = u.p; document.getElementById('g1').value = u.v1; document.getElementById('g2').value = u.v2; document.getElementById('g3').value = u.v3;
             document.getElementById('checkOrder').checked = u.isOrder; document.getElementById('checkReady').checked = u.isReady;
@@ -597,6 +601,7 @@ function r_table() {
     let q = document.getElementById('z').value.toLowerCase(), h = '', l = T[currentLang];
     let list = window.d.slice().reverse();
     list.forEach((u, i) => {
+        if(!u) return;
         let realIndex = window.d.length - 1 - i;
         if(onlyDebt && (parseFloat(u.v2) || 0) <= 0) return;
         if(q && !JSON.stringify(u).toLowerCase().includes(q)) return;
@@ -616,9 +621,8 @@ document.getElementById('btnSave').onclick = () => {
     }
     if(window.blacklist.includes(phone)) { alert("🚫 هذا الرقم محظور!"); return; }
     
-    let existing = window.d.findIndex(u => u.inv === inv);
+    let existing = window.d.findIndex(u => u && u.inv === inv);
     
-    // فحص رقم الفاتورة: إذا كانت الفاتورة موجودة مسبقاً ولسنا في وضع تعديل فاتورة مفتوحة
     if (existing !== -1 && !isEditingMode) {
         alert("⚠️ رقم الفاتورة هذا مسجل مسبقاً في النظام! يرجى استخدام رقم آخر.");
         return;
@@ -641,15 +645,22 @@ document.getElementById('btnSave').onclick = () => {
     };
     
     if(existing !== -1) { window.d[existing] = obj; } else { window.d.push(obj); }
-    db.ref('abonat').set(window.d);
-    alert("✅ تم الحفظ");
-    clearForm();
+    
+    // إعادة تعيين الفلاتر فوراً لضمان عدم حجب الفاتورة الجديدة في الجدول
+    onlyDebt = false;
+    document.getElementById('z').value = '';
+    document.getElementById('btnDebt').innerText = T[currentLang].debt;
+
+    db.ref('abonat').set(window.d).then(() => {
+        alert("✅ تم الحفظ");
+        clearForm();
+    });
 };
 
 document.getElementById('btnClear').onclick = clearForm;
 
 function clearForm() {
-    isEditingMode = false; // إعادة ضبط وضع التعديل عند تفريغ أو إنهاء الاستمارة
+    isEditingMode = false; 
     ['invNum','a','b','addr_main','addr_area','addr_block','addr_street','addr_jadda','addr_house','addr_note','qty','j','f1','f2','f3','f','f_hole','f_shirt','f_skirt','f_waist','g1','g2','g3','k'].forEach(id => { document.getElementById(id).value = ''; });
     document.getElementById('id').value = new Date().toISOString().split('T')[0];
     document.querySelector('input[name="loc"][value="محل"]').checked = true;
